@@ -3,10 +3,10 @@ import commentService from "../services/comment.service.js";
 // Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const search = req.query.search || undefined;
-        const comments = await commentService.getAllComments({ page, limit, search });
+        const comments = await commentService.getAllComments({ skip, limit, search });
         res.status(200).json(comments);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -25,14 +25,13 @@ export async function getComment(req, res) {
 }
 
 // Create a new Comment and returns as JSON
-// Anonymous users are not allowed to leave comments
 export async function createComment(req, res) {
     try {
-        if (req.user?.type === "anonymous") return res.status(403).json({ error: "Login required to leave comments" });
         const comment = await commentService.createComment(req.body);
         res.status(201).json(comment);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        const status = err.message.includes("Banned") ? 403 : err.message.includes("not found") ? 404 : 500;
+        res.status(status).json({ error: err.message });
     }
 }
 
@@ -46,12 +45,15 @@ export async function updateComment(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
-// Deletes a Comment by ID (cid)
+// Deletes a Comment by ID (cid) - user can delete their own, admin can delete any
 export async function deleteComment(req, res) {
     try {
-        if (req.user?.type !== "admin") return res.status(403).json({ error: "Admin access required" });
-        const comment = await commentService.deleteComment(req.params.cid);
+        const comment = await commentService.getComment(req.params.cid);
         if (!comment) return res.status(404).json({ error: "Comment not found" });
+        const isOwner = comment.author.toString() === req.user?.id;
+        const isAdmin = req.user?.type === "admin";
+        if (!isOwner && !isAdmin) return res.status(403).json({ error: "You can only delete your own comments" });
+        await commentService.deleteComment(req.params.cid);
         res.status(204).send();
     } catch (err) {
         res.status(500).json({ error: err.message });

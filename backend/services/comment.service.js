@@ -1,11 +1,12 @@
 import { Comment } from "../models/comment.model.js";
 import { Game } from "../models/game.model.js";
 import { Tournament } from "../models/tournament.model.js";
+import { User } from "../models/user.model.js";
 
 // Returns all the Comments from the DB, supports pagination and search by body text
-export async function getAllComments({ page = 1, limit = 20, search } = {}) {
+export async function getAllComments({ skip = 0, limit = 20, search } = {}) {
     const filter = search ? { body: { $regex: search, $options: "i" } } : {};
-    return await Comment.find(filter).skip((page - 1) * limit).limit(limit);
+    return await Comment.find(filter).skip(skip).limit(limit);
 }
 
 // Gets a single Comment by the id
@@ -13,8 +14,11 @@ export async function getComment(cid) {
     return await Comment.findById(cid);
 }
 
-// Creates a new Comment, saves it to the database
+// Creates a new Comment - checks author exists and is not banned
 export async function createComment(data) {
+    const author = await User.findById(data.author);
+    if (!author) throw new Error("Author not found");
+    if (author.isBanned) throw new Error("Banned users cannot post comments");
     const comment = await Comment.create(data);
     return await comment.populate("author", "username");
 }

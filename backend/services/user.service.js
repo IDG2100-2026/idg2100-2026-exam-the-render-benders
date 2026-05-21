@@ -113,16 +113,26 @@ export async function getLeaderboard(sortBy = "elo") {
     return await User.find().sort({ [sortField]: -1 });
 }
 
+// Returns a user's trophies, populated with title, image, and tournament name
+export async function getUserTrophies(username) {
+    const user = await User.findOne({ username }).populate({
+        path: "trophies",
+        populate: { path: "tournament", select: "name" }
+    });
+    if (!user) return null;
+    return user.trophies;
+}
+
 // Updates appearance preferences for a user by username
 export async function updatePreferences(username, preferences) {
     return await User.findOneAndUpdate({ username }, { preferences }, { returnDocument: "after" });
 }
 
 // Finds a user by username and checks the password, returns user without pwd field
-export async function loginUser({ username, password }) {
+export async function loginUser({ username, pwd: inputPwd }) {
     const user = await User.findOne({ username });
     if (!user) return null;
-    if (user.pwd !== hashPwd(password)) return null;
+    if (user.pwd !== hashPwd(inputPwd)) return null;
     const { pwd, ...safeUser } = user.toObject(); // pwd is excluded from the spread intentionally
     return safeUser;
 }
@@ -135,5 +145,6 @@ export default {
     banUser,
     getLeaderboard,
     loginUser,
-    updatePreferences
+    updatePreferences,
+    getUserTrophies
 };

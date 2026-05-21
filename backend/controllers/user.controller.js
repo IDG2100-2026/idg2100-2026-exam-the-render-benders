@@ -51,14 +51,12 @@ export async function updateUser(req, res) {
 // Ban a user by username, sets isBanned to true and returns the updated user
 export async function banUser(req, res) {
     try {
-        if (req.user?.type !== "admin") return res.status(403).json({ error: "Admin access required" });
         const user = await userService.banUser(req.params.username);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-
 }
 
 // Returns users sorted by the given field and returns them as JSON
@@ -95,6 +93,16 @@ export async function loginUser(req, res) {
     }
 }
 
+export async function getUserTrophies(req, res) {
+    try {
+        const trophies = await userService.getUserTrophies(req.params.username);
+        if (trophies === null) return res.status(404).json({ error: "User not found" });
+        res.status(200).json(trophies);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 export default {
     getAllUsers,
     getUser,
@@ -103,5 +111,6 @@ export default {
     banUser,
     getLeaderboard,
     loginUser,
-    updatePreferences
+    updatePreferences,
+    getUserTrophies
 };
