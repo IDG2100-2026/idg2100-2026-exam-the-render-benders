@@ -15,6 +15,7 @@ import "./App.css";
 import TermsPage from "./pages/TermsPage/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage/PrivacyPage";
 import AppearanceProvider from "./providers/AppearanceProvider";
+import NotFoundPage from "./pages/NotFoundPage/NotFoundPage";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
               <Route path="/about-spanish-dice" element={<AboutSpanishDicePage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/policy" element={<PrivacyPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>
         </AppearanceProvider>

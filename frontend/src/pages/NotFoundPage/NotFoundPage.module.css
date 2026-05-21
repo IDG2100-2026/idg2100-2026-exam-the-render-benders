@@ -1,0 +1,21 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.code {
+    font-size: 6rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin: 0;
+}
+
+.message {
+    font-size: 1.25rem;
+    color: var(--text);
+    margin: 1rem 0 2rem;
+}
