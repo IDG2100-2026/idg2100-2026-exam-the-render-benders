@@ -1,0 +1,210 @@
+@baseUrl = http://localhost:9090/api/v1
+
+# --------------------------------------------
+# Replace these variables with real IDs from
+# the seed output before running requests.
+#
+# NB! Run the seed script first (npm run seed), then replace the
+# IDs below with new ones from the seed.
+# --------------------------------------------
+@userId       = user_RgSXkAAIqa
+@matchId      = match_eQkV1CkHwm
+@tournamentId = tournament_AEINnKxG8U
+@gameCatId    = game_2uyTZFDeAe
+
+
+###
+# --------------------------------------------
+#  USERS
+# --------------------------------------------
+
+### Update a user's age
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "age": 28
+}
+
+###
+
+### Update a user's type
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "userType": "registered"
+}
+
+###
+
+### Update age and type together
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "age": 28,
+  "userType": "admin"
+}
+
+###
+
+### Attempt to change username — should be forbidden (expect 403)
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "username": "new_username_attempt"
+}
+
+###
+
+### Update user — underage (expect 400)
+PATCH {{baseUrl}}/users/{{userId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "age": 15
+}
+
+
+###
+# --------------------------------------------
+#  GAME CATEGORIES  (admin only)
+# --------------------------------------------
+
+### Update a game category's name
+PATCH {{baseUrl}}/game-categories/{{gameCatId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "name": "Turbo Quick Play"
+}
+
+###
+
+### Update rounds and time per round
+PATCH {{baseUrl}}/game-categories/{{gameCatId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "numOfRounds": 5,
+  "timePerRound": 30
+}
+
+###
+
+### Toggle straights allowed
+PATCH {{baseUrl}}/game-categories/{{gameCatId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "straightsAllowed": false
+}
+
+###
+
+### Update with invalid numOfRounds (expect 400)
+PATCH {{baseUrl}}/game-categories/{{gameCatId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "numOfRounds": 6
+}
+
+
+###
+# --------------------------------------------
+#  MATCHES
+# --------------------------------------------
+
+### Update a match's visibility
+PATCH {{baseUrl}}/matches/{{matchId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "visibility": "private"
+}
+
+###
+
+### Assign a match to a tournament
+PATCH {{baseUrl}}/matches/{{matchId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "tournament": "{{tournamentId}}"
+}
+
+
+###
+# --------------------------------------------
+#  TOURNAMENTS
+# --------------------------------------------
+
+### Update a tournament's title
+PATCH {{baseUrl}}/tournaments/{{tournamentId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "title": "Updated Tournament Title"
+}
+
+###
+
+### Update tournament status manually
+PATCH {{baseUrl}}/tournaments/{{tournamentId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "status": "ongoing"
+}
+
+###
+
+### Update arena duration
+PATCH {{baseUrl}}/tournaments/{{tournamentId}}
+Content-Type: application/json
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+{
+  "durationMinutes": 90
+}
+
+
+###
+# --------------------------------------------
+#  ADMIN
+# --------------------------------------------
+
+### Ban a user
+PATCH {{baseUrl}}/admin/users/{{userId}}/ban
+X-User-Type: admin
+X-User-Id: {{userId}}
