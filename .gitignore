@@ -1,3 +1,28 @@
 extra.md
 TODO.txt
 .DS_Store
+*.notes
+
+# Dependencies
+node_modules/
+
+# Environment variables
+.env
+.env.dev
+.env.prod
+.env.local
+
+# Vite / build output
+dist/
+.vite/
+
+# Uploads (user-generated files, not source)
+backend/uploads/*
+!backend/uploads/default-avatar.svg
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+Thumbs.db
