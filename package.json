@@ -1,0 +1,44 @@
+{
+  "name": "the-render-benders",
+  "version": "1.0.0",
+  "description": "Spanish Poker Dice Platform, IDG2100 Exam 2026",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "seed": "node --env-file=backend/.env backend/seed/seed.js",
+    "backend": "node --watch --env-file=backend/.env backend/app.js",
+    "frontend": "vite frontend",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "build": "vite build --root frontend",
+    "lint": "eslint frontend/src",
+    "preview": "vite preview --root frontend"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "express-validator": "^7.3.1",
+    "mongoose": "^9.3.1",
+    "multer": "^2.1.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0",
+    "react-router": "^7.14.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@eslint/js": "^9.39.4",
+    "@rolldown/plugin-babel": "^0.2.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "vite": "^8.0.4"
+  }
+}
