@@ -36,8 +36,8 @@ app.use(limiter);
 app.use(express.json());
 app.use(setUserType);
 
-// Serve uploads directory
-app.use("/uploads", express.static("uploads"));
+// Serve uploads directory (path relative to project root since we run from there)
+app.use("/uploads", express.static("backend/uploads"));
 
 // Register routers
 app.use("/api/v1", userRouter);

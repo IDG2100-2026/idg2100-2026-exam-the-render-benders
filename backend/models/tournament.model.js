@@ -16,10 +16,11 @@ const tournamentSchema = new mongoose.Schema({
     startDate: {
         type: Date
     },
-    // Game format for the brackets
+    // Tournament format
     format: {
         type: String,
-        enum: ["single-elimination", "round-robin"],
+        enum: ["random-pairing"],
+        default: "random-pairing",
         required: true
     },
     // Game variant for the tournament matches

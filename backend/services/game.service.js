@@ -108,19 +108,26 @@ export async function getGame(gid) {
 }
 
 // Adds player to an existing game. Sets status to "ongoing" when 2 players have joined.
-export async function joinGame(gid, playerId) {
-    const game = await Game.findByIdAndUpdate(
-        gid,
-        { $addToSet: { players: playerId } },
-        { returnDocument: "after" }
-    ).populate("players", "username elo elo3s elo10s elo30s profileImage");
+export async function joinGame(gid, playerId, requestingUser = null) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
 
-    if (game && game.players.length >= 2 && game.status === "waiting") {
-        game.status = "ongoing";
-        await game.save();
+    // Anonymous users can only join games that explicitly allow them
+    if (requestingUser?.type === "anonymous" && !game.allowAnonymous) {
+        throw new Error("This game does not allow anonymous players");
     }
 
-    return game;
+    await Game.findByIdAndUpdate(gid, { $addToSet: { players: playerId } });
+
+    const updated = await Game.findById(gid)
+        .populate("players", "username elo elo3s elo10s elo30s profileImage");
+
+    if (updated && updated.players.length >= 2 && updated.status === "waiting") {
+        updated.status = "ongoing";
+        await updated.save();
+    }
+
+    return updated;
 }
 
 // Creates a new game, saves it to the database

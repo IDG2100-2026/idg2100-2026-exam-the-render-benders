@@ -2,10 +2,11 @@ import { User } from "../models/user.model.js";
 import { Game } from "../models/game.model.js";
 import { hashPwd } from "../utils/hash.js";
 import { MIN_AGE, DEFAULT_ELO } from "../config/constants.js";
+import { escapeRegex } from "../utils/escapeRegex.js";
 
 // Returns all users from the database, supports pagination and search by username
 export async function getAllUsers({ page = 1, limit = 20, search } = {}) {
-    const filter = search ? { username: { $regex: search, $options: "i" } } : {};
+    const filter = search ? { username: { $regex: escapeRegex(search), $options: "i" } } : {};
     return await User.find(filter).select("-pwd").skip((page - 1) * limit).limit(limit);
 }
 

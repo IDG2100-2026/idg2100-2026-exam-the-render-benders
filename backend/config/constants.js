@@ -12,6 +12,9 @@ export const MIN_AGE = 18;
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 
+// Valid time controls in seconds (total per game, not per round)
+export const GAME_TIME_CONTROLS = [10, 30, 90];
+
 // Allowed status values for a game
 export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
 

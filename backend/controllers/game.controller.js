@@ -57,11 +57,12 @@ export async function createGame(req, res) {
 // Adds a player to a game and returns the updated game as JSON
 export async function joinGame(req, res) {
     try {
-        const game = await gameService.joinGame(req.params.gid, req.body.player);
+        const game = await gameService.joinGame(req.params.gid, req.body.player, req.user);
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(game);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        const status = err.message.includes("does not allow anonymous") ? 403 : 500;
+        res.status(status).json({ error: err.message });
     }
 }
 

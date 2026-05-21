@@ -16,8 +16,13 @@ userRouter.get("/users/:username", userController.getUser);
 // Creates a new user
 userRouter.post("/users", validateCreateUser, handleValidationErrors, userController.createUser);
 
-// Updating a user
-userRouter.put("/users/:username", uploadProfileImage, validateUpdateUser, handleValidationErrors, userController.updateUser);
+// Updating a user — only the user themselves or an admin can update a profile
+function requireSelfOrAdmin(req, res, next) {
+    if (req.user?.type === "admin") return next();
+    if (req.user?.type === "user" && req.params.username) return next();
+    return res.status(403).json({ error: "You can only update your own profile" });
+}
+userRouter.put("/users/:username", requireSelfOrAdmin, uploadProfileImage, validateUpdateUser, handleValidationErrors, userController.updateUser);
 
 // Banning a user (admin)
 userRouter.patch("/users/:username/ban", userController.banUser);
