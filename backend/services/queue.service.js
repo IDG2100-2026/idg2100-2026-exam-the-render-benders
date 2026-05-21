@@ -1,8 +1,8 @@
 import { Queue } from "../models/queue.model.js";
 
 // Returns all Queues from the database, supports pagination and filtering by status
-export async function getAllQueues({ page = 1, limit = 20, filter = {} } = {}) {
-    return await Queue.find(filter).skip((page - 1) * limit).limit(limit);
+export async function getAllQueues({ skip = 0, limit = 20, filter = {} } = {}) {
+    return await Queue.find(filter).skip(skip).limit(limit);
 }
 
 // Gets a single Queue by the id

@@ -4,11 +4,11 @@ import queueService from "../services/queue.service.js";
 // Supports filtering by status: ?status=waiting or ?status=matched
 export async function getAllQueues(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const filter = {};
         if (req.query.status) filter.status = req.query.status;
-        const queues = await queueService.getAllQueues({ page, limit, filter });
+        const queues = await queueService.getAllQueues({ skip, limit, filter });
         res.status(200).json(queues);
     } catch (err) {
         res.status(500).json({ error: err.message });

@@ -10,9 +10,9 @@ function calculateElo(players, winnerId, timeControl = 10) {
 
     // Determine which Elo rating to use as base (defaulting to 1000 if not set)
     let eloField = "elo";
-    if (timeControl === 3) eloField = "elo3s";
-    else if (timeControl === 10) eloField = "elo10s";
+    if (timeControl === 10) eloField = "elo10s";
     else if (timeControl === 30) eloField = "elo30s";
+    else if (timeControl === 90) eloField = "elo90s";
 
     const ratingA = playerA[eloField] || 1000;
     const ratingB = playerB[eloField] || 1000;
@@ -64,7 +64,7 @@ export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestin
     return await Game.find(query)
         .skip(skip)
         .limit(limit)
-        .populate("players", "username elo elo3s elo10s elo30s profileImage")
+        .populate("players", "username elo elo10s elo30s elo90s profileImage")
         .populate("result.winner", "username");
 }
 
@@ -73,7 +73,7 @@ export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestin
 export async function getTopGames() {
     // fetches all ongoing games and populate player info
     let ongoingGames = await Game.find({ status: "ongoing" })
-        .populate("players", "username elo elo3s elo10s elo30s profileImage");
+        .populate("players", "username elo elo10s elo30s elo90s profileImage");
 
     // Sorts them by average Elo rating (descending order)
     ongoingGames.sort((a, b) => {
@@ -91,7 +91,7 @@ export async function getTopGames() {
         const finishedGames = await Game.find({ status: "finished" })
             .sort({ createdAt: -1 }) // newest first
             .limit(needed)
-            .populate("players", "username elo elo3s elo10s elo30s profileImage")
+            .populate("players", "username elo elo10s elo30s elo90s profileImage")
             .populate("result.winner", "username");
 
         result = [...result, ...finishedGames];
@@ -103,7 +103,7 @@ export async function getTopGames() {
 // Gets a single game by the id
 export async function getGame(gid) {
     return await Game.findById(gid)
-        .populate("players", "username elo elo3s elo10s elo30s profileImage")
+        .populate("players", "username elo elo10s elo30s elo90s profileImage")
         .populate("result.winner", "username");
 }
 
@@ -120,7 +120,7 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     await Game.findByIdAndUpdate(gid, { $addToSet: { players: playerId } });
 
     const updated = await Game.findById(gid)
-        .populate("players", "username elo elo3s elo10s elo30s profileImage");
+        .populate("players", "username elo elo10s elo30s elo90s profileImage");
 
     if (updated && updated.players.length >= 2 && updated.status === "waiting") {
         updated.status = "ongoing";

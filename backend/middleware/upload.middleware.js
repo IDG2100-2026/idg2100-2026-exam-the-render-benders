@@ -4,7 +4,7 @@ import path from "path";
 // Local storage for uploads (ensure directory exists and is writable)
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/");
+        cb(null, "backend/uploads/");
     },
     filename: (req, file, cb) => {
         // Unique timestamp, random salt ensures no file is ever overwritten
