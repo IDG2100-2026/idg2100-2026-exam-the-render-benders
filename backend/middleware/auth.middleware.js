@@ -1,11 +1,27 @@
-// Simple auth middleware - reads headers and sets req.user on every request.
-export default function setUserType(req, res, next) {
+// Reads headers and sets req.user on every request.
+export function setUserType(req, res, next) {
     const userType = req.headers["x-user-type"];
     const userId = req.headers["x-user-id"];
 
-    req.user = { 
+    req.user = {
         type: userType || "anonymous",
-        id: userId // This can be null for anonymous users
+        id: userId || null
     };
+    next();
+}
+
+// Blocks non-admin users.
+export function requireAdmin(req, res, next) {
+    if (req.user?.type !== "admin") {
+        return res.status(403).json({ error: "Admin access required" });
+    }
+    next();
+}
+
+// Blocks anonymous users.
+export function requireUser(req, res, next) {
+    if (req.user?.type === "anonymous") {
+        return res.status(401).json({ error: "You must be logged in" });
+    }
     next();
 }

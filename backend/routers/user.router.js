@@ -2,6 +2,7 @@ import express from "express";
 import userController from "../controllers/user.controller.js";
 import { validateCreateUser, validateUpdateUser, handleValidationErrors } from "../validators/user.validator.js";
 import { uploadProfileImage } from "../middleware/upload.middleware.js";
+import { requireAdmin } from "../middleware/auth.middleware.js";
 
 // User router, handles all /users endpoints
 const userRouter = express.Router();
@@ -24,11 +25,14 @@ function requireSelfOrAdmin(req, res, next) {
 }
 userRouter.patch("/users/:username", requireSelfOrAdmin, uploadProfileImage, validateUpdateUser, handleValidationErrors, userController.updateUser);
 
-// Banning a user (admin)
-userRouter.patch("/users/:username/ban", userController.banUser);
+// Banning a user (admin only)
+userRouter.patch("/users/:username/ban", requireAdmin, userController.banUser);
 
 // Update appearance preferences for a user
 userRouter.patch("/users/:username/preferences", userController.updatePreferences);
+
+// Get trophies for a user
+userRouter.get("/users/:username/trophies", userController.getUserTrophies);
 
 // Get leaderboard, sorted by ELO
 userRouter.get("/leaderboard", userController.getLeaderboard);
