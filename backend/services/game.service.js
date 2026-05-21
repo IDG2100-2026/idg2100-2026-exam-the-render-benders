@@ -32,7 +32,7 @@ function calculateElo(players, winnerId, timeControl = 10) {
 }
 
 // Returns all games from the database, supports pagination and advanced filtering
-export async function getAllGames({ page = 1, limit = 20, filter = {}, requestingUser = null } = {}) {
+export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestingUser = null } = {}) {
     const query = { ...filter };
 
     // If a user ID is provided, exclude games they are already participating in
@@ -47,7 +47,7 @@ export async function getAllGames({ page = 1, limit = 20, filter = {}, requestin
                 // We use $expr to compare fields within the document
                 query.$or = [
                     { desiredElo: { $exists: false } },
-                    { 
+                    {
                         $and: [
                             { desiredElo: { $lte: user.elo + 200 } },
                             { desiredElo: { $gte: user.elo - 200 } }
@@ -62,7 +62,7 @@ export async function getAllGames({ page = 1, limit = 20, filter = {}, requestin
     }
 
     return await Game.find(query)
-        .skip((page - 1) * limit)
+        .skip(skip)
         .limit(limit)
         .populate("players", "username elo elo3s elo10s elo30s profileImage")
         .populate("result.winner", "username");
@@ -93,7 +93,7 @@ export async function getTopGames() {
             .limit(needed)
             .populate("players", "username elo elo3s elo10s elo30s profileImage")
             .populate("result.winner", "username");
-        
+
         result = [...result, ...finishedGames];
     }
 
@@ -147,10 +147,10 @@ export async function updateGame(gid, data) {
     // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
     if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.winner) {
         const players = await User.find({ _id: { $in: game.players } });
-        
+
         // Calculate new Elo for the specific time control variant
         const { newEloA, newEloB, eloField } = calculateElo(players, game.result.winner, game.variant.timeControl);
-        
+
         // We also update the general Elo for the leaderboard (average change)
         const diffA = newEloA - (players[0][eloField] || 1000);
         const diffB = newEloB - (players[1][eloField] || 1000);

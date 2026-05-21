@@ -3,10 +3,10 @@ import userService from "../services/user.service.js";
 // Get all users from the database and return them as JSON
 export async function getAllUsers(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const search = req.query.search || undefined;
-        const users = await userService.getAllUsers({ page, limit, search });
+        const users = await userService.getAllUsers({ skip, limit, search });
         res.status(200).json(users);
     } catch (err) {
         res.status(500).json({ error: err.message });

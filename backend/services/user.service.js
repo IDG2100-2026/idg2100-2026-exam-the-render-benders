@@ -5,9 +5,9 @@ import { MIN_AGE, DEFAULT_ELO } from "../config/constants.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
 // Returns all users from the database, supports pagination and search by username
-export async function getAllUsers({ page = 1, limit = 20, search } = {}) {
+export async function getAllUsers({ skip = 0, limit = 20, search } = {}) {
     const filter = search ? { username: { $regex: escapeRegex(search), $options: "i" } } : {};
-    return await User.find(filter).select("-pwd").skip((page - 1) * limit).limit(limit);
+    return await User.find(filter).select("-pwd").skip(skip).limit(limit);
 }
 
 // Get a single user by their username, includes their 10 most recent games and stats
@@ -53,7 +53,7 @@ export async function getUser(username) {
     // Difference between current ELO and the oldest recorded ELO within the last week
     const eloChangeLastWeek = weekHistory.length > 0 ? user.elo - weekHistory[0].elo : 0;
 
-    const { pwd, ...safeUser } = user.toObject();
+    const { pwd, ...safeUser } = user.toObject(); // pwd is excluded from the spread intentionally
     return {
         ...safeUser,
         recentGames,
@@ -123,7 +123,7 @@ export async function loginUser({ username, password }) {
     const user = await User.findOne({ username });
     if (!user) return null;
     if (user.pwd !== hashPwd(password)) return null;
-    const { pwd, ...safeUser } = user.toObject();
+    const { pwd, ...safeUser } = user.toObject(); // pwd is excluded from the spread intentionally
     return safeUser;
 }
 

@@ -3,17 +3,17 @@ import gameService from "../services/game.service.js";
 // Get all games from the database and return them as JSON
 export async function getAllGames(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const filter = {};
         if (req.query.status) filter.status = req.query.status;
 
         // Pass the user info from req.user (set by auth middleware) to the service
-        const games = await gameService.getAllGames({ 
-            page, 
-            limit, 
-            filter, 
-            requestingUser: req.user 
+        const games = await gameService.getAllGames({
+            skip,
+            limit,
+            filter,
+            requestingUser: req.user
         });
         res.status(200).json(games);
     } catch (err) {

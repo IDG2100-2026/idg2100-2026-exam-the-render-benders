@@ -57,13 +57,14 @@ httpServer.on("listening", () =>
   )
 );
 
-// A Graceful shutdown
+// Graceful shutdown
+let shuttingDown = false;
 async function gracefulShutDown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
   console.log("\nThe Poker Backend application is being shut down...");
   await disconnectDB();
-  httpServer.close(() => {
-    process.exit(0);
-  });
+  httpServer.close(() => process.exit(0));
 }
 
 process.on("SIGTERM", gracefulShutDown);

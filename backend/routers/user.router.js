@@ -22,7 +22,7 @@ function requireSelfOrAdmin(req, res, next) {
     if (req.user?.type === "user" && req.params.username) return next();
     return res.status(403).json({ error: "You can only update your own profile" });
 }
-userRouter.put("/users/:username", requireSelfOrAdmin, uploadProfileImage, validateUpdateUser, handleValidationErrors, userController.updateUser);
+userRouter.patch("/users/:username", requireSelfOrAdmin, uploadProfileImage, validateUpdateUser, handleValidationErrors, userController.updateUser);
 
 // Banning a user (admin)
 userRouter.patch("/users/:username/ban", userController.banUser);
