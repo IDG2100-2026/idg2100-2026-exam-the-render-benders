@@ -1,0 +1,247 @@
+.page {
+    padding: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.header {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+}
+
+.header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 2rem;
+}
+
+.header p {
+    margin: 0.25rem auto;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+
+.aboutMe {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    text-align: left;
+    margin: 1rem auto;
+}
+
+.aboutMe h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+}
+
+.aboutMe p {
+    color: var(--text-heading);
+    line-height: 1.5;
+}
+
+.stats {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.stats h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.stats p {
+    margin: 0.5rem 0;
+    color: var(--text-heading);
+}
+
+.right {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.right h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.match {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.match:last-child {
+    border-bottom: none;
+}
+
+.match p {
+    margin: 0.1rem 0;
+    font-size: 0.9rem;
+    color: var(--text-heading);
+}
+
+.match p:last-child {
+    font-size: 0.8rem;
+    color: var(--text);
+    text-transform: capitalize;
+}
+
+.viewAllGamesLink {
+    display: inline-block;
+    margin-top: 0.75rem;
+    color: var(--text);
+    transition: transform 0.3s;
+}
+.viewAllGamesLink:hover {
+    transform: scale(1.2);
+    text-decoration: underline;
+}
+
+.editForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.editForm label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    color: var(--text);
+}
+
+.editForm input,
+.editForm textarea {
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text-heading);
+    font-family: inherit;
+    font-size: 0.9rem;
+}
+
+.editForm textarea {
+    min-height: 80px;
+    resize: vertical;
+}
+
+.avatarSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+}
+
+.avatarFallback {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--accent, #2d5a3d);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.imageUpload {
+    font-size: 0.8rem;
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.trophies {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.trophies h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.trophyList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.trophy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.trophy img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.trophy p {
+    font-size: 0.8rem;
+    color: var(--text);
+    margin: 0;
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
