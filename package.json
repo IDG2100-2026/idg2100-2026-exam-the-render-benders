@@ -5,8 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "seed": "node --env-file=backend/.env backend/seed/seed.js",
-    "backend": "node --watch --env-file=backend/.env backend/app.js",
+    "seed": "node --env-file=backend/.env.dev backend/seed/seed.js",
+    "backend": "node --watch --env-file=backend/.env.dev backend/app.js",
+    "prod": "node --env-file=backend/.env.prod backend/app.js",
     "frontend": "vite frontend",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "build": "vite build --root frontend",
