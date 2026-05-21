@@ -38,20 +38,20 @@ frontend/src/
 
 ## Pages
 
-| Route | Description |
-|---|---|
-| `/` | Hero + LobbySection (auto-join) + TopGames (ranked) |
-| `/lobby` | All waiting games, manual join, server-side Elo/anon filtering |
-| `/create-game` | Form for all 18 game variants + Elo preference |
-| `/games/:id` | Game HUD, 15s polling, waiting overlay, comment sidebar |
-| `/login` | Login form, Enter-key, autoFocus |
-| `/register` | Registration with date-of-birth, terms checkbox |
-| `/users/:username` | Profile: Overall Elo, variant Elos, stats, trophies, recent games |
-| `/users/:username/games` | Full paginated game history |
-| `/about` | Platform introduction |
-| `/about-spanish-dice` | Game rules and description |
-| `/terms` | Terms and conditions |
-| `/policy` | Privacy policy |
+| Route                    | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `/`                      | Hero + LobbySection (auto-join) + TopGames (ranked)               |
+| `/lobby`                 | All waiting games, manual join, server-side Elo/anon filtering    |
+| `/create-game`           | Form for all 18 game variants + Elo preference                    |
+| `/games/:id`             | Game HUD, 15s polling, waiting overlay, comment sidebar           |
+| `/login`                 | Login form, Enter-key, autoFocus                                  |
+| `/register`              | Registration with date-of-birth, terms checkbox                   |
+| `/users/:username`       | Profile: Overall Elo, variant Elos, stats, trophies, recent games |
+| `/users/:username/games` | Full paginated game history                                       |
+| `/about`                 | Platform introduction                                             |
+| `/about-spanish-dice`    | Game rules and description                                        |
+| `/terms`                 | Terms and conditions                                              |
+| `/policy`                | Privacy policy                                                    |
 
 > Note: Tournament pages (/tournaments, /tournaments/:id) are not included in this sprint. The teacher confirmed tournaments are out of scope for the frontend delivery. The backend tournament endpoints remain fully functional.
 
