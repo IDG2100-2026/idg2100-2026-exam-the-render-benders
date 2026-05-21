@@ -1,0 +1,30 @@
+[
+  {
+    "author": "proPlayer",
+    "content": "Great match! Really tough opponent.",
+    "commentType": "match",
+    "match": "match_0",
+    "tournament": null
+  },
+  {
+    "author": "casualPlayer",
+    "content": "I will get my rematch next time!",
+    "commentType": "match",
+    "match": "match_0",
+    "tournament": null
+  },
+  {
+    "author": "adminUser",
+    "content": "Looking forward to the Summer Invitational!",
+    "commentType": "tournament",
+    "match": null,
+    "tournament": "upcomingTournament"
+  },
+  {
+    "author": "proPlayer",
+    "content": "Proud to have won the Spring Cup. See you all in the next one.",
+    "commentType": "tournament",
+    "match": null,
+    "tournament": "pastTournament"
+  }
+]

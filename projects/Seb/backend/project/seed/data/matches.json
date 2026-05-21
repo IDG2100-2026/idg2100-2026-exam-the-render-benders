@@ -1,0 +1,53 @@
+[
+  {
+    "player1": "proPlayer",
+    "player2": "casualPlayer",
+    "gameType": "standard",
+    "player1Score": 3,
+    "player2Score": 1,
+    "winner": "proPlayer",
+    "loser": "casualPlayer",
+    "status": "completed",
+    "visibility": "public"
+  },
+  {
+    "player1": "adminUser",
+    "player2": "newbieUser",
+    "gameType": "quickPlay",
+    "player1Score": 2,
+    "player2Score": 0,
+    "winner": "adminUser",
+    "loser": "newbieUser",
+    "status": "completed",
+    "visibility": "public"
+  },
+  {
+    "player1": "proPlayer",
+    "player2": "newbieUser",
+    "gameType": "proLeague",
+    "player1Score": 4,
+    "player2Score": 2,
+    "winner": "proPlayer",
+    "loser": "newbieUser",
+    "status": "completed",
+    "visibility": "public"
+  },
+  {
+    "player1": "casualPlayer",
+    "player2": "newbieUser",
+    "gameType": "quickPlay",
+    "player1Score": 0,
+    "player2Score": 0,
+    "status": "ongoing",
+    "visibility": "public"
+  },
+  {
+    "player1": "proPlayer",
+    "player2": null,
+    "gameType": "standard",
+    "player1Score": 0,
+    "player2Score": 0,
+    "status": "pending",
+    "visibility": "public"
+  }
+]

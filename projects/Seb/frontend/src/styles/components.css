@@ -1,0 +1,47 @@
+/* Component styles */
+@import url(@styles/variables.css);
+
+/* Panel / card */
+.sek-panel {
+  background: var(--sek-bg-panel);
+  border: 1px solid var(--sek-border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--sek-glow-soft);
+}
+
+/* Section */
+.sek-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sek-section-title {
+  font-family: var(--sek-font-alt);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--sek-text-primary);
+}
+
+/* Button primary */
+.sek-btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: var(--sek-accent-primary);
+  color: var(--sek-text-dark);
+  border-radius: 0.5rem;
+  border: 1px solid var(--sek-accent-primary);
+  transition: 0.2s ease;
+}
+
+.sek-btn-primary:hover {
+  background: var(--sek-accent-soft);
+}
+
+/* Empty state */
+.sek-empty {
+  text-align: center;
+  color: var(--sek-text-secondary);
+  padding: 2rem;
+}

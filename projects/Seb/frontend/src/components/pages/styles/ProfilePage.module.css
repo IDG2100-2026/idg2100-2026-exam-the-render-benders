@@ -1,0 +1,227 @@
+@import url(@styles/variables.css);
+
+.profilePage {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.heroCard,
+.panel {
+    background: var(--sek-bg-panel);
+    border: 1px solid var(--sek-border);
+    border-radius: 0.85rem;
+    box-shadow: var(--sek-glow-soft);
+    backdrop-filter: blur(10px);
+}
+
+.heroCard {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.avatarBlock {
+    flex-shrink: 0;
+}
+
+.avatar,
+.avatarPlaceholder {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+}
+
+.avatar {
+    object-fit: cover;
+    border: 1px solid var(--sek-border);
+}
+
+.avatarPlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--sek-hover);
+    color: var(--sek-accent-primary);
+    font-size: 2rem;
+    font-weight: 700;
+    border: 1px solid var(--sek-border);
+}
+
+.heroInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.eyebrow {
+    margin: 0;
+    color: var(--sek-accent-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+}
+
+.username {
+    margin: 0;
+    color: var(--sek-text-primary);
+}
+
+.meta {
+    margin: 0;
+    color: var(--sek-text-secondary);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+
+.panel {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.sectionTitle,
+.subTitle {
+    margin: 0;
+    color: var(--sek-text-primary);
+}
+
+.form,
+.infoList,
+.eloSection,
+.gameList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.label {
+    color: var(--sek-text-secondary);
+    font-size: 0.9rem;
+}
+
+.value {
+    color: var(--sek-text-primary);
+}
+
+.input,
+.textarea {
+    width: 100%;
+    padding: 0.85rem 0.95rem;
+    background: var(--sek-glass);
+    border: 1px solid var(--sek-border-soft);
+    border-radius: 0.6rem;
+    color: var(--sek-text-primary);
+    font: inherit;
+}
+
+.textarea {
+    resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+    outline: none;
+    border-color: var(--sek-accent-muted);
+    box-shadow: var(--sek-glow-soft);
+}
+
+.readOnlyRow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.saveButton {
+    padding: 0.85rem 1.1rem;
+    border-radius: 0.6rem;
+    background: var(--sek-hover);
+    border: 1px solid var(--sek-border);
+    color: var(--sek-accent-primary);
+    font: inherit;
+    cursor: pointer;
+}
+
+.saveButton:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.success {
+    margin: 0;
+    color: var(--sek-accent-soft);
+}
+
+.statsGrid,
+.trophyGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.statCard,
+.trophyCard,
+.gameRow {
+    background: var(--sek-glass);
+    border: 1px solid var(--sek-border-soft);
+    border-radius: 0.7rem;
+    padding: 1rem;
+}
+
+.statLabel,
+.gameMeta,
+.trophyMeta,
+.emptyState {
+    color: var(--sek-text-secondary);
+}
+
+.statValue,
+.gameTitle,
+.trophyTitle {
+    color: var(--sek-text-primary);
+    font-weight: 600;
+}
+
+.trophyImage {
+    width: 100%;
+    max-height: 140px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.viewAllLink {
+    color: var(--sek-accent-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.viewAllLink:hover {
+    color: var(--sek-accent-soft);
+}
+
+@media (max-width: 900px) {
+    .grid,
+    .statsGrid,
+    .trophyGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .heroCard {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+

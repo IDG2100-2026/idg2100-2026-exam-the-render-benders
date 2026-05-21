@@ -1,0 +1,7 @@
+@import url(./styles/variables.css);
+
+body {
+  margin: auto;
+  background-color: var(--sek-bg-primary);
+  color: var(--sek-accent-primary)
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "username": "admin_user",
+    "age": 25,
+    "userType": "admin",
+    "eloRating": 2000,
+    "eloRatingChange": 50
+  },
+  {
+    "username": "pro_player",
+    "age": 30,
+    "userType": "registered",
+    "eloRating": 1800,
+    "eloRatingChange": 25
+  },
+  {
+    "username": "casual_player",
+    "age": 22,
+    "userType": "registered",
+    "eloRating": 1600,
+    "eloRatingChange": 10
+  },
+  {
+    "username": "newbie",
+    "age": 20,
+    "userType": "anonymous",
+    "eloRating": 1400,
+    "eloRatingChange": 0
+  }
+]

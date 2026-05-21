@@ -1,0 +1,170 @@
+@baseUrl = http://localhost:9090/api/v1
+
+# --------------------------------------------
+# Replace these variables with real IDs from
+# the seed output before running requests.
+#
+# NB! Run the seed script first (npm run seed), then replace the
+# IDs below with new ones from the seed.
+# --------------------------------------------
+@userId       = user_FKovZs6mY8
+@matchId      = match_bz0z-7ai_T
+@tournamentId = tournament_MTcLxWFOXE
+@gameCatId    = game_IrZrfaxyNC
+@trophyId     = trophy_4Fwr6z-VdF
+@commentId    = comment_w3SWyteMrs
+
+
+###
+# --------------------------------------------
+#  USERS
+# --------------------------------------------
+
+### Delete a user by ID
+DELETE {{baseUrl}}/users/{{userId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent user (expect 404)
+DELETE {{baseUrl}}/users/user_doesnotexist
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  GAME CATEGORIES  (admin only)
+# --------------------------------------------
+
+### Delete a game category by ID
+DELETE {{baseUrl}}/game-categories/{{gameCatId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent game category (expect 404)
+DELETE {{baseUrl}}/game-categories/game_doesnotexist
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  MATCHES
+# --------------------------------------------
+
+### Delete a match by ID
+DELETE {{baseUrl}}/matches/{{matchId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent match (expect 404)
+DELETE {{baseUrl}}/matches/match_doesnotexist
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  TOURNAMENTS
+# --------------------------------------------
+
+### Delete a pending tournament by ID
+DELETE {{baseUrl}}/tournaments/{{tournamentId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete an ongoing tournament — should be forbidden (expect 403)
+DELETE {{baseUrl}}/tournaments/{{tournamentId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent tournament (expect 404)
+DELETE {{baseUrl}}/tournaments/tournament_doesnotexist
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  COMMENTS
+# --------------------------------------------
+
+### Delete a comment as its author (userId in body must match author)
+DELETE {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "userId": "{{userId}}"
+}
+
+###
+
+### Delete a comment as a non-author (expect 403)
+DELETE {{baseUrl}}/comments/{{commentId}}
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "userId": "user_someotheruser"
+}
+
+###
+
+### Delete a comment as admin (bypasses author check)
+DELETE {{baseUrl}}/comments/{{commentId}}/admin
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent comment (expect 404)
+DELETE {{baseUrl}}/comments/comment_doesnotexist/admin
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  TROPHIES
+# --------------------------------------------
+
+### Delete a trophy by ID
+DELETE {{baseUrl}}/trophies/{{trophyId}}
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+###
+
+### Delete a non-existent trophy (expect 404)
+DELETE {{baseUrl}}/trophies/trophy_doesnotexist
+X-User-Type: admin
+X-User-Id: {{userId}}
+
+
+###
+# --------------------------------------------
+#  MATCHMAKING
+# --------------------------------------------
+
+### Leave the matchmaking queue
+DELETE {{baseUrl}}/matchmaking/leave
+Content-Type: application/json
+X-User-Type: registered
+X-User-Id: {{userId}}
+
+{
+  "userId": "{{userId}}"
+}

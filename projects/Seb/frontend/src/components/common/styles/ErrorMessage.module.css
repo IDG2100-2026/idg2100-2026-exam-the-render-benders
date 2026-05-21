@@ -1,0 +1,45 @@
+@import url(../../../styles/variables.css);
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.error-icon {
+  font-size: 1.25rem;
+  color: #ef4444;
+}
+
+.error-text {
+  color: var(--sek-text-primary);
+  font-family: var(--sek-font-main);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: var(--sek-text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.2s ease;
+}
+
+.error-close:hover {
+  color: var(--sek-text-primary);
+}
