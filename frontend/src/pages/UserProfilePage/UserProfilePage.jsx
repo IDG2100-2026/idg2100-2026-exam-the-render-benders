@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
-import { MdLayers, MdAccessTime, MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp } from "react-icons/md";
-import { useAuth } from "../../contexts/AuthContext";
-import { apiFetch, getAssetUrl } from "../../api";
+import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp } from "react-icons/md";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch, getAssetUrl } from "@/api";
 import styles from "./UserProfilePage.module.css";
 
 export default function UserProfilePage() {

@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link } from "react-router";
 import { FaBars, FaXmark, FaDice, FaList, FaBookOpen, FaHouse } from "react-icons/fa6";
-import { useAuth } from "../../contexts/AuthContext";
-import Greeting from "../../components/Greeting/Greeting";
-import AppearancePanel from "../../components/AppearancePanel/AppearancePanel";
-import { getAssetUrl } from "../../api";
+import { useAuth } from "@/contexts/AuthContext";
+import Greeting from "@/components/Greeting/Greeting";
+import AppearancePanel from "@/components/AppearancePanel/AppearancePanel";
+import { getAssetUrl } from "@/api";
 import styles from "./Header.module.css";
 
 export default function Header() {

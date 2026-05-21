@@ -1,6 +1,6 @@
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router";
-import { getAssetUrl } from "../../api";
+import { getAssetUrl } from "@/api";
 import styles from "./Greeting.module.css";
 
 export default function Greeting() {

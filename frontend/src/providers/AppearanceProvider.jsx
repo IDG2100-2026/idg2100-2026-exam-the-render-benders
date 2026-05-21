@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { AppearanceContext } from "../contexts/AppearanceContext";
-import { useAuth } from "../contexts/AuthContext";
-import { apiFetch } from "../api";
+import { AppearanceContext } from "@/contexts/AppearanceContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch } from "@/api";
 
 const DEFAULTS = {
     theme: "dark",

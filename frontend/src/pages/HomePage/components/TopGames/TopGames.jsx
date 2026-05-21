@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { MdLayers, MdAccessTime, MdEmojiEvents } from "react-icons/md";
-import { apiFetch, getAssetUrl } from "../../../../api";
+import { apiFetch, getAssetUrl } from "@/api";
 import styles from "./TopGames.module.css";
 
 export default function TopGames() {

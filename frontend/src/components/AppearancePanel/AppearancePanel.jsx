@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { MdSettings } from "react-icons/md";
-import { useAppearance } from "../../contexts/AppearanceContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import styles from "./AppearancePanel.module.css";
 
 // Predefined board colors the user can choose from

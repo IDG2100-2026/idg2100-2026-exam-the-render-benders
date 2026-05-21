@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel } from "react-icons/md";
-import { getAssetUrl } from "../../api";
+import { getAssetUrl } from "@/api";
 import styles from "./LobbyCard.module.css";
 
 // Shared card component used in both LobbySection and LobbyPage.

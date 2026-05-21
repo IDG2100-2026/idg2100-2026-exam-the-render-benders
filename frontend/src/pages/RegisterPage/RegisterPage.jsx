@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { apiFetch } from "../../api";
+import { apiFetch } from "@/api";
 import styles from "./RegisterPage.module.css";
 
 export default function RegisterPage() {

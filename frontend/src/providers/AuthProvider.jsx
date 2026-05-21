@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AuthContext } from "../contexts/AuthContext";
+import { AuthContext } from "@/contexts/AuthContext";
 
 // Wraps the app and makes user, login and logout available to all components
 export default function AuthProvider({ children }) {

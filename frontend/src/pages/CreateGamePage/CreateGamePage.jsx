@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../contexts/AuthContext";
-import { apiFetch } from "../../api";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch } from "@/api";
 import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
 import RulesSelector from "./components/RulesSelector/RulesSelector";
 import TimeControlSelector from "./components/TimeControlSelector/TimeControlSelector";

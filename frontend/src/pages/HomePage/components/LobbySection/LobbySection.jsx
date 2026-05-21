@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { apiFetch } from "../../../../api";
-import { useAuth } from "../../../../contexts/AuthContext";
-import { useAppearance } from "../../../../contexts/AppearanceContext";
-import LobbyCard from "../../../../components/LobbyCard/LobbyCard";
+import { apiFetch } from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./LobbySection.module.css";
 
 export default function LobbySection() {

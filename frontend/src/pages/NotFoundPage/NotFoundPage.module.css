@@ -3,19 +3,37 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
+    min-height: 100svh;
     text-align: center;
+    background: var(--bg);
 }
 
 .code {
     font-size: 6rem;
     font-weight: bold;
     color: var(--accent);
-    margin: 0;
+    margin: 0 0 0.5rem;
+    line-height: 1;
 }
 
 .message {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     color: var(--text);
-    margin: 1rem 0 2rem;
+    margin: 0 0 2rem;
+}
+
+.link {
+    padding: 0.5rem 1.5rem;
+    background-color: var(--accent);
+    color: var(--bg);
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-decoration: none !important;
+    transition: background-color 0.2s;
+}
+
+.link:hover {
+    background-color: var(--accent-hover);
+    text-decoration: none !important;
 }

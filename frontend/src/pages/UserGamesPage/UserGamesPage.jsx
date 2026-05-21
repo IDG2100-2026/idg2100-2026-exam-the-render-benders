@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { MdLayers, MdAccessTime, MdArrowForward, MdHistory, MdArrowBack } from "react-icons/md";
-import { apiFetch } from "../../api";
+import { apiFetch } from "@/api";
 import styles from "./UserGamesPage.module.css";
 
 export default function UserGamesPage() {

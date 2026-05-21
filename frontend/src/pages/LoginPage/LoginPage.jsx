@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router";
-import { useAuth } from "../../contexts/AuthContext";
-import { apiFetch } from "../../api";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch } from "@/api";
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../../contexts/AuthContext";
-import { apiFetch } from "../../api";
-import LobbyCard from "../../components/LobbyCard/LobbyCard";
+import { useAuth } from "@/contexts/AuthContext";
+import { apiFetch } from "@/api";
+import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./LobbyPage.module.css";
 
 export default function LobbyPage() {

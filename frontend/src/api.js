@@ -1,5 +1,5 @@
 // API base URL from .env, fallback to localhost for development
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1";
 
 // Base URL of the backend (no /api/v1) for assets like uploads
 export const BACKEND_URL = API_URL.replace("/api/v1", "");

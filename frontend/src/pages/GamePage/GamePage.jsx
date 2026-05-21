@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty } from "react-icons/md";
-import { useAuth } from "../../contexts/AuthContext";
-import { useAppearance } from "../../contexts/AppearanceContext";
-import { apiFetch, getAssetUrl } from "../../api";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { apiFetch, getAssetUrl } from "@/api";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
