@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
 import { connectDB, disconnectDB } from "./config/db.js";
-import setUserType from "./middleware/auth.middleware.js";
+import { setUserType } from "./middleware/auth.middleware.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
@@ -11,6 +11,8 @@ import tournamentRouter from "./routers/tournament.router.js";
 import commentRouter from "./routers/comment.router.js";
 import queueRouter from "./routers/queue.router.js";
 import activityRouter from "./routers/activity.router.js";
+import trophyRouter from "./routers/trophy.router.js";
+import gameCategoryRouter from "./routers/gameCategory.router.js";
 
 // Connects to MongoDB via Mongoose 
 await connectDB();
@@ -46,6 +48,8 @@ app.use("/api/v1", tournamentRouter);
 app.use("/api/v1", commentRouter);
 app.use("/api/v1", queueRouter);
 app.use("/api/v1", activityRouter);
+app.use("/api/v1", trophyRouter);
+app.use("/api/v1", gameCategoryRouter);
 
 // Listens on a port
 const httpServer = app.listen(process.env.APP_PORT);
