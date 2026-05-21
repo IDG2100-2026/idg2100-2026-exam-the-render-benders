@@ -5,20 +5,21 @@ Built with Vite + React 19. Uses React Router v7 for routing and React Context f
 
 ## Pages
 
-| Route                    | Page                                                          |
-| ------------------------ | ------------------------------------------------------------- |
-| `/`                      | HomePage - hero, lobby section (auto-join), top games         |
-| `/lobby`                 | LobbyPage - waiting games, manual join, login hint for guests |
-| `/create-game`           | CreateGamePage - form to create a game (18 variants)          |
-| `/login`                 | LoginPage                                                     |
-| `/register`              | RegisterPage                                                  |
-| `/users/:username`       | UserProfilePage - stats, elo, trophies, recent games          |
-| `/users/:username/games` | UserGamesPage - full game history for a user                  |
-| `/games/:id`             | GamePage - game board area, players, sidebar comments         |
-| `/about`                 | AboutPage - platform introduction                             |
-| `/about-spanish-dice`    | AboutSpanishDicePage - game description                       |
-| `/terms`                 | TermsPage - terms and conditions                              |
-| `/policy`                | PrivacyPage - privacy policy                                  |
+| Route                    | Page                                                                         |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `/`                      | HomePage - hero, lobby section (auto-join), top games                        |
+| `/lobby`                 | LobbyPage - waiting games, manual join, login hint for guests                |
+| `/create-game`           | CreateGamePage - form to create a game (18 variants)                         |
+| `/login`                 | LoginPage                                                                    |
+| `/register`              | RegisterPage                                                                 |
+| `/users/:username`       | UserProfilePage - stats, elo, trophies, recent games                         |
+| `/users/:username/games` | UserGamesPage - full game history for a user                                 |
+| `/games/:id`             | GamePage - game board area, players, sidebar comments                        |
+| `/about`                 | AboutPage - platform introduction                                            |
+| `/about-spanish-dice`    | AboutSpanishDicePage - game description                                      |
+| `/terms`                 | TermsPage - terms and conditions                                             |
+| `/policy`                | PrivacyPage - privacy policy                                                 |
+| `*`                      | NotFoundPage - full-viewport 404, rendered outside Layout (no header/footer) |
 
 ## Auth
 
@@ -51,6 +52,19 @@ Located at `src/components/LobbyCard/LobbyCard.jsx`. Shared between LobbySection
 | `onJoin`      | Shows a Join button; used by LobbyPage               |
 | `onCardClick` | Makes the whole card clickable; used by LobbySection |
 
+## Services
+
+Each backend resource has a dedicated service file in `src/services/`. All service functions call `apiFetch` and handle query-string building. Skip-based pagination is used throughout for load-more UX (`skip` + `limit` query params).
+
+| File                    | Covers                                           |
+| ----------------------- | ------------------------------------------------ |
+| `userService.js`        | get/create/update user, getAllUsers, leaderboard |
+| `gameService.js`        | get/create/update game, join, top games          |
+| `tournamentService.js`  | full tournament CRUD + join + comments           |
+| `commentService.js`     | game and tournament comments                     |
+| `leaderboardService.js` | leaderboard with 4 sort options                  |
+| `activityService.js`    | platform activity stats (ongoing, waiting, etc)  |
+
 ## API Wrapper (api.js)
 
 The `apiFetch` function is a custom wrapper around the native `fetch` API. It automatically:
@@ -63,6 +77,8 @@ The `apiFetch` function is a custom wrapper around the native `fetch` API. It au
 The `getAssetUrl(path)` helper in `api.js` prepends the backend base URL to image paths. All images (user uploads and demo avatars) are served from `backend/uploads/`.
 
 ## Structure
+
+All imports within `src/` use the `@` alias (e.g. `@/components/LobbyCard/LobbyCard`), configured in `vite.config.js` and `jsconfig.json`.
 
 ```
 src/
@@ -84,10 +100,17 @@ src/
     Greeting/
     AppearancePanel/
     LobbyCard/              # shared card for lobby games
+  services/
+    userService.js
+    gameService.js
+    tournamentService.js
+    commentService.js
+    leaderboardService.js
+    activityService.js
   pages/
     HomePage/
       components/
-        LobbySection/       # was LobbyPreview - auto-join on click
+        LobbySection/
         TopGames/
     LobbyPage/
     CreateGamePage/
@@ -100,4 +123,5 @@ src/
     AboutSpanishDicePage/
     TermsPage/
     PrivacyPage/
+    NotFoundPage/
 ```
