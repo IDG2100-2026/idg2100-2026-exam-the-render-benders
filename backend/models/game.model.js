@@ -22,6 +22,17 @@ const gameSchema = new mongoose.Schema({
         enum: GAME_STATUSES,
         default: "waiting"
     },
+    // Per-round data: dice rolls, held dice, round winner, and round timing
+    results: [{
+        rolls: [{ type: String, enum: ["7", "8", "J", "Q", "K", "A"] }],
+        holds: [{ type: Boolean }],
+        outcome: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        timestamps: {
+            startedAt: { type: Date, default: Date.now },
+            endedAt: { type: Date }
+        }
+    }],
+
     // Game result, filled in when the game is finished
     result: {
         winner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
