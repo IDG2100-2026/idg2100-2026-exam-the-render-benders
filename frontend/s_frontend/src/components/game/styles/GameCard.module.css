@@ -1,0 +1,159 @@
+@import url(@styles/variables.css);
+
+.gameCard {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--sek-bg-panel);
+    border: 1px solid var(--sek-border);
+    border-radius: 0.75rem;
+    box-shadow: var(--sek-glow-soft);
+    backdrop-filter: blur(10px);
+}
+
+.cardTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.gameType {
+    margin: 0 0 0.35rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sek-accent-muted);
+}
+
+.gameTitle {
+    margin: 0;
+    color: var(--sek-text-primary);
+    font-size: 1.15rem;
+}
+
+.status {
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    text-transform: capitalize;
+    border: 1px solid var(--sek-border);
+    white-space: nowrap;
+}
+
+.statusPending {
+    color: var(--sek-accent-soft);
+    background: var(--sek-hover);
+}
+
+.statusOngoing {
+    color: var(--sek-accent-purple);
+    background: rgba(167, 139, 250, 0.12);
+    border-color: rgba(167, 139, 250, 0.3);
+}
+
+.statusCompleted {
+    color: var(--sek-text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.metaRow,
+.settingsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+    color: var(--sek-text-secondary);
+    font-size: 0.95rem;
+}
+
+.playerSection {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.playerBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    background: var(--sek-glass);
+    border: 1px solid var(--sek-border-soft);
+    border-radius: 0.65rem;
+}
+
+.label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sek-text-secondary);
+}
+
+.value {
+    color: var(--sek-text-primary);
+    font-weight: 600;
+}
+
+.actionRow {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.gameLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--sek-border);
+    background: var(--sek-hover);
+    color: var(--sek-accent-primary);
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.cardHint {
+    margin: 0;
+    color: var(--sek-text-secondary);
+    font-size: 0.9rem;
+}
+
+.gameLink:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.gameLink:hover {
+    background: var(--sek-active);
+    border-color: var(--sek-accent-muted);
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .gameCard {
+        padding: 0.85rem;
+    }
+
+    .metaRow,
+    .settingsRow {
+        font-size: 0.85rem;
+    }
+    .cardTop {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .playerSection {
+        grid-template-columns: 1fr;
+    }
+
+    .actionRow {
+        justify-content: stretch;
+    }
+
+    .gameLink {
+        width: 100%;
+    }
+}

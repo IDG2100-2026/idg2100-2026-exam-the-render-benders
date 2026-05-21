@@ -1,0 +1,97 @@
+@import url(@styles/variables.css);
+
+.commentSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.title {
+    margin: 0;
+    color: var(--sek-text-primary);
+}
+
+.subtitle {
+    margin: 0;
+    color: var(--sek-text-secondary);
+}
+
+.loadingWrapper {
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+}
+
+.commentList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+}
+
+.commentCard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--sek-bg-panel);
+    border: 1px solid var(--sek-border-soft);
+    border-radius: 0.7rem;
+}
+
+.commentTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.author {
+    margin: 0 0 0.2rem;
+    color: var(--sek-text-primary);
+    font-weight: 600;
+}
+
+.date {
+    margin: 0;
+    color: var(--sek-text-secondary);
+    font-size: 0.85rem;
+}
+
+.content {
+    margin: 0;
+    color: var(--sek-text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.deleteButton {
+    padding: 0.45rem 0.75rem;
+    background: transparent;
+    border: 1px solid var(--sek-border);
+    border-radius: 0.5rem;
+    color: var(--sek-text-secondary);
+    font: inherit;
+    cursor: pointer;
+}
+
+.emptyState {
+    padding: 1rem;
+    text-align: center;
+    background: var(--sek-glass);
+    border: 1px solid var(--sek-border-soft);
+    border-radius: 0.7rem;
+    color: var(--sek-text-secondary);
+}
+
+@media (max-width: 640px) {
+    .commentTop {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
