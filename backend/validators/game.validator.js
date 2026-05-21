@@ -16,8 +16,8 @@ export const validateCreateGame = [
         .withMessage("Rounds must be 3, 5 or 7"),
 
     body("variant.timeControl")
-        .isIn([3, 10, 30])
-        .withMessage("Time control must be 3, 10 or 30"),
+        .isIn([10, 30, 90])
+        .withMessage("Time control must be 10, 30 or 90"),
 
     // Rules default to "straights-allowed" in the model - validator only runs when the field is present
     body("variant.rules")

@@ -6,9 +6,9 @@ export const validateCreateTournament = [
         .notEmpty()
         .withMessage("Tournament name is required"),
 
-    body("format")
-        .isIn(["single-elimination", "round-robin"])
-        .withMessage("Format must be single-elimination or round-robin"),
+    body("tournamentType")
+        .isIn(["knockout", "arena"])
+        .withMessage("Tournament type must be 'knockout' or 'arena'"),
 
     body("description")
         .optional()
@@ -19,6 +19,26 @@ export const validateCreateTournament = [
         .optional()
         .isISO8601()
         .withMessage("startDate must be a valid ISO 8601 date (e.g. 2026-04-10T18:00:00Z)"),
+
+    body("gameCategory")
+        .optional()
+        .isMongoId()
+        .withMessage("gameCategory must be a valid ID"),
+
+    body("minParticipants")
+        .optional()
+        .isInt({ min: 2 })
+        .withMessage("minParticipants must be at least 2"),
+
+    body("maxParticipants")
+        .optional()
+        .isInt({ min: 2 })
+        .withMessage("maxParticipants must be at least 2"),
+
+    body("durationMinutes")
+        .optional()
+        .isInt({ min: 1 })
+        .withMessage("durationMinutes must be a positive number"),
 
     // Optional - game variant for the tournament matches
     body("variant.rounds")
@@ -33,8 +53,8 @@ export const validateCreateTournament = [
 
     body("variant.timeControl")
         .optional()
-        .isInt({ min: 1 })
-        .withMessage("Time control must be a positive number (seconds per round)")
+        .isIn([10, 30, 90])
+        .withMessage("Time control must be 10, 30 or 90")
 ];
 
 export const validateUpdateTournament = [
@@ -45,11 +65,7 @@ export const validateUpdateTournament = [
     body("winner")
         .optional()
         .isMongoId()
-        .withMessage("Winner must be a valid user ID"),
-    body("format")
-        .optional()
-        .isIn(["single-elimination", "round-robin"])
-        .withMessage("Format must be 'single-elimination' or 'round-robin'")
+        .withMessage("Winner must be a valid user ID")
 ];
 
 export const validateJoinTournament = [

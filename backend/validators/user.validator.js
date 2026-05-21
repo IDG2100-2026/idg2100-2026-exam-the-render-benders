@@ -11,7 +11,9 @@ export const validateCreateUser = [
         .withMessage("Must be a valid email"),
     body("pwd")
         .isLength({ min: 8, max: 128 })
-        .withMessage("Password must be between 8 and 128 characters"),
+        .withMessage("Password must be between 8 and 128 characters")
+        .isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 })
+        .withMessage("Password must include at least one uppercase letter, lowercase letter, number and symbol"),
     body("dateOfBirth")
         .isISO8601()
         .withMessage("Must be a valid date")

@@ -4,7 +4,9 @@ export const validateCreateComment = [
     body("body")
     .isString()
     .notEmpty()
-    .withMessage("Comment body is required"),
+    .withMessage("Comment body is required")
+    .isLength({ max: 1000 })
+    .withMessage("Comment cannot exceed 1000 characters"),
 
     body("author")
     .isMongoId()

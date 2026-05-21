@@ -5,7 +5,8 @@ const commentSchema = new mongoose.Schema({
     // The comment text
     body: {
         type: String,
-        required: true
+        required: true,
+        maxLength: 1000
     },
     // The user who wrote the comment, reference to User document
     author: {
