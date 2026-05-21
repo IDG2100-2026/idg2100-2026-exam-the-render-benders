@@ -16,6 +16,17 @@ const tournamentSchema = new mongoose.Schema({
     startDate: {
         type: Date
     },
+    // Tournament type: knockout (bracket elimination) or arena (score-based)
+    tournamentType: {
+        type: String,
+        enum: ["knockout", "arena"],
+        required: true
+    },
+    // Game category (normalized reference to GameCategory)
+    gameCategory: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "GameCategory"
+    },
     // Tournament format
     format: {
         type: String,
@@ -40,22 +51,35 @@ const tournamentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-    }
-    ],
+    }],
+    // Min / Max players
+    minParticipants: { type: Number, default: 2 },
+    maxParticipants: { type: Number, default: 8 },
+    // Tournament rounds - each round holds match IDs and an optional bye player
+    rounds: [{
+        roundNumber: { type: Number },
+        matches: [{ type: mongoose.Schema.Types.ObjectId, ref: "Game" }],
+        // Odd-number rounds: this player advances automatically without playing
+        byePlayer: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
+    }],
+    // Arena-only: accumulated scores per participant across all matches
+    arenaScores: [{
+        participant: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        points: { type: Number, default: 0 }
+    }],
+    // Duration in minutes (arena tournaments only)
+    durationMinutes: { type: Number, default: 60 },
     // Winner of the tournament, filled in when finished
     winner: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
-    // Trophy image filename, uploaded via Multer
+    // Trophy awarded to the winner of this tournament
     trophy: {
-        type: String
-    },
-    // First-round pairings generated when tournament starts (random shuffle)
-    bracket: [{
-        player1: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        player2: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
-    }]
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Trophy",
+        default: null
+    }
 }, { timestamps: true });
 
 // Create and export the Tournament model

@@ -58,21 +58,20 @@ const userSchema = new mongoose.Schema({
         min: 0
     },
 
-    // Separate ELOs for the three time controls
-    elo3s: { type: Number, default: DEFAULT_ELO, min: 0 },
+    // Separate ELOs for the three time controls (10s, 30s, 90s)
     elo10s: { type: Number, default: DEFAULT_ELO, min: 0 },
     elo30s: { type: Number, default: DEFAULT_ELO, min: 0 },
+    elo90s: { type: Number, default: DEFAULT_ELO, min: 0 },
 
     // Game stats, updated automatically when a game finishes
     wins: { type: Number, default: 0, min: 0 },
     gamesPlayed: { type: Number, default: 0, min: 0 },
 
-    // Trophies won by winning tournaments, each has a title and image
+    // Trophies won by winning tournaments, references to Trophy documents
     trophies: [{
-        title: { type: String, required: true },
-        image: { type: String, required: true }
-    }
-    ],
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Trophy"
+    }],
 
     // ELO history - each entry records a rating and when it was set - used to calculate weekly change
     eloHistory: [{
