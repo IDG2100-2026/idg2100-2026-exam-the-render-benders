@@ -1,0 +1,140 @@
+### Spanish Poker Dice API - REST Client Requests
+# Use with VS Code "REST Client" extension
+
+@baseUrl = http://localhost:3000/api/v1
+@contentType = application/json
+
+### Register a new user
+POST {{baseUrl}}/users
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "email": "test@example.com",
+    "pwd": "password123",
+    "dateOfBirth": "1995-06-15"
+}
+
+### Login as carlos88
+# @name login
+POST {{baseUrl}}/users/login
+Content-Type: {{contentType}}
+
+{
+    "username": "carlos88",
+    "password": "password123"
+}
+
+### Get carlos88's profile
+@userId = {{login.response.body._id}}
+
+GET {{baseUrl}}/users/carlos88
+x-user-type: user
+x-user-id: {{userId}}
+
+### Get all users
+GET {{baseUrl}}/users
+x-user-type: user
+
+### Update appearance preferences
+PATCH {{baseUrl}}/users/carlos88/preferences
+Content-Type: {{contentType}}
+x-user-type: user
+x-user-id: {{userId}}
+
+{
+    "theme": "dark",
+    "boardColor": "#1a1a2e",
+    "sound": true,
+    "lobbyCount": 5
+}
+
+### Leaderboard sorted by Elo
+GET {{baseUrl}}/leaderboard?sortBy=elo
+x-user-type: anonymous
+
+### Leaderboard sorted by wins
+GET {{baseUrl}}/leaderboard?sortBy=wins
+x-user-type: anonymous
+
+### Get lobby games filtered for logged-in user
+GET {{baseUrl}}/games?status=waiting
+x-user-type: user
+x-user-id: {{userId}}
+
+### Get lobby games as anonymous user
+GET {{baseUrl}}/games?status=waiting
+x-user-type: anonymous
+
+### Get top 5 games for homepage
+GET {{baseUrl}}/games/top
+x-user-type: anonymous
+
+### Create a new game
+POST {{baseUrl}}/games
+Content-Type: {{contentType}}
+x-user-type: user
+x-user-id: {{userId}}
+
+{
+    "players": ["{{userId}}"],
+    "variant": {
+        "rounds": 3,
+        "rules": "straights-allowed",
+        "timeControl": 10
+    },
+    "allowAnonymous": true,
+    "desiredElo": 1200
+}
+
+### Join a game (replace GAME_ID)
+PATCH {{baseUrl}}/games/GAME_ID/join
+Content-Type: {{contentType}}
+x-user-type: user
+x-user-id: {{userId}}
+
+{
+    "player": "{{userId}}"
+}
+
+### Get comments for a game (replace GAME_ID)
+GET {{baseUrl}}/games/GAME_ID/comments
+x-user-type: anonymous
+
+### Post a comment on a game (replace GAME_ID)
+POST {{baseUrl}}/comments
+Content-Type: {{contentType}}
+x-user-type: user
+x-user-id: {{userId}}
+
+{
+    "body": "Great game!",
+    "author": "{{userId}}",
+    "game": "GAME_ID"
+}
+
+### Get all tournaments
+GET {{baseUrl}}/tournaments
+x-user-type: anonymous
+
+### Get a single tournament (replace TOURNAMENT_ID)
+GET {{baseUrl}}/tournaments/TOURNAMENT_ID
+x-user-type: anonymous
+
+### Join a tournament (replace TOURNAMENT_ID)
+PATCH {{baseUrl}}/tournaments/TOURNAMENT_ID/join
+Content-Type: {{contentType}}
+x-user-type: user
+x-user-id: {{userId}}
+
+{
+    "player": "{{userId}}"
+}
+
+### Get comments for a tournament (replace TOURNAMENT_ID)
+GET {{baseUrl}}/tournaments/TOURNAMENT_ID/comments
+x-user-type: anonymous
+
+### Platform activity stats
+GET {{baseUrl}}/activity
+x-user-type: anonymous

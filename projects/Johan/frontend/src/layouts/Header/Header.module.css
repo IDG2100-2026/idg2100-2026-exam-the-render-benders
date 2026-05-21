@@ -1,0 +1,277 @@
+.header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 4rem;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--text-h);
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-decoration: none;
+    letter-spacing: -0.5px;
+}
+
+.logo:hover {
+    text-decoration: none;
+}
+
+.logoIcon {
+    color: var(--accent);
+    font-size: 1.5rem;
+    transition: color 0.2s ease;
+}
+
+.logoText {
+    color: var(--text-h);
+    transition: color 0.2s ease;
+}
+
+.logo:hover .logoIcon {
+    color: var(--text-h);
+}
+
+.logo:hover .logoText {
+    color: var(--accent);
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Separator line between nav links and user area */
+.greetingWrapper {
+    border-left: 1px solid var(--border);
+    padding-left: 1rem;
+}
+
+.nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+}
+
+.nav a:hover {
+    background-color: var(--bg);
+    color: var(--accent);
+    border-color: var(--border);
+}
+
+.nav a:global(.active) {
+    background-color: var(--accent-bg);
+    color: var(--accent);
+    border-color: var(--accent-border);
+}
+
+.mobileNav {
+    display: none;
+}
+
+.menuButton {
+    display: none;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    color: var(--bg);
+    font-size: 1.1rem;
+    padding: 0.35rem 0.6rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.menuButton:hover {
+    background: var(--accent-hover);
+}
+
+@media (max-width: 640px) {
+    .nav, .greetingWrapper {
+        display: none;
+    }
+
+    .headerActions {
+        gap: 0.75rem;
+    }
+
+    .menuButton {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Mobile Nav Container */
+    .mobileNav {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--bg-secondary);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 1.5rem;
+        z-index: 100;
+        box-shadow: var(--shadow);
+    }
+
+    .mobileNav ul {
+        display: flex;
+        flex-direction: column;
+        list-style: none;
+        gap: 0.5rem;
+    }
+
+    /* Standard mobile link padding */
+    .mobileNav li a {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--text);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+
+    .mobileNav li a:hover {
+        background-color: var(--bg);
+        color: var(--accent);
+        border-color: var(--border);
+    }
+
+    .mobileNav li a:global(.active) {
+        background-color: var(--accent-bg);
+        color: var(--accent);
+        border-color: var(--accent-border);
+    }
+
+    /* Auth Section in Mobile Menu */
+    .mobileAuthItem {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border-top: 1px solid var(--border);
+        margin-top: 0.5rem;
+        padding-top: 1.25rem;
+        gap: 0.75rem;
+        /* Strictly no wrapping for the whole auth row */
+        flex-wrap: nowrap !important;
+        width: 100%;
+    }
+
+    /* Shared properties for mobile buttons (Logout and Auth buttons) */
+    .mobileLogout, .mobileAuthBtn {
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        font-family: inherit;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    /* Specifics for Login/Register buttons */
+    .mobileAuthBtn {
+        flex: 1;
+        display: block !important;
+    }
+
+    .mobileAuthBtn[href="/login"] {
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        background-color: transparent;
+    }
+
+    .mobileAuthBtn[href="/register"] {
+        background-color: var(--accent) !important;
+        color: #000 !important;
+        border: 1px solid var(--accent) !important;
+    }
+
+    /* Specifics for Logout button */
+    .mobileLogout {
+        background-color: var(--danger-bg);
+        border: 1px solid var(--danger-border);
+        color: var(--danger-text);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+
+    .mobileLogout:hover {
+        background-color: var(--danger);
+        color: #fff;
+    }
+
+    /* User Profile Info on Mobile (Image + Text) */
+    .mobileUserInfo {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+        text-decoration: none !important;
+        /* CRITICAL: Allows the name to shrink and use ellipsis */
+        min-width: 0;
+        flex: 1;
+        padding: 0 !important;
+        background: none !important;
+        border: none !important;
+    }
+
+    .mobileUserInfo:hover {
+        background: none !important;
+        border: none !important;
+    }
+
+    .mobileAvatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--accent);
+        flex-shrink: 0;
+    }
+
+    .mobileGreeting {
+        color: var(--text-h);
+        font-weight: bold;
+        font-size: 0.95rem;
+        /* Ellipsis logic */
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        min-width: 0;
+        flex: 1;
+    }
+}

@@ -1,0 +1,147 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem 1rem;
+    min-height: 80vh;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 400px; /* Perfect balanced width */
+    padding: 2rem; /* Clean internal padding */
+    border-radius: 16px;
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.form h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.6rem;
+    text-align: center;
+    font-weight: 800;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.field label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-h);
+}
+
+.field input {
+    padding: 0.7rem 1rem;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: var(--bg-secondary);
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -0.5rem;
+}
+
+.forgotPasswordButton {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    opacity: 0.6;
+    font-family: inherit;
+}
+
+.forgotPasswordButton:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.loginBtn {
+    padding: 0.8rem;
+    background-color: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+}
+
+.loginBtn:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.loginBtn:active {
+    transform: translateY(0);
+}
+
+.registerLink {
+    font-size: 0.85rem;
+    color: var(--text);
+    text-align: center;
+    margin-top: 0.5rem;
+    opacity: 0.8;
+}
+
+.registerButton {
+    color: var(--accent);
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.registerButton:hover {
+    text-decoration: underline !important;
+}
+
+.error {
+    color: var(--danger-text);
+    font-size: 0.85rem;
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .page {
+        justify-content: flex-start;
+        padding-top: 3rem;
+    }
+    .form {
+        padding: 1.5rem;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+    }
+}

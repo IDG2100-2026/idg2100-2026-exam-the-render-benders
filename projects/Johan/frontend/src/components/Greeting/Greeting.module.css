@@ -1,0 +1,97 @@
+.greeting {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.profileLink {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none !important;
+    transition: all 0.2s;
+    padding: 0.25rem 0.6rem;
+    border-radius: 8px;
+}
+
+.profileLink:hover {
+    background-color: var(--accent-bg);
+}
+
+.username {
+    color: var(--text-h);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* Logout Button - made more visible with distinct danger colors */
+.button {
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: var(--danger-text);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 6px;
+    font-family: inherit;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+}
+
+.button:hover {
+    background-color: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    box-shadow: 0 0 10px rgba(224, 92, 106, 0.3);
+}
+
+.loginButton, .registerButton {
+    padding: 0.35rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none !important;
+    transition: all 0.2s;
+}
+
+.loginButton {
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    background-color: transparent;
+}
+
+.loginButton:hover {
+    background-color: var(--accent-bg);
+}
+
+.registerButton {
+    background-color: var(--accent);
+    color: var(--bg);
+    border: 1px solid var(--accent);
+}
+
+.registerButton:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.profileIcon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    background-color: var(--bg-secondary);
+}
+
+@media (max-width: 800px) {
+    .username {
+        display: none;
+    }
+    .greeting {
+        gap: 0.5rem;
+    }
+}

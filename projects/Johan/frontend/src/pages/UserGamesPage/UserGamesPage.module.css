@@ -1,0 +1,251 @@
+.page {
+    margin: auto; /* Center the whole list container vertically and horizontally */
+    padding: 1.5rem 1rem;
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 80vh;
+    justify-content: flex-start; /* Ensure header stays at top of centered container */
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.25rem;
+    gap: 1rem;
+    text-align: center;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.titleIcon {
+    font-size: 1.25rem;
+    color: var(--accent);
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.username {
+    color: var(--accent);
+}
+
+.backLink {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent);
+    text-decoration: none !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: var(--accent-bg);
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s;
+    width: fit-content;
+}
+
+.backLink:hover {
+    background-color: var(--accent);
+    color: var(--bg);
+    text-decoration: none !important;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.gameListItem {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow);
+}
+
+.gameListItem:hover {
+    border-color: var(--accent-border);
+    transform: translateX(4px);
+    text-decoration: none !important;
+}
+
+/* Ensure no underline on hover */
+.gameListItem:hover * {
+    text-decoration: none !important;
+}
+
+.statusBadge {
+    font-size: 0.55rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 80px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.waiting { background-color: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
+.ongoing { background-color: #2ecc711a; color: #2ecc71; border: 1px solid #2ecc7166; }
+.finished { background-color: var(--bg); color: var(--text); border: 1px solid var(--border); opacity: 0.8; }
+
+.gameDetails {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+    text-align: left;
+}
+
+.gameOpponent {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-h);
+}
+
+.gameMeta {
+    font-size: 0.75rem;
+    color: var(--text);
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.gameMeta span {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.gameMeta svg {
+    font-size: 0.85rem;
+    color: var(--accent);
+}
+
+.rulesText {
+    font-weight: 700;
+    color: var(--text-h);
+    opacity: 1;
+}
+
+.resultText {
+    font-size: 0.7rem;
+    color: var(--text);
+    opacity: 0.5;
+    font-style: italic;
+    margin-top: 0.1rem;
+}
+
+.rightInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.dateText {
+    font-size: 0.8rem;
+    color: var(--text);
+    opacity: 0.4;
+    white-space: nowrap;
+}
+
+.arrowIcon {
+    font-size: 1.1rem;
+    color: var(--accent);
+    opacity: 0.2;
+    transition: opacity 0.2s;
+}
+
+.gameListItem:hover .arrowIcon {
+    opacity: 0.8;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    border: 2px dashed var(--border);
+    margin: auto 0; /* Center empty message vertically */
+}
+
+.lobbyLink {
+    display: inline-block;
+    margin-top: 1.25rem;
+    color: var(--accent);
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none !important;
+    padding: 0.5rem 1.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.lobbyLink:hover {
+    background-color: var(--accent);
+    color: var(--bg);
+    text-decoration: none !important;
+}
+
+.error {
+    color: var(--danger-text);
+    background-color: var(--danger-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+@media (max-width: 650px) {
+    .page {
+        margin: 1rem auto;
+    }
+
+    .gameListItem {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .gameDetails {
+        order: 3;
+        width: 100%;
+        flex: none;
+    }
+
+    .statusBadge {
+        order: 1;
+    }
+
+    .rightInfo {
+        order: 2;
+        margin-left: auto;
+    }
+
+    .arrowIcon {
+        display: none;
+    }
+}

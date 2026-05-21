@@ -1,0 +1,75 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    margin: auto; /* Center vertically */
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+    max-width: 800px;
+    width: 100%;
+    min-height: 80vh;
+    justify-content: center; /* Center content within min-height */
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 2.5rem 2rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.hero h1 {
+    color: var(--text-h);
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 800;
+}
+
+.hero p {
+    color: var(--text);
+    font-size: 1rem;
+    max-width: 500px;
+    margin: 0.5rem auto;
+    line-height: 1.6;
+    opacity: 0.8;
+}
+
+.heroButton {
+    margin-top: 1rem;
+    align-self: center;
+    padding: 0.75rem 2rem;
+    background-color: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: var(--bg);
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.heroButton:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-2px);
+}
+
+.heroButton:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 600px) {
+    .page {
+        justify-content: flex-start; /* Don't center vertically on small screens */
+        padding-top: 2rem;
+    }
+    .hero {
+        padding: 2rem 1.5rem;
+    }
+    .hero h1 {
+        font-size: 1.5rem;
+    }
+}

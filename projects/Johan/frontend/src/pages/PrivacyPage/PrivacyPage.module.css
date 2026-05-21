@@ -1,0 +1,44 @@
+.page {
+    margin: auto;
+    padding: 2rem 1.5rem;
+    max-width: 800px;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 80vh;
+    justify-content: center;
+}
+
+.page h1 {
+    font-size: 1.75rem;
+    margin: 0;
+    text-align: center;
+}
+
+.updated {
+    font-size: 0.85rem;
+    opacity: 0.6;
+    text-align: center;
+    margin-top: -1rem;
+}
+
+.page h2 {
+    font-size: 1.15rem;
+    margin-top: 1rem;
+    color: var(--accent);
+}
+
+.page p {
+    line-height: 1.6;
+    margin: 0;
+    opacity: 0.9;
+}
+
+@media (max-width: 600px) {
+    .page {
+        justify-content: flex-start;
+        padding-top: 2rem;
+    }
+}

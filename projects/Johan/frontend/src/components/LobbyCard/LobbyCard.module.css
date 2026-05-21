@@ -1,0 +1,153 @@
+.card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-bg);
+    transform: translateX(3px);
+}
+
+.avatarWrapper {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+    background-color: var(--bg);
+}
+
+.players {
+    flex: 1;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-h);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playerLink {
+    color: var(--text-h);
+    text-decoration: none !important;
+    font-weight: 700;
+}
+
+.playerLink:hover {
+    color: var(--accent);
+    text-decoration: none !important;
+}
+
+/* Variant info (rounds, time, rules) */
+.variant {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--text);
+    opacity: 0.6;
+}
+
+.variant span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.variant svg {
+    color: var(--accent);
+    font-size: 0.9rem;
+}
+
+.rules {
+    font-weight: 700;
+    color: var(--text-h);
+    opacity: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+/* Elo pill */
+.elo {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: var(--accent-bg);
+    color: var(--accent);
+    padding: 0.2rem 0.6rem;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    margin-left: 0.5rem;
+    border: 1px solid var(--accent-border);
+}
+
+.joinButton {
+    padding: 0.35rem 0.9rem;
+    background-color: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.joinButton:hover {
+    background-color: var(--accent-hover);
+}
+
+@media (max-width: 700px) {
+    .card {
+        flex-wrap: wrap;
+        padding: 1rem;
+        gap: 0.75rem;
+    }
+    .players {
+        order: 1;
+        flex: 1;
+    }
+    .avatarWrapper {
+        order: 0;
+    }
+    .elo {
+        margin-left: auto;
+        order: 2;
+    }
+    .variant {
+        order: 3;
+        width: 100%;
+        padding-top: 0.25rem;
+        border-top: 1px solid var(--border);
+        gap: 1rem;
+    }
+    .joinButton {
+        order: 4;
+        width: 100%;
+        text-align: center;
+        margin-left: 0;
+        margin-top: 0.5rem;
+    }
+}
