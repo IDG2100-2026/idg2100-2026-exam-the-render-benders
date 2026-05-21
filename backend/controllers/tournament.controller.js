@@ -5,11 +5,13 @@ import tournamentService from "../services/tournament.service.js";
 // Supports filtering by status: ?status=upcoming, ?status=ongoing or ?status=finished
 export async function getAllTournaments(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const filter = {};
         if (req.query.status) filter.status = req.query.status;
-        const tournaments = await tournamentService.getAllTournaments({ page, limit, filter });
+        if (req.query.tournamentType) filter.tournamentType = req.query.tournamentType;
+        if (req.query.gameCategory) filter.gameCategory = req.query.gameCategory;
+        const tournaments = await tournamentService.getAllTournaments({ skip, limit, filter });
         res.status(200).json(tournaments);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -30,20 +32,15 @@ export async function getTournament(req, res) {
 // Create a new Tournament and return it as JSON
 export async function createTournament(req, res) {
     try {
-        if (req.user?.type !== "admin") return res.status(403).json({ error: "Admin access required" });
-        const data = { ...req.body };
-        if (req.file) data.trophy = req.file.filename;
-        const tournament = await tournamentService.createTournament(data);
+        const tournament = await tournamentService.createTournament(req.body);
         res.status(201).json(tournament);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 }
 
-// Updates a Tournament by ID (tid) and return the updated Tournament as JSON (admin only)
 export async function updateTournament(req, res) {
     try {
-        if (req.user?.type !== "admin") return res.status(403).json({ error: "Admin access required" });
         const tournament = await tournamentService.updateTournament(req.params.tid, req.body);
         if (!tournament) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(tournament);
@@ -52,11 +49,8 @@ export async function updateTournament(req, res) {
     }
 }
 
-// Adds the requesting user to a tournament's players list
-// Anonymous users cannot join tournaments
 export async function joinTournament(req, res) {
     try {
-        if (req.user?.type === "anonymous") return res.status(403).json({ error: "Login required to join tournaments" });
         const tournament = await tournamentService.joinTournament(req.params.tid, req.body.player);
         if (!tournament) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(tournament);
@@ -65,15 +59,45 @@ export async function joinTournament(req, res) {
     }
 }
 
-// Starts a tournament: randomly pairs players into a bracket and sets status to ongoing (admin only)
 export async function startTournament(req, res) {
     try {
-        if (req.user?.type !== "admin") return res.status(403).json({ error: "Admin access required" });
         const tournament = await tournamentService.startTournament(req.params.tid);
         if (!tournament) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(tournament);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+}
+
+export async function leaveTournament(req, res) {
+    try {
+        const tournament = await tournamentService.leaveTournament(req.params.tid, req.body.player);
+        if (!tournament) return res.status(404).json({ error: "Tournament not found" });
+        res.status(200).json(tournament);
+    } catch (err) {
+        const status = err.message.includes("already started") ? 403 : err.message.includes("not in") ? 404 : 500;
+        res.status(status).json({ error: err.message });
+    }
+}
+
+export async function getTournamentStandings(req, res) {
+    try {
+        const standings = await tournamentService.getTournamentStandings(req.params.tid);
+        if (!standings) return res.status(404).json({ error: "Tournament not found" });
+        res.status(200).json(standings);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export async function deleteTournament(req, res) {
+    try {
+        const tournament = await tournamentService.deleteTournament(req.params.tid);
+        if (!tournament) return res.status(404).json({ error: "Tournament not found" });
+        res.status(200).json(tournament);
+    } catch (err) {
+        const status = err.message.includes("already started") ? 403 : 500;
+        res.status(status).json({ error: err.message });
     }
 }
 
@@ -83,5 +107,8 @@ export default {
     createTournament,
     updateTournament,
     joinTournament,
+    leaveTournament,
+    getTournamentStandings,
+    deleteTournament,
     startTournament
 };
