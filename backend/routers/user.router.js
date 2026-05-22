@@ -37,8 +37,5 @@ userRouter.get("/users/:username/trophies", userController.getUserTrophies);
 // Get leaderboard, sorted by ELO
 userRouter.get("/leaderboard", userController.getLeaderboard);
 
-// Login a user, checks username and password
-userRouter.post("/users/login", userController.loginUser);
-
 // Export the router so it can be registered in app.js
 export default userRouter;

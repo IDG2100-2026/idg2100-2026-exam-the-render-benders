@@ -148,6 +148,33 @@ export async function createGame(data) {
     return await Game.create(data);
 }
 
+// Removes a player from a game.
+// - "waiting" game: just remove the player; delete the game if no players left
+// - "ongoing" game: forfeit - the other player wins, game becomes "finished"
+// - "finished" game: cannot leave (already done)
+export async function leaveGame(gid, playerId) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
+    if (game.status === "finished") throw new Error("Cannot leave a finished game");
+
+    const isInGame = game.players.some(p => p.toString() === playerId.toString());
+    if (!isInGame) throw new Error("You are not in this game");
+
+    if (game.status === "waiting") {
+        await Game.findByIdAndUpdate(gid, { $pull: { players: playerId } });
+        const updated = await Game.findById(gid);
+        if (updated.players.length === 0) {
+            await Game.findByIdAndDelete(gid);
+            return { deleted: true };
+        }
+        return updated;
+    }
+
+    // ongoing - forfeit to the other player
+    const opponent = game.players.find(p => p.toString() !== playerId.toString());
+    return await updateGame(gid, { status: "finished", result: { winner: opponent } });
+}
+
 // Updates a game by ID (gid), then returns the updated document
 // If the game just became finished and has a winner, updates both players' ELO ratings
 export async function updateGame(gid, data) {
@@ -193,5 +220,6 @@ export default {
     getGame,
     joinGame,
     createGame,
-    updateGame
+    updateGame,
+    leaveGame
 };

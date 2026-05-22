@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useParams } from "react-router";
-import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty } from "react-icons/md";
+import { Link, useParams, useNavigate } from "react-router";
+import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty, MdExitToApp } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { apiFetch, getAssetUrl } from "@/api";
@@ -8,6 +8,7 @@ import styles from "./GamePage.module.css";
 
 export default function GamePage() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { user } = useAuth();
     const { preferences } = useAppearance();
     const [game, setGame] = useState(null);
@@ -70,11 +71,26 @@ export default function GamePage() {
         }
     }
 
+    async function handleLeaveGame() {
+        const confirmMsg = game.status === "ongoing"
+            ? "Leaving an ongoing game will forfeit the match to your opponent. Continue?"
+            : "Are you sure you want to leave this game?";
+        if (!window.confirm(confirmMsg)) return;
+        try {
+            await apiFetch(`/games/${id}/players/${user._id}`, { method: "DELETE" });
+            navigate("/lobby");
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
     if (error) return <div className={styles.pageLayout}><p className={styles.error}>{error}</p></div>;
     if (!game) return <div className={styles.pageLayout}><p>Loading...</p></div>;
 
     const host = game.players[0];
     const opponent = game.players[1];
+    const isPlayer = user && game.players.some(p => p._id === user._id);
+    const canLeave = isPlayer && game.status !== "finished";
 
     return (
         <div className={styles.pageLayout}>
@@ -95,6 +111,11 @@ export default function GamePage() {
                             <span className={styles.variantBadge}>
                                 {game.variant.rules === "straights-allowed" ? "Straights" : "No straights"}
                             </span>
+                            {canLeave && (
+                                <button className={styles.leaveBtn} onClick={handleLeaveGame}>
+                                    <MdExitToApp /> {game.status === "ongoing" ? "Forfeit" : "Leave"}
+                                </button>
+                            )}
                         </div>
                     </div>
 

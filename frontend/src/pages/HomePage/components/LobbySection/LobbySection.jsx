@@ -32,8 +32,8 @@ export default function LobbySection() {
     async function handleCardClick(gameId) {
         if (user) {
             try {
-                await apiFetch(`/games/${gameId}/join`, {
-                    method: "PATCH",
+                await apiFetch(`/games/${gameId}/players`, {
+                    method: "POST",
                     body: JSON.stringify({ player: user._id })
                 });
             } catch {

@@ -24,12 +24,17 @@ export async function createGame(gameData) {
     });
 }
 
-// join an existing game from the lobby
+// join an existing game - POST /games/:gid/players
 export async function joinGame(gid, playerId) {
-    return await apiFetch(`/games/${gid}/join`, {
-        method: "PATCH",
+    return await apiFetch(`/games/${gid}/players`, {
+        method: "POST",
         body: JSON.stringify({ player: playerId })
     });
+}
+
+// leave a game (forfeit if ongoing) - DELETE /games/:gid/players/:uid
+export async function leaveGame(gid, userId) {
+    return await apiFetch(`/games/${gid}/players/${userId}`, { method: "DELETE" });
 }
 
 // update a game (e.g. save result when finished)

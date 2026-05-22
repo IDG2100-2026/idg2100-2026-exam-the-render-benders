@@ -6,6 +6,7 @@ import { setUserType } from "./middleware/auth.middleware.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
+import sessionRouter from "./routers/session.router.js";
 import gameRouter from "./routers/game.router.js";
 import tournamentRouter from "./routers/tournament.router.js";
 import commentRouter from "./routers/comment.router.js";
@@ -43,6 +44,7 @@ app.use("/uploads", express.static("backend/uploads"));
 
 // Register routers
 app.use("/api/v1", userRouter);
+app.use("/api/v1", sessionRouter);
 app.use("/api/v1", gameRouter);
 app.use("/api/v1", tournamentRouter);
 app.use("/api/v1", commentRouter);

@@ -90,6 +90,25 @@
     color: var(--text);
 }
 
+.leaveBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.35rem 0.75rem;
+    background-color: var(--danger-bg, #e74c3c1a);
+    border: 1px solid var(--danger-border, #e74c3c66);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--danger-text, #e74c3c);
+    cursor: pointer;
+    margin-left: auto;
+}
+
+.leaveBtn:hover {
+    background-color: var(--danger-bg-hover, #e74c3c33);
+}
+
 /* Participants Section */
 .playersSection {
     display: flex;

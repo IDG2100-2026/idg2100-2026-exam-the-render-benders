@@ -15,14 +15,16 @@ export default function LoginPage() {
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            const userData = await apiFetch("/users/login", {
+            const userData = await apiFetch("/sessions", {
                 method: "POST",
                 body: JSON.stringify({ username, pwd: password })
             });
             login(userData);
             navigate("/");
         } catch (err) {
-            setError(err.message);
+            // Generic message from backend is intentional (don't reveal which field is wrong)
+            // Add a hint about password requirements so users don't get stuck
+            setError("Invalid username or password. Remember: passwords require uppercase, a number and a symbol (e.g. Password123!).");
         }
     }
 

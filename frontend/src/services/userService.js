@@ -5,11 +5,11 @@ export async function getUser(username) {
     return await apiFetch(`/users/${username}`);
 }
 
-// login - returns the user object if credentials are correct
-export async function loginUser(username, password) {
-    return await apiFetch("/users/login", {
+// login - POST /sessions, returns the user object if credentials are correct
+export async function loginUser(username, pwd) {
+    return await apiFetch("/sessions", {
         method: "POST",
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, pwd })
     });
 }
 

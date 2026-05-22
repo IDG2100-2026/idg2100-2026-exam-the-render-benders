@@ -39,7 +39,7 @@ export default function RegisterPage() {
                 body: JSON.stringify({ username, email, pwd: password, dateOfBirth })
             });
             // Auto-login after successful registration
-            const userData = await apiFetch("/users/login", {
+            const userData = await apiFetch("/sessions", {
                 method: "POST",
                 body: JSON.stringify({ username, pwd: password })
             });

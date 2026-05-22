@@ -60,10 +60,29 @@ export async function joinGame(req, res) {
     try {
         const game = await gameService.joinGame(req.params.gid, req.body.player, req.user);
         if (!game) return res.status(404).json({ error: "Game not found" });
-        res.status(200).json(game);
+        res.status(201).json(game);
     } catch (err) {
         const status = err.message.includes("does not allow anonymous") ? 403
             : err.message.includes("already in an active game") ? 400 : 500;
+        res.status(status).json({ error: err.message });
+    }
+}
+
+// Removes a player from a game - DELETE /games/:gid/players/:uid
+// Only the player themselves (or an admin) can remove a player
+export async function leaveGame(req, res) {
+    try {
+        const { uid } = req.params;
+        const isAdmin = req.user?.type === "admin";
+        if (!isAdmin && req.user?.id !== uid) {
+            return res.status(403).json({ error: "You can only remove yourself from a game" });
+        }
+        const result = await gameService.leaveGame(req.params.gid, uid);
+        if (!result) return res.status(404).json({ error: "Game not found" });
+        res.status(200).json(result);
+    } catch (err) {
+        const status = err.message.includes("not in this game") ? 403
+            : err.message.includes("finished") ? 400 : 500;
         res.status(status).json({ error: err.message });
     }
 }
@@ -85,5 +104,6 @@ export default {
     getGame,
     createGame,
     joinGame,
+    leaveGame,
     updateGame
 };

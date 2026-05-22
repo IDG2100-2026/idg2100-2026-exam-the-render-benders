@@ -23,8 +23,11 @@ gameRouter.post("/games", requireUser, validateCreateGame, handleValidationError
 // Updates a game (saves the result when finished)
 gameRouter.put("/games/:gid", requireUser, validateUpdateGame, handleValidationErrors, gameController.updateGame);
 
-// Adds a player to a game (join from lobby)
-gameRouter.patch("/games/:gid/join", validateJoinGame, handleValidationErrors, gameController.joinGame);
+// POST /games/:gid/players - join a game (add yourself as a player)
+gameRouter.post("/games/:gid/players", validateJoinGame, handleValidationErrors, gameController.joinGame);
+
+// DELETE /games/:gid/players/:uid - leave a game (remove yourself; forfeits if ongoing)
+gameRouter.delete("/games/:gid/players/:uid", requireUser, gameController.leaveGame);
 
 // Gets all comments for a specific game
 gameRouter.get("/games/:gid/comments", commentController.getCommentsByGame);
