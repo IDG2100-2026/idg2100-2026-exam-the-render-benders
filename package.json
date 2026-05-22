@@ -10,9 +10,9 @@
     "prod": "node --env-file=backend/.env.prod backend/app.js",
     "frontend": "vite frontend",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "build": "vite build --root frontend",
+    "build": "vite build frontend",
     "lint": "eslint frontend/src",
-    "preview": "vite preview --root frontend"
+    "preview": "vite preview frontend"
   },
   "dependencies": {
     "cors": "^2.8.6",
