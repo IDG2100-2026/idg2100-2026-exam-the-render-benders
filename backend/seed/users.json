@@ -1,7 +1,7 @@
 [
     {
         "username": "carlos88",
-        "pwd": "password123",
+        "pwd": "Password123!",
         "email": "carlos88@example.com",
         "dateOfBirth": "1996-03-15",
         "aboutMe": "Veteran player from Madrid. I love the blitz format!",
@@ -17,7 +17,7 @@
     },
     {
         "username": "mariasol",
-        "pwd": "securepass1",
+        "pwd": "Securepass1!",
         "email": "mariasol@example.com",
         "dateOfBirth": "2000-07-22",
         "aboutMe": "Competitive player looking for friendly matches.",
@@ -33,7 +33,7 @@
     },
     {
         "username": "eriklarsen",
-        "pwd": "hunter2abc",
+        "pwd": "Hunter2abc!",
         "email": "eriklarsen@example.com",
         "dateOfBirth": "1992-11-08",
         "aboutMe": "Casual player from Norway. Always up for a game of Spanish Dice.",
@@ -49,7 +49,7 @@
     },
     {
         "username": "sofiaberg",
-        "pwd": "mysecret99",
+        "pwd": "Mysecret99!",
         "email": "sofiaberg@example.com",
         "dateOfBirth": "2003-05-14",
         "aboutMe": "New to the platform, eager to learn and climb the ladder!",
@@ -65,7 +65,7 @@
     },
     {
         "username": "lucas_diez",
-        "pwd": "password123",
+        "pwd": "Password123!",
         "email": "lucas@example.com",
         "dateOfBirth": "1995-12-10",
         "aboutMe": "I play to win. Straights are for the weak.",
@@ -81,7 +81,7 @@
     },
     {
         "username": "elena_r",
-        "pwd": "password123",
+        "pwd": "Password123!",
         "email": "elena@example.com",
         "dateOfBirth": "1998-01-25",
         "aboutMe": "Spanish Dice is my passion. Looking for high Elo opponents.",
@@ -97,7 +97,7 @@
     },
     {
         "username": "banned_user",
-        "pwd": "password123",
+        "pwd": "Password123!",
         "email": "banned@example.com",
         "dateOfBirth": "1990-06-15",
         "aboutMe": "This account has been suspended.",
@@ -113,7 +113,7 @@
     },
     {
         "username": "admin_poker",
-        "pwd": "adminpass1",
+        "pwd": "Adminpass1!",
         "email": "admin@pokerdice.com",
         "dateOfBirth": "1994-09-01",
         "aboutMe": "Platform administrator. Play fair and have fun!",

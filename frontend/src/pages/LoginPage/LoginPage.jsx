@@ -17,7 +17,7 @@ export default function LoginPage() {
         try {
             const userData = await apiFetch("/users/login", {
                 method: "POST",
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, pwd: password })
             });
             login(userData);
             localStorage.setItem("userType", "user");

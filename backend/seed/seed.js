@@ -31,8 +31,8 @@ try {
 // --- USERS ---
 let insertedUsers;
 try {
-    const hashedUsers = userArray.map(u => ({ ...u, pwd: hashPwd(u.pwd) }));
-    insertedUsers = await User.insertMany(hashedUsers);
+    const usersWithHashedPwd = userArray.map(u => ({ ...u, pwd: hashPwd(u.pwd) }));
+    insertedUsers = await User.insertMany(usersWithHashedPwd);
     console.log(`Users inserted: ${insertedUsers.length}`);
     insertedUsers.forEach(u => console.log(`  ${u.isAdmin ? "[admin]" : u.isBanned ? "[banned]" : "[user] "} ${u.username} (${u._id})`));
 } catch (err) {
@@ -242,6 +242,6 @@ try {
 
 await disconnectDB();
 console.log("\nSeeding complete.");
-console.log("  Admin login:  admin_poker / adminpass1");
-console.log("  User login:   carlos88 / password123");
-console.log("  Banned user:  banned_user / password123");
+console.log("  Admin login:  admin_poker / Adminpass1!");
+console.log("  User logins:  carlos88 / Password123!  |  lucas_diez / Password123!  |  elena_r / Password123!");
+console.log("  Banned user:  banned_user / Password123!");
