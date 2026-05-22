@@ -43,6 +43,34 @@ const userSchema = new mongoose.Schema({
         sparse: true,
         match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "{VALUE} is not a valid email address"]
     },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    sessions: [
+        {
+            refreshTokenHash: {
+                type: String,
+                required: true
+            },
+            expiresAt: {
+                type: Date,
+                required: true
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            },
+            userAgent: {
+                type: String,
+                default: null
+            },
+            ipAddress: {
+                type: String,
+                default: null
+            }
+        }
+    ],
     dateOfBirth: {
         type: Date,
         required: function () { return !this.isGuest; }

@@ -57,11 +57,11 @@ Useful reference code in `projects/`:
 ## Priority 1 - Authentication, Authorization, And Email Verification
 
 ### Part 1A - Backend Auth Foundation `[Sebbegang]`
-- [ ] Replace `backend/utils/hash.js` MD5 hashing with `bcrypt` or `argon2`
-- [ ] Install auth dependencies: `jsonwebtoken`, `cookie-parser`, `bcrypt`/`argon2`, `nodemailer`
-- [ ] Add `emailVerified` and refresh-token/session fields to `user.model.js`
-- [ ] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
-- [ ] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
+- [X] Replace `backend/utils/hash.js` MD5 hashing with `bcrypt` or `argon2` | Decided to stick with crypto since it's what we used in class
+- [x] Install auth dependencies: `jsonwebtoken`, `cookie-parser`, `nodemailer`
+- [x] Add `emailVerified` and refresh-token/session fields to `user.model.js`
+- [x] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
+- [x] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
 - [ ] Issue access and refresh tokens through httpOnly cookies
 
 ### Part 1B - Auth Middleware And Security Rules `[Tobbelobb]`
