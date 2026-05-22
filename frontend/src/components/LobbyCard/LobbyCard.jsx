@@ -4,7 +4,8 @@ import { getAssetUrl } from "@/api";
 import styles from "./LobbyCard.module.css";
 
 // Shared card component used in both LobbySection and LobbyPage.
-export default function LobbyCard({ game, onJoin, onCardClick }) {
+// onGuestJoin: called when an anonymous user clicks "Play as Guest" on an allowAnonymous game
+export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
     const avgElo = Math.round(
         game.players.reduce((sum, p) => sum + (p.elo || 1000), 0) / (game.players.length || 1)
     );
@@ -73,6 +74,14 @@ export default function LobbyCard({ game, onJoin, onCardClick }) {
                     onClick={(e) => { e.stopPropagation(); onJoin(game._id); }}
                 >
                     Join
+                </button>
+            )}
+            {onGuestJoin && (
+                <button
+                    className={styles.loginToJoin}
+                    onClick={(e) => { e.stopPropagation(); onGuestJoin(game._id); }}
+                >
+                    Play as Guest
                 </button>
             )}
         </div>

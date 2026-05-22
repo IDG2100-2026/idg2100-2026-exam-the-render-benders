@@ -6,7 +6,7 @@ import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./LobbyPage.module.css";
 
 export default function LobbyPage() {
-    const { user } = useAuth(); // get the logged in user to check eligibility
+    const { user, login } = useAuth();
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
     const [myGames, setMyGames] = useState([]);
@@ -38,11 +38,25 @@ export default function LobbyPage() {
     // Sends a join request and navigates to the game page on success
     async function handleJoin(gameId) {
         try {
-            await apiFetch(`/games/${gameId}/join`, {
-                method: "PATCH",
+            await apiFetch(`/games/${gameId}/players`, {
+                method: "POST",
                 body: JSON.stringify({ player: user?._id })
             });
-            // Automatically navigate to the game page after joining
+            navigate(`/games/${gameId}`);
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
+    // Creates a guest account, logs in as that guest, then joins the game
+    async function handleGuestJoin(gameId) {
+        try {
+            const guestUser = await apiFetch("/sessions/guest", { method: "POST" });
+            login(guestUser);
+            await apiFetch(`/games/${gameId}/players`, {
+                method: "POST",
+                body: JSON.stringify({ player: guestUser._id })
+            });
             navigate(`/games/${gameId}`);
         } catch (err) {
             setError(err.message);
@@ -89,6 +103,7 @@ export default function LobbyPage() {
                         game={game}
                         onJoin={user ? handleJoin : undefined}
                         onCardClick={user ? handleJoin : (id) => navigate(`/games/${id}`)}
+                        onGuestJoin={!user && game.allowAnonymous ? handleGuestJoin : undefined}
                     />
                 ))}
             </div>

@@ -130,6 +130,25 @@
     background-color: var(--accent-hover);
 }
 
+.loginToJoin {
+    padding: 0.35rem 0.9rem;
+    background-color: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    text-decoration: none !important;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.loginToJoin:hover {
+    background-color: var(--accent-bg);
+}
+
 @media (max-width: 700px) {
     .card {
         flex-wrap: wrap;

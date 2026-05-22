@@ -21,26 +21,31 @@ const userSchema = new mongoose.Schema({
         unique: true,
         minLength: [MIN_USERNAME_LENGTH, `Username must be at least ${MIN_USERNAME_LENGTH} characters`],
         maxLength: [MAX_USERNAME_LENGTH, `Username cannot exceed ${MAX_USERNAME_LENGTH} characters`],
-        match: [/^\w+$/, "Username can only contain letters and numbers"]
+        match: [/^[a-zA-Z0-9_À-ɏ]+$/, "Username can only contain letters (including æøå), numbers and underscores"]
+    },
+    // Guest users have no password, email or date of birth - all three are optional when isGuest is true
+    isGuest: {
+        type: Boolean,
+        default: false
     },
     pwd: {
         type: String,
-        required: true,
+        required: function () { return !this.isGuest; },
         trim: true,
         minLength: [MIN_PWD_LENGTH, `Passwords must be at least ${MIN_PWD_LENGTH} characters long`],
         maxLength: [MAX_PWD_LENGTH, `Password cannot exceed ${MAX_PWD_LENGTH} characters`]
     },
     email: {
         type: String,
-        required: true,
+        required: function () { return !this.isGuest; },
         trim: true,
         lowercase: true,
-        unique: true,
-        match: [/^.+@[a-z]+\.[a-z]+$/, "{VALUE} is not a valid email address"]
+        sparse: true,
+        match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "{VALUE} is not a valid email address"]
     },
     dateOfBirth: {
         type: Date,
-        required: true
+        required: function () { return !this.isGuest; }
     },
     aboutMe: {
         type: String,
