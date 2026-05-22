@@ -7,25 +7,19 @@
 
 > "Your understanding of the code and principles behind it will be prioritized during the exam over feature completeness." - README
 
-Each person owns a feature end-to-end (backend + frontend). That way everyone can fully explain what they built. After finishing, walk each other through your code so everyone understands everything.
+Each priority is split into 3 parts. Each person owns their letter across all priorities - that way everyone has backend + logic + frontend work and can explain a complete flow at the exam.
 
-### Feature priority
+**A = Sebbegang** - backend foundation: models, routes, core service logic
+**B = Tobbelobb** - middleware, rules, validation, business logic enforcement
+**C = Johchacho** - frontend pages, components, UX
 
-| Feature                                         | Priority | Notes                                       |
-| ----------------------------------------------- | -------- | ------------------------------------------- |
-| Schemas + models                                | Must     | Needs to be done first, blocks everything   |
-| Authentication (JWT, email verify)              | Must     | Security is a core exam topic               |
-| Playing the game (dice, holds, betting, ELO)    | Must     | The whole point of the platform             |
-| Web Components game board                       | Must     | Explicitly required by the exam             |
-| WebSockets for the game                         | Must     | Required - rolls must be sent via WS        |
-| Core frontend pages                             | Must     | Home, lobby, game, profile, login, register |
-| Basic tournament (join, start, advance, finish) | Must     | Required feature                            |
-| Seeded database                                 | Must     | Cannot demo without data                    |
-| Points system + buy-in                          | Should   | If time allows                              |
-| Admin pages                                     | Should   | If time allows                              |
-| Forgot-password                                 | Skip     | Low value, not worth the time               |
-| Arena tournaments                               | Skip     | README says only one type required          |
-| Comment WebSockets                              | Skip     | Non-live comments still work                |
+Use priorities top-to-bottom if time gets tight. Earlier sections block other work, are explicitly required by the exam, or make the demo credible.
+
+Useful reference code in `projects/`:
+- `projects/Seb/frontend/src/components/game/` - older game card/board/comment layout ideas
+- `projects/Seb/backend/project/seed/data/` - JSON seed-file structure worth copying
+- `projects/Seb/backend/project/services/matchmaking.service.js` - queue/matchmaking ideas (exam now wants waiting rooms instead)
+- Tournament frontend in `projects/Seb` and `projects/Tobias` is mostly stubbed - build in main app
 
 ---
 
@@ -50,140 +44,278 @@ Each person owns a feature end-to-end (backend + frontend). That way everyone ca
 - Comment ban check on create
 - 6 frontend service files
 
-**Current state:**
-- All models, full CRUD, route guards, ELO util, tournament logic (join/leave/standings/start/delete)
-- All existing pages, auth context, appearance context, full service layer
-- No JWT, no WebSockets, no game logic, no Web Components
+**Current state after bug bash (May 22):**
+- All models, full CRUD, route guards, ELO util, tournament logic
+- Auth persists on refresh (localStorage), auto-login after register, guest accounts for anonymous join
+- REST endpoints refactored to nouns: `POST /sessions`, `POST/DELETE /games/:gid/players/:uid`
+- Leave/forfeit game, active games on homepage + lobby, style preferences persisted to backend
+- All 35 bugs from BUGS.md resolved
+- Still missing: JWT, WebSockets, actual game logic, Web Components
 
 ---
 
-## AUTHENTICATION
-**Assigned to: ___**
+## Priority 1 - Authentication, Authorization, And Email Verification
 
-Backend:
-- [ ] User model: add `emailVerified` (false), `refreshToken`, replace MD5 with bcrypt
-- [ ] New model: `EmailVerification` (userId, code, expiresAt)
-- [ ] New model: `SecurityIncident` (type, ip, userAgent, userId, timestamp)
-- [ ] Install `jsonwebtoken`, `bcrypt`/`argon2`, `nodemailer`
-- [ ] `POST /auth/register` - hash password, send verification email
-- [ ] `POST /auth/login` - issue access (15 min) + refresh (7 days) tokens as httpOnly cookies, record IP
-- [ ] `POST /auth/refresh` - validate token, compare IP - log SecurityIncident on mismatch
-- [ ] `POST /auth/logout` - clear cookies, invalidate refresh token
-- [ ] `GET /auth/verify-email/:code` - expires 15 min, set emailVerified true
-- [ ] `POST /auth/resend-verification`
-- [ ] Update `auth.middleware.js` to read JWT from cookie instead of headers
-- [ ] Log SecurityIncident on rate limit exceeded
+### Part 1A - Backend Auth Foundation `[Sebbegang]`
+- [ ] Replace `backend/utils/hash.js` MD5 hashing with `bcrypt` or `argon2`
+- [ ] Install auth dependencies: `jsonwebtoken`, `cookie-parser`, `bcrypt`/`argon2`, `nodemailer`
+- [ ] Add `emailVerified` and refresh-token/session fields to `user.model.js`
+- [ ] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
+- [ ] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
+- [ ] Issue access and refresh tokens through httpOnly cookies
 
-Frontend:
-- [ ] Switch `apiFetch` from headers to JWT cookie
-- [ ] Silent access token refresh on 401
-- [ ] `AuthContext` stores decoded JWT payload (userId, type, emailVerified)
-- [ ] `ProtectedRoute` and `AdminRoute` components
-- [ ] `LoginPage`, `RegisterPage` wired to new auth endpoints
-- [ ] `EmailVerificationPage` - success/fail + resend
-- [ ] Email verification guard before joining a game or tournament
+### Part 1B - Auth Middleware And Security Rules `[Tobbelobb]`
+- [ ] Update `auth.middleware.js` to verify JWT cookies instead of trusting `x-user-type` / `x-user-id` headers
+- [ ] Include userId, admin state, emailVerified, and issuing IP in token payload
+- [ ] Fix profile authorization: `requireSelfOrAdmin` currently allows any logged-in user to edit any profile
+- [ ] Require verified, non-banned users before joining games/tournaments
+- [ ] Make admin-only writes depend on real admin auth
 
----
-
-## PLAYING THE GAME
-**Assigned to: ___**
-
-Backend:
-- [ ] WebSocket server alongside Express
-- [ ] Roll generation on backend, sent to players in their game room via WebSocket
-- [ ] Other players' rolls hidden until reveal at end of round
-- [ ] Hold logic: client sends held indices, backend stores in `results[]`
-- [ ] Betting state machine: bet / match / fold / raise
-- [ ] Pot calculation, winner collects pot at round end
-- [ ] `PATCH /games/:gid/leave` - leave before game starts
-- [ ] `GET /games/:gid/state` - restore full state on page reload
-- [ ] ELO update on finish - pairwise for all player combinations (use `backend/utils/elo.js`)
-- [ ] Time enforcement: auto-roll + auto-match if player runs out of time
-
-Frontend:
-- [ ] `<game-board>` Web Component
-- [ ] `<game-die>` Web Component (face, held state, roll animation)
-- [ ] `<game-player>` Web Component (name, stack, turn indicator)
-- [ ] Betting UI (bet/match/fold/raise buttons + pot display)
-- [ ] `GameBoardWrapper.jsx` - React wrapper wiring WebSocket to the Web Component
-- [ ] `GamePage` wired end-to-end - join, play, finish
-- [ ] State restored on page reload via `GET /games/:gid/state`
-- [ ] Sound effects gated by `soundEnabled`
+### Part 1C - Frontend Auth Flow `[Johchacho]`
+- [ ] Update `api.js` to use `credentials: "include"` and remove fake auth headers
+- [ ] Add automatic refresh/retry on 401, then logout/redirect if refresh fails
+- [ ] Update `AuthProvider` to load current session and expose `user`, `isAdmin`, `emailVerified`
+- [ ] Wire login/register pages to new auth endpoints
+- [ ] Add email verification result page and resend-verification UI
+- [ ] Add `ProtectedRoute` and `AdminRoute` components
 
 ---
 
-## POINTS SYSTEM
-**Assigned to: ___**
+## Priority 2 - Game Variants, Points, Buy-Ins, And Lobby Filtering
 
-Backend:
-- [ ] User model: add `points` (default 0)
-- [ ] Game model: add `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stack
-- [ ] Buy-in deducted from `user.points` on game join
-- [ ] Per-player stack tracked during game, added back to profile at end
-- [ ] Weekly +100 points grant (on login or cron)
+### Part 2A - Backend Data Model And Validation `[Sebbegang]`
+- [ ] Add `points` to `user.model.js`
+- [ ] Expand `game.model.js` with `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stacks
+- [ ] Update game validators for `numPlayers: 2/3/5` and `buyIn: 1/10/50`
+- [x] `timeControl: [10,30,90]` already correct, `MAX_ELO=3000` enforced
 
-Frontend:
-- [ ] `CreateGamePage` - add numPlayers + buyIn fields
-- [ ] `UserProfilePage` - points balance displayed
-- [ ] `LobbyPage` - filter by straights/rounds/time/num players
+### Part 2B - Backend Join/Points Logic `[Tobbelobb]`
+- [ ] Deduct buy-in from `User.points` when a verified user joins a game
+- [ ] Reject joins if the user lacks enough points
+- [ ] Add weekly +100 point grant on login or cron
+- [ ] Add per-player stacks back to profiles when a game ends
+- [ ] Start games automatically when required `numPlayers` have joined
+- [x] `DELETE /games/:gid/players/:uid` - leave before start or forfeit ongoing
+
+### Part 2C - Frontend Game Creation And Lobby `[Johchacho]`
+- [ ] Update `CreateGamePage` with number of players and buy-in
+- [ ] Update lobby cards to show buy-in, player count, join eligibility
+- [ ] Add lobby filters: straights, rounds, time control, num players, buy-in
+- [x] Anonymous users: "Play as Guest" on allowAnonymous games, redirected elsewhere
+- [ ] Show points balance before join/create actions
 
 ---
 
-## TOURNAMENTS
-**Assigned to: ___**
+## Priority 3 - Realtime Game And Web Component Board
 
-Backend:
-- [ ] Tournament model: add `buyIn`, Elo range filter, points reward, `cancelled` status
+### Part 3A - Backend Game State Machine `[Sebbegang]`
+- [ ] Define game phases: waiting, rolling, betting, revealing, round-ended, finished
+- [ ] Generate dice rolls on backend only
+- [ ] Store hidden rolls, revealed rolls, holds, bets, folded users, current turn, current round, timeout state
+- [ ] Hide other players' rolls until reveal/end-of-round
+- [ ] Implement betting: bet, match, raise, fold, pot calculation, draw split
+- [ ] Implement timeout: auto-roll, no holds/rerolls, auto-match
+- [ ] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
+
+### Part 3B - WebSocket Server And Events `[Tobbelobb]`
+- [ ] Add WebSocket support beside Express (`ws` or Socket.IO)
+- [ ] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
+- [ ] Add `GET /games/:gid/state` for reload/navigation restore
+- [ ] Emit state updates to all players and spectators in the game room
+- [ ] Keep player-private dice data private in emitted payloads
+
+### Part 3C - Frontend Web Components And Game Page `[Johchacho]`
+- [ ] Build `<game-board>`, `<game-die>`, `<game-player>` Web Components
+- [ ] Add `GameBoardWrapper.jsx` React wrapper to connect state/WebSocket to Web Components
+- [ ] Replace placeholder dice area in `GamePage`
+- [ ] Add betting controls and turn/phase display
+- [ ] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
+- [ ] Add sound effects gated by `sound` appearance preference
+
+---
+
+## Priority 4 - Tournament Backend Flow
+
+### Part 4A - Tournament Model And Rules `[Sebbegang]`
+- [ ] Extend `tournament.model.js` with `buyIn`, Elo min/max, points reward, author, cancellation status
+- [ ] Decide one tournament type for the exam: random-pairing round-based (knockout exists, arena exists but may be explained as out of scope)
+
+### Part 4B - Tournament Join/Leave/Cancel `[Tobbelobb]`
+- [ ] Validate on join: upcoming status, verified user, Elo range, buy-in, capacity, no duplicate, enough points
+- [ ] Deduct buy-in points on join
+- [ ] Allow users to leave upcoming tournaments
+- [ ] Admin cancel endpoint
+- [ ] Admin delete/edit endpoint
+
+### Part 4C - Tournament Rounds And Standings `[Johchacho]`
 - [ ] `POST /tournaments/:tid/start` - shuffle players, create Game docs for round 1
-- [ ] `POST /tournaments/:tid/advance` - collect winners, create Game docs for next round
-- [ ] `PATCH /tournaments/:tid/finish` - determine winner by most wins, award trophy
-- [ ] `PATCH /tournaments/:tid/cancel` - admin sets status to cancelled
-- [ ] Elo range + buy-in validation on join
-- [ ] Points reward for winning
-
-Frontend:
-- [ ] `TournamentListPage` - upcoming/ongoing/past sections, sortable, searchable, load-more
-- [ ] `TournamentPage` - standings, join/leave, player list, trophy image, admin controls
-- [ ] Tournament redirect to game page when round starts (WebSocket)
-- [ ] Homepage: 5 upcoming tournaments component
+- [ ] `POST /tournaments/:tid/advance` - collect results, create next round games
+- [ ] `PATCH /tournaments/:tid/finish` - determine winner, award trophy/points
+- [ ] Redirect tournament players to their active game and back
 
 ---
 
-## ADMIN + PLATFORM
-**Assigned to: ___**
+## Priority 5 - Tournament Frontend
 
-Backend:
-- [ ] `GET /admin/stats` - new users, security incidents, platform activity
-- [ ] `GET /admin/users` + `PATCH .../ban` + `PATCH .../make-admin` + `DELETE`
-- [ ] `GET /admin/comments` + `DELETE`
-- [ ] `GET /admin/security-incidents`
-- [ ] `GET /users/:username/stats` - wins, losses, win% from game results
+### Part 5A - Routes, Services, And Homepage Preview `[Sebbegang]`
+- [ ] Add routes: `/tournaments`, `/tournaments/:id`, admin create/edit
+- [ ] Expand `tournamentService.js`: search, sort, join, leave, cancel, standings, start, advance, finish
+- [ ] Homepage preview of 5 upcoming tournaments
+- [ ] Tournament link in header navigation
 
-Frontend:
-- [ ] Admin layout: no footer, minimal header (logo + admin nav only)
-- [ ] `AdminDashboardPage` - security incidents, platform stats, links
-- [ ] `AdminUsersPage` - search, list, ban, make-admin
-- [ ] `AdminCommentsPage` - recent comments, delete
-- [ ] `AdminTournamentsPage` - tournament creation form
-- [ ] `UserProfilePage` - stats (Elo in 3 time controls, wins/losses last month), email guard
+### Part 5B - Tournament List Page `[Tobbelobb]`
+- [ ] `TournamentListPage` with upcoming/ongoing/past sections
+- [ ] Sort by date, title, num players
+- [ ] Title search (3+ chars)
+- [ ] Load-more pagination
+- [ ] Show: title, date, variant, rounds, status, trophy, player count
+
+### Part 5C - Individual Tournament Page `[Johchacho]`
+- [ ] `TournamentPage`: title, description, rules, trophy image, players, standings, comments, countdown
+- [ ] Join/leave controls with anonymous/unverified handling
+- [ ] Show ongoing games for spectators
+- [ ] Redirect joined players to game when round starts
+- [ ] Admin controls: delete, cancel, edit
 
 ---
 
-## SEEDING + POLISH
-**All hands - last 2 days**
+## Priority 6 - Profile, Stats, And User Game History
 
-- [ ] Rewrite seed using JSON data files (ref: `projects/Seb/backend/project/seed/`)
-- [ ] Seed: users (registered, admin, banned - with points, trophies, elo history)
-- [ ] Seed: game categories (all 18 variant combinations)
-- [ ] Seed: games (waiting, ongoing, finished with results)
-- [ ] Seed: tournaments (upcoming, ongoing, finished with rounds)
-- [ ] Seed: comments and security incidents
-- [ ] Fix existing game `timeControl` values in seed (currently 3, must be 10/30/90)
-- [ ] `.env.example` with all required variables
-- [ ] Responsive layout
-- [ ] Consistent loading states and error messages
+### Part 6A - Backend Profile Data `[Sebbegang]`
+- [ ] Add points to profile response
+- [ ] Profile stats: Elo for 10s/30s/90s, total games, last-month wins/losses
+- [ ] Paginated recent/all games endpoint per user
+- [ ] Email only returned to owner or admin
+
+### Part 6B - Frontend Profile UI `[Tobbelobb]`
+- [x] ELO labels fixed: Blitz 10s / Rapid 30s / Classic 90s with correct field names
+- [ ] Show points balance
+- [ ] Show last-month wins/losses clearly
+- [ ] Load-more for recent games or paginated full history
+- [ ] Profile edit works with real auth (after Priority 1 done)
+
+### Part 6C - Profile Permissions And Edge Cases `[Johchacho]`
+- [ ] Users can only edit their own profile (fix `requireSelfOrAdmin`)
+- [ ] Hide email for non-owner/non-admin viewers
+- [ ] Handle banned users consistently
+- [ ] Empty states: no trophies, no games, no bio
+
+---
+
+## Priority 7 - Homepage And Platform Activity
+
+### Part 7A - Backend Activity Data `[Sebbegang]`
+- [ ] Expand `GET /activity`: active players, games played last week, available games now
+- [ ] Homepage-friendly endpoint for 5 upcoming tournaments
+
+### Part 7B - Homepage Components `[Tobbelobb]`
+- [ ] Platform activity component
+- [ ] Tournament preview component
+- [x] Active games widget (`MyActiveGames`) shows waiting/ongoing games for logged-in users
+- [x] Lobby preview and top games working
+
+### Part 7C - UX/Responsive Polish `[Johchacho]`
+- [ ] Responsive layout across all pages
+- [ ] Loading/error/empty states consistently
+- [ ] Stats understandable for anonymous users
+
+---
+
+## Priority 8 - Seed Data, Docs, And Final Demo Prep
+
+### Part 8A - Seed Data `[Sebbegang]`
+- [x] Seed rewritten with `users.json` + inline data, all 6 collections
+- [x] Seed: users (regular, admin, banned)
+- [x] Seed: game categories (all 18 combinations)
+- [x] Seed: games (waiting, ongoing, finished)
+- [x] Seed: tournaments (finished w/ trophy, upcoming knockout, upcoming arena)
+- [x] Seed: comments
+- [ ] Seed: security incidents (model not built yet)
+- [ ] Seed: user trophies, eloHistory, points (needs points model first)
+
+### Part 8B - Documentation `[Tobbelobb]`
+- [ ] Update REST scripts with auth, game, tournament, admin, comment examples
+- [ ] Add `.env.example` with all required variables
+- [ ] Update `README.md` setup/demo instructions
 - [ ] `NOTES.md` - starter code credits, work distribution, known bugs
-- [ ] Full walkthrough test before defense
+
+### Part 8C - Final Walkthrough And Shared Understanding `[Johchacho]`
+- [ ] Run lint/build, fix obvious warnings
+- [ ] Test full demo path: seed, register, verify email, login, create game, join, play, comment, join tournament, admin, profile
+- [ ] Test failure cases: anonymous join, unverified join, insufficient points, banned comment, admin-only access
+- [ ] Each group member explains one backend route, one model, one frontend page, one cross-cutting flow from someone else's work
+
+---
+
+## Priority 9 - Security Incidents And Admin Shell
+
+### Part 9A - Security Incident Logging `[Sebbegang]`
+- [ ] `SecurityIncident` model: type, ip, userAgent, userId, createdAt, details
+- [ ] Log rate-limit incidents
+- [ ] Log IP mismatch incidents (token issuing IP vs request IP)
+- [ ] Return 401 on token IP mismatch
+
+### Part 9B - Admin Backend Endpoints `[Tobbelobb]`
+- [ ] `GET /admin/stats` - new users, security incidents, active players, played games last week
+- [ ] Admin user endpoints: list/search, ban/unban, make/remove admin
+- [ ] Admin comment endpoints: recent comments, delete
+- [ ] Admin security incidents endpoint
+
+### Part 9C - Admin Frontend Pages `[Johchacho]`
+- [ ] Admin layout: minimal header, no footer
+- [ ] Dashboard: platform stats, security incidents, links to admin tools
+- [ ] User admin: search, ban, make-admin
+- [ ] Comment admin: recent comments, delete
+- [ ] Admin nav only visible to real admins
+
+---
+
+## Priority 10 - Comments With WebSockets
+
+### Part 10A - Backend Comment Events `[Sebbegang]`
+- [ ] Comment WebSocket events: create/update/delete
+- [ ] Broadcast new game comments to game room
+- [ ] Broadcast new tournament comments to tournament page
+- [ ] Keep REST endpoints as fallback
+
+### Part 10B - Shared Frontend Comment Component `[Tobbelobb]`
+- [ ] Extract reusable comment component for games and tournaments
+- [ ] Subscribe to comment WebSocket events
+- [ ] Append/delete comments without page reload
+- [ ] Keep REST fetch for initial load
+
+### Part 10C - Moderation And Error Handling `[Johchacho]`
+- [ ] Respect banned-user checks
+- [ ] Handle deleted comments in realtime
+- [ ] Loading, empty, error states
+- [ ] Admin deletion updates open comment lists live
+
+---
+
+## If Time Runs Out
+
+Minimum credible demo:
+- [ ] Real login/register with protected user identity
+- [ ] Create/join game with correct variants, points, buy-in, leave-before-start
+- [ ] Playable game board using Web Components, backend-owned rolls, WebSocket updates
+- [ ] Basic tournament list/page with join/leave, standings, admin create/cancel
+- [ ] Profile shows points, correct Elo fields, stats, recent games
+- [ ] Seed data and README/API docs good enough to run demo locally
+
+Safest to simplify:
+- [ ] Full admin dashboard depth
+- [ ] Realtime comments (REST comments still work)
+- [ ] Forgot-password
+- [ ] Extra tournament types (one random-pairing round-based is enough)
+- [ ] Advanced sound effects beyond preference-gated simple sound
+
+---
+
+## DESIGN DECISIONS (resolved)
+
+- [x] **REST endpoint naming** - refactored to nouns: `POST /sessions` (login), `POST /sessions/guest` (guest account), `POST /games/:gid/players` (join), `DELETE /games/:gid/players/:uid` (leave). Tournament verb endpoints (`/start`, `/finish`, `/cancel`) kept - state transitions with side effects, defensible pattern used by GitHub/Stripe.
+- [x] **Anonymous players** - `POST /sessions/guest` creates a minimal User doc with `isGuest: true`. "Play as Guest" on allowAnonymous games creates guest, logs in, joins.
+- [x] **Leaving an ongoing game** - forfeits to opponent, triggers ELO update. Confirm dialog warns before proceeding.
 
 ---
 ---
@@ -213,7 +345,7 @@ Frontend:
 - [x] Comment `createComment` checks author is not banned
 - [x] Frontend: 6 service files
 
-### Bugs fixed
+### Bugs fixed (early)
 - [x] Game validator `timeControl` was `[3,10,30]` - corrected to `[10,30,90]`
 - [x] Tournament validator had wrong enum - rewritten with `tournamentType` required
 - [x] Upload middleware destination `uploads/` - fixed to `backend/uploads/`
@@ -225,4 +357,37 @@ Frontend:
 - [x] Tournament trophy award was pushing embedded object - fixed to ObjectId ref
 - [x] Tournament controller redundant inline auth checks - removed
 
-> **Note for Tobias:** Your Oblig 3 has `POST /users/guest`. We don't need it - anonymous = just not logged in. Confirm at next meeting.
+### Bug bash round 1 (May 22)
+- [x] Seed rewrite: all 6 collections, GameCategories (18), Tournaments, Trophies, strong passwords
+- [x] Login: frontend was sending `password`, backend expects `pwd` - fixed
+- [x] Auth persists on refresh - `AuthProvider` reads/writes full user to localStorage
+- [x] `userType` localStorage now reflects admin status correctly
+- [x] Auto-login after registration
+- [x] Profile edit "Unexpected token <" - was `PUT`, router only has `PATCH`
+- [x] Profile edit: `setUpdateMsg(null)` on cancel so error doesn't linger
+- [x] Profile ELO labels: Blitz 10s / Rapid 30s / Classic 90s with correct field names
+- [x] Constants: `MAX_AGE`, `MAX_BIO_LENGTH`, `MAX_COMMENT_LENGTH` in `constants.js`
+- [x] Validators use constants instead of magic numbers
+- [x] `maxLength` on every text input: register, profile edit, comments
+- [x] CreateGamePage early-return for anonymous users (was crashing on `user._id`)
+- [x] Backend prevents joining when already in waiting/ongoing game
+- [x] "Your active games" section on Lobby and Homepage
+- [x] Delete comment button (owner or admin only)
+- [x] CSS: comment overflow, username overflow, dice board no longer stretches with sidebar
+
+### Bug bash round 2 (May 22)
+- [x] REST refactor: `POST /users/login` removed, replaced by `POST /sessions`
+- [x] REST refactor: join/leave → `POST/DELETE /games/:gid/players/:uid`
+- [x] `POST /sessions/guest` - creates guest User with `isGuest: true`, no pwd/email/dob required
+- [x] User model: `isGuest` flag, conditional required fields, username regex allows æøå
+- [x] Anonymous join: "Play as Guest" on allowAnonymous games
+- [x] Leave/forfeit game with confirm dialog
+- [x] `MAX_ELO = 3000` - enforced in validator + input max
+- [x] Email TLD allowlist - blocks `.kuksti` and other made-up TLDs
+- [x] Username must contain at least one letter - blocks `1234`
+- [x] AppearanceProvider loads preferences from backend on login (cross-device persistence)
+- [x] `MyActiveGames` component on homepage
+- [x] Login error hint about password requirements
+- [x] `joinGame` returns 201
+
+> **Note for Tobias:** Your Oblig 3 has `POST /users/guest`. We don't need it - anonymous = just not logged in (or use guest account). Confirm at next meeting.
