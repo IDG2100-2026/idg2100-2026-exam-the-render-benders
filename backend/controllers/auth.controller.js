@@ -12,7 +12,24 @@ async function register(req, res) {
 async function login(req, res) {
     try {
         const result = await authService.login(req.body, req);
-        if (!result) return res.status(400).json({ error: "Invalid username or password" });
+        if (!result) {
+            return res.status(401).json({ error: "Invalid username or password" });
+        }
+
+        res.cookie("accessToken", result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 15 * 60 * 1000 // Replace with constant later
+        });
+
+        res.cookie("refreshToken", result.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 69 * 1000 // Replace with constant later
+        });
+
         res.status(200).json(result);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -22,6 +39,14 @@ async function login(req, res) {
 async function refresh(req, res) {
     try {
         const result = await authService.refresh(req.body.refreshToken);
+
+        res.cookie("accessToken", result.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 15 * 60 * 1000 // Replace with constant later
+        });
+
         res.status(200).json(result);
     } catch (err) {
         res.status(401).json({ error: err.message });
@@ -30,6 +55,10 @@ async function refresh(req, res) {
 async function logout(req, res) {
     try {
         await authService.logout(req.body.refreshToken);
+
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+
         res.status(204).send();
     } catch(err) {
         res.status(400).json({ error: err.message });
