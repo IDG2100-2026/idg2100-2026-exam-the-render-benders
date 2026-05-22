@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import rateLimit from "express-rate-limit";
+import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { setUserType } from "./middleware/auth.middleware.js";
 
@@ -14,6 +15,7 @@ import queueRouter from "./routers/queue.router.js";
 import activityRouter from "./routers/activity.router.js";
 import trophyRouter from "./routers/trophy.router.js";
 import gameCategoryRouter from "./routers/gameCategory.router.js";
+import authRouter from "./routers/auth.router.js";
 
 // Connects to MongoDB via Mongoose 
 await connectDB();
@@ -30,13 +32,17 @@ const limiter = rateLimit({
 });
 
 // Allow requests from frontend (CORS)
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 
 // Apply rate limiter to all routes 
 app.use(limiter);
 
 // Middleware, runs on every request before reaching the endpoints
 app.use(express.json());
+app.use(cookieParser());
 app.use(setUserType);
 
 // Serve uploads directory (path relative to project root since we run from there)
@@ -52,6 +58,7 @@ app.use("/api/v1", queueRouter);
 app.use("/api/v1", activityRouter);
 app.use("/api/v1", trophyRouter);
 app.use("/api/v1", gameCategoryRouter);
+app.use("/api/v1/auth", authRouter);
 
 // Listens on a port
 const httpServer = app.listen(process.env.APP_PORT);
