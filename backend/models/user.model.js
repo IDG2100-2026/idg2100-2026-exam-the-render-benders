@@ -58,7 +58,7 @@ const userSchema = new mongoose.Schema({
                 required: true
             },
             createdAt: {
-                Date,
+                type: Date,
                 default: Date.now
             },
             userAgent: {
