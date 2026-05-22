@@ -1,4 +1,5 @@
 import { body, validationResult } from "express-validator";
+import { MAX_ELO } from "../config/constants.js";
 
 // Validates the body when creating a new game
 export const validateCreateGame = [
@@ -34,8 +35,8 @@ export const validateCreateGame = [
     // Optional - the creator's desired opponent Elo rating
     body("desiredElo")
         .optional()
-        .isInt({ min: 0 })
-        .withMessage("desiredElo must be 0 or higher")
+        .isInt({ min: 0, max: MAX_ELO })
+        .withMessage(`desiredElo must be between 0 and ${MAX_ELO}`)
 ];
 
 // Validates the body when updating an existing game - all fields are optional

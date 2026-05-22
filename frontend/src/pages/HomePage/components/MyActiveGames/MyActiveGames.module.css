@@ -1,0 +1,20 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.container h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.list :global(a):hover {
+    text-decoration: none !important;
+}

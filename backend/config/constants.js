@@ -21,6 +21,9 @@ export const MAX_COMMENT_LENGTH = 1000;
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 
+// Maximum ELO a player or desired-ELO field can reach
+export const MAX_ELO = 3000;
+
 // Valid time controls in seconds (total per game, not per round)
 export const GAME_TIME_CONTROLS = [10, 30, 90];
 

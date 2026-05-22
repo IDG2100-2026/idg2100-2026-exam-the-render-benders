@@ -77,6 +77,7 @@ export default function CreateGamePage() {
                         onChange={(e) => setDesiredElo(e.target.value)}
                         placeholder="e.g. 1000"
                         min="0"
+                        max="3000"
                     />
                 </label>
                 {/* Only shown if the API call fails */}
