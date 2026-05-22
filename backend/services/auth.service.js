@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { User } from "../models/user.model.js";
-import { hashPwd } from "../utils/hash";
+import { hashPwd } from "../utils/hash.js";
 
 function hashToken(token) {
     return crypto.createHash("sha256").update(token).digest("hex");
