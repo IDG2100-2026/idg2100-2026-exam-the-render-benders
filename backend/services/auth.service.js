@@ -1,3 +1,28 @@
+import jwt from "jsonwebtoken";
+import crypto from "node:crypto";
+import { User } from "../models/user.model.js";
+import { hashPwd } from "../utils/hash";
+
+function hashToken(token) {
+    return crypto.createHash("sha256").update(token).digest("hex");
+}
+
+function createAccessToken(user) {
+    return jwt.sign(
+        { id: user._id, username: user.username, type: user.isAdmin ? "admin" : "user" },
+        process.env.JWT_ACCESS_SECRET,
+        { expiresIn: "15m" }
+    );
+}
+
+function createRefreshToken(user) {
+    return jwt.sign(
+        { id: user._id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: "7d" }
+    );
+}
+
 async function register(data){
     // TODO
     // create user with emailVerified: false
@@ -8,13 +33,28 @@ async function register(data){
 }
 
 async function login({ username, pwd }, req) {
-    // TODO
-    // find user
-    // compare hashed password
-    // optionally block if emailVerified: false
-    // create accessToken + refreshToken
-    // save refreshTokenHash in user.sessions
-    // return user + tokens
+    const user = await User.findOne({ username });
+    if (!user) return null;
+    if (user.pwd !== hashPwd(pwd)) return null;
+    
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user);
+
+    user.sessions.push({
+        refreshTokenHash: hashToken(refreshToken),
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        userAgent: req.headers["user-agent"] || null,
+        ipAddress: req.ip || null
+    });
+
+    await user.save();
+
+    const { pwd: _pwd, sessions: _sessions, ...safeUser } = user.toObject();
+    return {
+        user: safeUser,
+        accessToken,
+        refreshToken
+    };
 }
 
 async function refresh(refreshToken) {
