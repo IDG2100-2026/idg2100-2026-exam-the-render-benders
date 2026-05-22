@@ -32,19 +32,22 @@ function calculateElo(players, winnerId, timeControl = 10) {
 }
 
 // Returns all games from the database, supports pagination and advanced filtering
-export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestingUser = null } = {}) {
+// mine=true returns only the requesting user's own active games (waiting/ongoing)
+export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestingUser = null, mine = false } = {}) {
     const query = { ...filter };
 
-    // If a user ID is provided, exclude games they are already participating in
-    if (requestingUser?.id) {
+    if (mine && requestingUser?.id) {
+        // Return only this user's own waiting/ongoing games
+        query.players = requestingUser.id;
+        if (!query.status) query.status = { $in: ["waiting", "ongoing"] };
+    } else if (requestingUser?.id) {
+        // Exclude games the user is already in
         query.players = { $ne: requestingUser.id };
 
         // For regular users, also filter by Elo (+/- 200) if it's a lobby/waiting query
         if (requestingUser.type === "user" && query.status === "waiting") {
             const user = await User.findById(requestingUser.id);
             if (user) {
-                // Find games where (desiredElo - 200) <= user.elo <= (desiredElo + 200)
-                // We use $expr to compare fields within the document
                 query.$or = [
                     { desiredElo: { $exists: false } },
                     {
@@ -115,6 +118,16 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     // Anonymous users can only join games that explicitly allow them
     if (requestingUser?.type === "anonymous" && !game.allowAnonymous) {
         throw new Error("This game does not allow anonymous players");
+    }
+
+    // Prevent joining multiple active games at once
+    if (playerId) {
+        const activeGame = await Game.findOne({
+            players: playerId,
+            status: { $in: ["waiting", "ongoing"] },
+            _id: { $ne: gid }
+        });
+        if (activeGame) throw new Error("You are already in an active game");
     }
 
     await Game.findByIdAndUpdate(gid, { $addToSet: { players: playerId } });

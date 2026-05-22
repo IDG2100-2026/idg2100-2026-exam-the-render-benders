@@ -63,6 +63,15 @@
     transform: translateY(-1px);
 }
 
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    opacity: 0.6;
+    margin: 0.25rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .emptyMsg {
     text-align: center;
     padding: 3rem 1.5rem;

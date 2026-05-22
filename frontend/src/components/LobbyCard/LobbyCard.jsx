@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel } from "react-icons/md";
+import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel, MdSchedule } from "react-icons/md";
 import { getAssetUrl } from "@/api";
 import styles from "./LobbyCard.module.css";
 
@@ -60,6 +60,11 @@ export default function LobbyCard({ game, onJoin, onCardClick }) {
             {/* Avg Elo */}
             <span className={styles.elo}>
                 <MdEmojiEvents /> {avgElo}
+            </span>
+
+            {/* Created time */}
+            <span className={styles.time}>
+                <MdSchedule /> {new Date(game.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
             </span>
 
             {onJoin && (

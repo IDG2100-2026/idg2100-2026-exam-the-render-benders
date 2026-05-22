@@ -9,9 +9,10 @@ export default function LobbyPage() {
     const { user } = useAuth(); // get the logged in user to check eligibility
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
+    const [myGames, setMyGames] = useState([]);
     const [error, setError] = useState(null);
 
-    // Fetches all waiting games when the component mounts
+    // Fetches all waiting games and the current user's own active games
     useEffect(() => {
         async function fetchGames() {
             try {
@@ -21,8 +22,18 @@ export default function LobbyPage() {
                 setError(err.message);
             }
         }
+        async function fetchMyGames() {
+            try {
+                // mine=true returns games where the logged-in user is already a player
+                const data = await apiFetch("/games?mine=true");
+                setMyGames(data);
+            } catch {
+                // non-critical
+            }
+        }
         fetchGames();
-    }, []);
+        if (user) fetchMyGames();
+    }, [user]);
 
     // Sends a join request and navigates to the game page on success
     async function handleJoin(gameId) {
@@ -48,7 +59,24 @@ export default function LobbyPage() {
                     <Link to="/login" className={styles.loginButton}>Log in to see all games</Link>
                 </div>
             )}
+            {/* Your active games - games the user created or joined that are still active */}
+            {myGames.length > 0 && (
+                <section>
+                    <h2 className={styles.sectionTitle}>Your active games</h2>
+                    <div className={styles.list}>
+                        {myGames.map((game) => (
+                            <LobbyCard
+                                key={game._id}
+                                game={game}
+                                onCardClick={(id) => navigate(`/games/${id}`)}
+                            />
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {error && <p className={styles.error}>{error}</p>}
+            <h2 className={styles.sectionTitle}>Open games</h2>
             {games.length === 0 && !error && (
                 <div className={styles.emptyMsg}>
                     <p>No suitable games waiting for players.</p>
@@ -56,10 +84,10 @@ export default function LobbyPage() {
             )}
             <div className={styles.list}>
                 {games.map((game) => (
-                    <LobbyCard 
-                        key={game._id} 
-                        game={game} 
-                        onJoin={user ? handleJoin : undefined} 
+                    <LobbyCard
+                        key={game._id}
+                        game={game}
+                        onJoin={user ? handleJoin : undefined}
                         onCardClick={user ? handleJoin : (id) => navigate(`/games/${id}`)}
                     />
                 ))}

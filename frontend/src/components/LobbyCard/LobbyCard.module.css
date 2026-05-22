@@ -87,6 +87,17 @@
     gap: 0.2rem;
 }
 
+/* Created time */
+.time {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    opacity: 0.4;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
 /* Elo pill */
 .elo {
     display: flex;

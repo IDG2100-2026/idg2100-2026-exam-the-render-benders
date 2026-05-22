@@ -13,7 +13,8 @@ export async function getAllGames(req, res) {
             skip,
             limit,
             filter,
-            requestingUser: req.user
+            requestingUser: req.user,
+            mine: req.query.mine === "true"
         });
         res.status(200).json(games);
     } catch (err) {
@@ -61,7 +62,8 @@ export async function joinGame(req, res) {
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(game);
     } catch (err) {
-        const status = err.message.includes("does not allow anonymous") ? 403 : 500;
+        const status = err.message.includes("does not allow anonymous") ? 403
+            : err.message.includes("already in an active game") ? 400 : 500;
         res.status(status).json({ error: err.message });
     }
 }
