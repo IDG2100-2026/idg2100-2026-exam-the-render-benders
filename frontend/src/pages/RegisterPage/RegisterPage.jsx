@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
 import styles from "./RegisterPage.module.css";
 
+const today = new Date();
+const maxDob = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+const minDob = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+
 export default function RegisterPage() {
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -32,7 +38,13 @@ export default function RegisterPage() {
                 method: "POST",
                 body: JSON.stringify({ username, email, pwd: password, dateOfBirth })
             });
-            navigate("/login");
+            // Auto-login after successful registration
+            const userData = await apiFetch("/users/login", {
+                method: "POST",
+                body: JSON.stringify({ username, pwd: password })
+            });
+            login(userData);
+            navigate("/");
         } catch (err) {
             setError(err.message);
         }
@@ -42,7 +54,7 @@ export default function RegisterPage() {
         <div className={styles.page}>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <h1>Register</h1>
-                
+
                 <div className={styles.field}>
                     <label htmlFor="reg-username">Username</label>
                     <input
@@ -51,6 +63,7 @@ export default function RegisterPage() {
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         placeholder="e.g. your_username"
+                        maxLength={64}
                         required
                         autoFocus
                     />
@@ -64,6 +77,7 @@ export default function RegisterPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="name@example.com"
+                        maxLength={254}
                         required
                     />
                 </div>
@@ -76,6 +90,7 @@ export default function RegisterPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="At least 8 characters"
+                        maxLength={128}
                         required
                     />
                 </div>
@@ -88,6 +103,7 @@ export default function RegisterPage() {
                         value={passwordRepeat}
                         onChange={(e) => setPasswordRepeat(e.target.value)}
                         placeholder="Re-type your password"
+                        maxLength={128}
                         required
                     />
                 </div>
@@ -99,6 +115,8 @@ export default function RegisterPage() {
                         type="date"
                         value={dateOfBirth}
                         onChange={(e) => setDateOfBirth(e.target.value)}
+                        min={minDob}
+                        max={maxDob}
                         required
                     />
                 </div>
@@ -114,7 +132,7 @@ export default function RegisterPage() {
                 </label>
 
                 {error && <p className={styles.error}>{error}</p>}
-                
+
                 <button type="submit" className={styles.submitBtn}>
                     Register
                 </button>

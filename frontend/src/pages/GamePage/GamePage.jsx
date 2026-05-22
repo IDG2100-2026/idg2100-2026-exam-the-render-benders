@@ -61,6 +61,15 @@ export default function GamePage() {
         }
     }
 
+    async function handleDeleteComment(commentId) {
+        try {
+            await apiFetch(`/comments/${commentId}`, { method: "DELETE" });
+            setComments((prev) => prev.filter((c) => c._id !== commentId));
+        } catch (err) {
+            setCommentError(err.message);
+        }
+    }
+
     if (error) return <div className={styles.pageLayout}><p className={styles.error}>{error}</p></div>;
     if (!game) return <div className={styles.pageLayout}><p>Loading...</p></div>;
 
@@ -170,7 +179,18 @@ export default function GamePage() {
                             <li key={comment._id} className={styles.comment}>
                                 <div className={styles.commentHeader}>
                                     <strong>{comment.author?.username ?? "User"}</strong>
-                                    <small>{new Date(comment.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</small>
+                                    <div className={styles.commentMeta}>
+                                        <small>{new Date(comment.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</small>
+                                        {(user?._id === comment.author?._id || user?.isAdmin) && (
+                                            <button
+                                                className={styles.deleteBtn}
+                                                onClick={() => handleDeleteComment(comment._id)}
+                                                title="Delete comment"
+                                            >
+                                                &times;
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                                 <p>{comment.body}</p>
                             </li>
@@ -182,6 +202,7 @@ export default function GamePage() {
                                 value={commentBody}
                                 onChange={(e) => setCommentBody(e.target.value)}
                                 placeholder="Add a comment..."
+                                maxLength={1000}
                                 required
                             />
                             {commentError && <p className={styles.error}>{commentError}</p>}

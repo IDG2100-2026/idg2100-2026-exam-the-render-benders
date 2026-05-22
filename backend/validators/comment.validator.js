@@ -1,12 +1,13 @@
 import { body, validationResult } from "express-validator";
+import { MAX_COMMENT_LENGTH } from "../config/constants.js";
 
 export const validateCreateComment = [
     body("body")
     .isString()
     .notEmpty()
     .withMessage("Comment body is required")
-    .isLength({ max: 1000 })
-    .withMessage("Comment cannot exceed 1000 characters"),
+    .isLength({ max: MAX_COMMENT_LENGTH })
+    .withMessage(`Comment cannot exceed ${MAX_COMMENT_LENGTH} characters`),
 
     body("author")
     .isMongoId()

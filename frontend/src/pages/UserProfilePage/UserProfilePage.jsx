@@ -48,7 +48,7 @@ export default function UserProfilePage() {
             }
 
             const updatedUser = await apiFetch(`/users/${username}`, {
-                method: "PUT",
+                method: "PATCH",
                 body: formData
             });
 
@@ -70,6 +70,7 @@ export default function UserProfilePage() {
         setProfileImagePreview(null);
         setAboutMe(profile.aboutMe || "");
         setProfileImage(profile.profileImage || "");
+        setUpdateMsg(null);
     }
 
     function handleImageClick() {
@@ -129,18 +130,20 @@ export default function UserProfilePage() {
                 <div className={styles.headerBottom}>
                     {isEditing ? (
                         <form onSubmit={handleUpdateProfile} className={styles.editForm}>
-                            <textarea 
-                                value={aboutMe} 
-                                onChange={(e) => setAboutMe(e.target.value)} 
+                            <textarea
+                                value={aboutMe}
+                                onChange={(e) => setAboutMe(e.target.value)}
                                 placeholder="Tell us about yourself..."
                                 rows={3}
+                                maxLength={500}
                             />
                             <div className={styles.editFormRow}>
-                                <input 
-                                    type="password" 
-                                    value={newPassword} 
-                                    onChange={(e) => setNewPassword(e.target.value)} 
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
                                     placeholder="New Password (optional)"
+                                    maxLength={128}
                                 />
                                 <div className={styles.formActions}>
                                     <button type="submit" className={styles.saveBtn}>Save</button>
@@ -168,16 +171,16 @@ export default function UserProfilePage() {
                     </div>
                     <div className={styles.eloBreakdown}>
                         <div className={styles.variantElo}>
-                            <span className={styles.vLabel}>Blitz (3s)</span>
-                            <span className={styles.vValue}>{profile.elo3s || 1000}</span>
-                        </div>
-                        <div className={styles.variantElo}>
-                            <span className={styles.vLabel}>Rapid (10s)</span>
+                            <span className={styles.vLabel}>Blitz (10s)</span>
                             <span className={styles.vValue}>{profile.elo10s || 1000}</span>
                         </div>
                         <div className={styles.variantElo}>
-                            <span className={styles.vLabel}>Classic (30s)</span>
+                            <span className={styles.vLabel}>Rapid (30s)</span>
                             <span className={styles.vValue}>{profile.elo30s || 1000}</span>
+                        </div>
+                        <div className={styles.variantElo}>
+                            <span className={styles.vLabel}>Classic (90s)</span>
+                            <span className={styles.vValue}>{profile.elo90s || 1000}</span>
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,15 @@ export const MAX_PWD_LENGTH = 128;
 // Minimum age to register, players must be adults to use the platform
 export const MIN_AGE = 18;
 
+// Maximum age to register, prevents absurd birth years
+export const MAX_AGE = 100;
+
+// Maximum length for a user bio
+export const MAX_BIO_LENGTH = 500;
+
+// Maximum length for a comment body
+export const MAX_COMMENT_LENGTH = 1000;
+
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 

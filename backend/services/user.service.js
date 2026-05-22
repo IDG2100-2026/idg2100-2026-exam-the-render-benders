@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 import { Game } from "../models/game.model.js";
 import { hashPwd } from "../utils/hash.js";
-import { MIN_AGE, DEFAULT_ELO } from "../config/constants.js";
+import { MIN_AGE, MAX_AGE, DEFAULT_ELO } from "../config/constants.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
 // Returns all users from the database, supports pagination and search by username
@@ -74,6 +74,7 @@ export async function createUser(data) {
         age--;
     }
     if (age < MIN_AGE) throw new Error("You must be at least 18 years old to register");
+    if (age > MAX_AGE) throw new Error(`Age cannot exceed ${MAX_AGE} years`);
     const hashedData = { ...data, pwd: hashPwd(data.pwd) };
     return await User.create(hashedData);
 }

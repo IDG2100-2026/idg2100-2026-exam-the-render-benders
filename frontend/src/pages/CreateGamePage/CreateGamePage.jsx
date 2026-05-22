@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, Link } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
 import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
@@ -19,6 +19,14 @@ export default function CreateGamePage() {
     const [desiredElo, setDesiredElo] = useState("");
 
     const [error, setError] = useState(null); // error message shown if the API call fails
+
+    if (!user) {
+        return (
+            <div className={styles.page}>
+                <p>You must be <Link to="/login">logged in</Link> to create a game.</p>
+            </div>
+        );
+    }
 
     async function handleSubmit(e) {
         e.preventDefault(); // stops the browser from reloading the page on form submit

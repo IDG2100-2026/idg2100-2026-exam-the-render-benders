@@ -20,8 +20,6 @@ export default function LoginPage() {
                 body: JSON.stringify({ username, pwd: password })
             });
             login(userData);
-            localStorage.setItem("userType", "user");
-            localStorage.setItem("userId", userData._id);
             navigate("/");
         } catch (err) {
             setError(err.message);
