@@ -21,6 +21,12 @@ export const MAX_BIO_LENGTH = 500;
 // Maximum length for a comment body
 export const MAX_COMMENT_LENGTH = 1000;
 
+// Default "buy-in" points for users
+export const DEFAULT_POINTS = 100;
+
+// Minimum "buy-in" points for users
+export const MIN_POINTS = 0;
+
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 

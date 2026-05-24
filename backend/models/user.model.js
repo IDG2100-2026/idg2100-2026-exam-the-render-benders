@@ -5,6 +5,8 @@ import {
     MIN_USERNAME_LENGTH,
     MIN_PWD_LENGTH,
     MAX_PWD_LENGTH,
+    DEFAULT_POINTS,
+    MIN_POINTS,
     DEFAULT_ELO,
     DEFAULT_THEME,
     DEFAULT_BOARD_COLOR,
@@ -82,6 +84,12 @@ const userSchema = new mongoose.Schema({
     profileImage: {
         type: String,
         default: ""
+    },
+    // Points used for tournament buy-ins
+    points : {
+        type: Number,
+        default: DEFAULT_POINTS,
+        min: MIN_POINTS
     },
 
     // ELO rating, automatically updated after each game
