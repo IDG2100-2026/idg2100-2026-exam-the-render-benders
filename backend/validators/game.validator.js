@@ -1,5 +1,5 @@
 import { body, validationResult } from "express-validator";
-import { MAX_ELO } from "../config/constants.js";
+import { MAX_ELO, GAME_PLAYER_COUNTS, GAME_BUY_INS } from "../config/constants.js";
 
 // Validates the body when creating a new game
 export const validateCreateGame = [
@@ -36,7 +36,23 @@ export const validateCreateGame = [
     body("desiredElo")
         .optional()
         .isInt({ min: 0, max: MAX_ELO })
-        .withMessage(`desiredElo must be between 0 and ${MAX_ELO}`)
+        .withMessage(`desiredElo must be between 0 and ${MAX_ELO}`),
+
+    // Optional - Validate number of players
+    body("numPlayers")
+        .optional()
+        .isInt()
+        .toInt()
+        .isIn(GAME_PLAYER_COUNTS)
+        .withMessage(`numPlayers must be one of: ${GAME_PLAYER_COUNTS.join(", ")}`),
+
+    // Optional - Validate buy-ins
+    body("buyIn")
+        .optional()
+        .isInt()
+        .toInt()
+        .isIn(GAME_BUY_INS)
+        .withMessage(`buyIn must be one  of: ${GAME_BUY_INS.join(", ")}`)
 ];
 
 // Validates the body when updating an existing game - all fields are optional
