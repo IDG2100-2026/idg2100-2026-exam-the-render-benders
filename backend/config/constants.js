@@ -21,6 +21,12 @@ export const MAX_BIO_LENGTH = 500;
 // Maximum length for a comment body
 export const MAX_COMMENT_LENGTH = 1000;
 
+// Default "buy-in" points for users
+export const DEFAULT_POINTS = 100;
+
+// Minimum "buy-in" points for users
+export const MIN_POINTS = 0;
+
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 
@@ -29,6 +35,22 @@ export const MAX_ELO = 3000;
 
 // Valid time controls in seconds (total per game, not per round)
 export const GAME_TIME_CONTROLS = [10, 30, 90];
+
+// Number of players per game
+export const GAME_PLAYER_COUNTS = [2, 3, 5];
+export const DEFAULT_PLAYER_COUNT = 2;
+
+// Per-player stack
+export const PLAYER_STACK_DEFAULT = 0;
+export const MIN_PLAYER_STACK_DEFAULT = 0;
+
+// Game buy-ins
+export const GAME_BUY_INS = [1, 10, 50];
+export const DEFAULT_GAME_BUY_INS = 1;
+
+// Game Pot
+export const DEFAULT_POT_VALUE = 0;
+export const MIN_POT_VALUE = 0;
 
 // Allowed status values for a game
 export const GAME_STATUSES = ["waiting", "ongoing", "finished"];

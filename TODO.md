@@ -87,9 +87,9 @@ Useful reference code in `projects/`:
 ## Priority 2 - Game Variants, Points, Buy-Ins, And Lobby Filtering
 
 ### Part 2A - Backend Data Model And Validation `[Sebbegang]`
-- [ ] Add `points` to `user.model.js`
-- [ ] Expand `game.model.js` with `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stacks
-- [ ] Update game validators for `numPlayers: 2/3/5` and `buyIn: 1/10/50`
+- [x] Add `points` to `user.model.js`
+- [x] Expand `game.model.js` with `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stacks
+- [x] Update game validators for `numPlayers: 2/3/5` and `buyIn: 1/10/50`
 - [x] `timeControl: [10,30,90]` already correct, `MAX_ELO=3000` enforced
 
 ### Part 2B - Backend Join/Points Logic `[Tobbelobb]`
