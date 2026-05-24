@@ -1,5 +1,16 @@
 import mongoose from "mongoose";
-import { GAME_STATUSES, DEFAULT_ELO } from "../config/constants.js";
+import {
+    GAME_STATUSES,
+    GAME_PLAYER_COUNTS,
+    DEFAULT_PLAYER_COUNT,
+    PLAYER_STACK_DEFAULT,
+    MIN_PLAYER_STACK_DEFAULT,
+    GAME_BUY_INS,
+    DEFAULT_GAME_BUY_INS,
+    DEFAULT_ELO,
+    DEFAULT_POT_VALUE,
+    MIN_POT_VALUE
+} from "../config/constants.js";
 
 // Game schema defines structure for a poker dice game
 const gameSchema = new mongoose.Schema({
@@ -8,8 +19,42 @@ const gameSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-    }
-    ],
+    }],
+    // Number of players allowed
+    numPlayers: {
+        type: Number,
+        enum: GAME_PLAYER_COUNTS,
+        default: DEFAULT_PLAYER_COUNT,
+        required: true
+    },
+    // How many points each player still has in the game
+    playerStacks: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        stack: {
+            type: Number,
+            default: PLAYER_STACK_DEFAULT,
+            min: MIN_PLAYER_STACK_DEFAULT
+        }
+    }],
+    // How much players have to pay to join a single game
+    buyIn: {
+        type: Number,
+        enum: GAME_BUY_INS,
+        default: DEFAULT_GAME_BUY_INS,
+        required: true
+    },
+
+    // Total points collected from all joined players
+    pot: {
+        type: Number,
+        default: DEFAULT_POT_VALUE,
+        min: MIN_POT_VALUE
+    },
+
     // Game variant settings
     variant: {
         rounds: { type: Number, required: true },
