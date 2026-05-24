@@ -1,3 +1,6 @@
+// Setup
+const { NODE_ENV } = process.env;
+
 // Minimum and maximum length for usernames, in characters
 export const MIN_USERNAME_LENGTH = 4;
 export const MAX_USERNAME_LENGTH = 64;
@@ -41,3 +44,24 @@ export const DEFAULT_THEME = "dark";
 export const DEFAULT_BOARD_COLOR = "#3e3e68";
 export const DEFAULT_SOUND = true;
 export const DEFAULT_LOBBY_COUNT = 5;
+
+
+// JWT / Cookie age
+export const JWT_ACCESS_MAX_AGE_MS = 15 * 60 * 1000; // 15m
+export const JWT_REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7d
+export const JWT_ACCESS_EXPIRES_IN_SECONDS = JWT_ACCESS_MAX_AGE_MS / 1000;
+export const JWT_REFRESH_EXPIRES_IN_SECONDS = JWT_REFRESH_MAX_AGE_MS / 1000;
+
+export const ACCESS_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: JWT_ACCESS_MAX_AGE_MS
+};
+
+export const REFRESH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: JWT_REFRESH_MAX_AGE_MS
+};

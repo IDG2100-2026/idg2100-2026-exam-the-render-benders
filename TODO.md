@@ -62,7 +62,10 @@ Useful reference code in `projects/`:
 - [x] Add `emailVerified` and refresh-token/session fields to `user.model.js`
 - [x] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
 - [x] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
-- [ ] Issue access and refresh tokens through httpOnly cookies
+- [x] Issue access and refresh tokens through httpOnly cookies
+
+#### Good to know (Just in case we get a security question related to the cookies):
+> Refresh tokens are now stored in the browser as httpOnly cookies and stored in MongoDB only as hashes. JavaScript cannot read the cookies directly, and a leaked database session hash is not itself a usable refresh token.
 
 ### Part 1B - Auth Middleware And Security Rules `[Tobbelobb]`
 - [ ] Update `auth.middleware.js` to verify JWT cookies instead of trusting `x-user-type` / `x-user-id` headers

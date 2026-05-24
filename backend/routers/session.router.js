@@ -1,15 +1,23 @@
 import express from "express";
-import userService from "../services/user.service.js";
 import { User } from "../models/user.model.js";
+import authService from "../services/auth.service.js";
+import { ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "../config/constants.js";
 
 const sessionRouter = express.Router();
 
-// POST /sessions - login, returns user data (will return JWT tokens once auth is upgraded)
+function setAuthCookies(res, result) {
+    res.cookie("accessToken", result.accessToken, ACCESS_COOKIE_OPTIONS);
+    res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
+}
+
+// POST /sessions - login, sets auth cookies and returns safe user data
 sessionRouter.post("/sessions", async (req, res) => {
     try {
-        const user = await userService.loginUser(req.body);
-        if (!user) return res.status(401).json({ msg: "Invalid username or password" });
-        res.status(201).json(user);
+        const result = await authService.login(req.body, req);
+        if (!result) return res.status(401).json({ msg: "Invalid username or password" });
+
+        setAuthCookies(res, result);
+        res.status(201).json(result.user);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -21,8 +29,24 @@ sessionRouter.post("/sessions/guest", async (req, res) => {
     try {
         const username = `guest_${Date.now().toString(36)}`;
         const guest = await User.create({ username, isGuest: true });
-        const { pwd, ...safeGuest } = guest.toObject();
-        res.status(201).json(safeGuest);
+        const result = await authService.issueSessionForUser(guest, req);
+
+        setAuthCookies(res, result);
+        res.status(201).json(result.user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /sessions - logout, clears auth cookies and removes refresh session
+sessionRouter.delete("/sessions", async (req, res) => {
+    try {
+        await authService.logout(req.cookies.refreshToken);
+
+        res.clearCookie("accessToken", ACCESS_COOKIE_OPTIONS);
+        res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
+
+        res.status(204).send();
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
