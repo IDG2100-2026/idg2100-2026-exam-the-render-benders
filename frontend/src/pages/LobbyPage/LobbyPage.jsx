@@ -11,6 +11,13 @@ export default function LobbyPage() {
     const [games, setGames] = useState([]);
     const [error, setError] = useState(null);
 
+    // Filter state - null means "show all", a value means only show games matching that value
+    const [filterRules, setFilterRules] = useState(null);
+    const [filterRounds, setFilterRounds] = useState(null);
+    const [filterTimeControl, setFilterTimeControl] = useState(null);
+    const [filterNumPlayers, setFilterNumPlayers] = useState(null);
+    const [filterBuyIn, setFilterBuyIn] = useState(null);
+
     useEffect(() => {
         async function fetchGames() {
             try {
@@ -49,6 +56,14 @@ export default function LobbyPage() {
         }
     }
 
+    // Apply active filters - if a filter is null it passes all games through
+    const filteredGames = games
+        .filter(game => !filterRules || game.variant.rules === filterRules)
+        .filter(game => !filterRounds || game.variant.rounds === filterRounds)
+        .filter(game => !filterTimeControl || game.variant.timeControl === filterTimeControl)
+        .filter(game => !filterNumPlayers || game.numPlayers === filterNumPlayers)
+        .filter(game => !filterBuyIn || game.buyIn === filterBuyIn);
+
     return (
         <div className={styles.page}>
             <h1>Lobby</h1>
@@ -59,13 +74,48 @@ export default function LobbyPage() {
                 </div>
             )}
             {error && <p className={styles.error}>{error}</p>}
-            {games.length === 0 && !error && (
+
+            {/* Filter bar - each group toggles a filter, clicking the active value resets it to null */}
+            <div className={styles.filters}>
+                <div className={styles.filterGroup}>
+                    <span>Rules</span>
+                    <button onClick={() => setFilterRules(null)} className={!filterRules ? styles.filterActive : styles.filterBtn}>All</button>
+                    <button onClick={() => setFilterRules("straights-allowed")} className={filterRules === "straights-allowed" ? styles.filterActive : styles.filterBtn}>Straights</button>
+                    <button onClick={() => setFilterRules("no-straights")} className={filterRules === "no-straights" ? styles.filterActive : styles.filterBtn}>No straights</button>
+                </div>
+                <div className={styles.filterGroup}>
+                    <span>Rounds</span>
+                    {[3, 5, 7].map(n => (
+                        <button key={n} onClick={() => setFilterRounds(filterRounds === n ? null : n)} className={filterRounds === n ? styles.filterActive : styles.filterBtn}>{n}</button>
+                    ))}
+                </div>
+                <div className={styles.filterGroup}>
+                    <span>Time</span>
+                    {[10, 30, 90].map(n => (
+                        <button key={n} onClick={() => setFilterTimeControl(filterTimeControl === n ? null : n)} className={filterTimeControl === n ? styles.filterActive : styles.filterBtn}>{n}s</button>
+                    ))}
+                </div>
+                <div className={styles.filterGroup}>
+                    <span>Players</span>
+                    {[2, 3, 5].map(n => (
+                        <button key={n} onClick={() => setFilterNumPlayers(filterNumPlayers === n ? null : n)} className={filterNumPlayers === n ? styles.filterActive : styles.filterBtn}>{n}</button>
+                    ))}
+                </div>
+                <div className={styles.filterGroup}>
+                    <span>Buy-in</span>
+                    {[1, 10, 50].map(n => (
+                        <button key={n} onClick={() => setFilterBuyIn(filterBuyIn === n ? null : n)} className={filterBuyIn === n ? styles.filterActive : styles.filterBtn}>{n} pts</button>
+                    ))}
+                </div>
+            </div>
+
+            {filteredGames.length === 0 && !error && (
                 <div className={styles.emptyMsg}>
                     <p>No suitable games waiting for players.</p>
                 </div>
             )}
             <div className={styles.list}>
-                {games.map((game) => (
+                {filteredGames.map((game) => (
                     <LobbyCard
                         key={game._id}
                         game={game}

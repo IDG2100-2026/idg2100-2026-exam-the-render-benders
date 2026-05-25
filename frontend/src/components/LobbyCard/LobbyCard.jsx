@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel, MdSchedule } from "react-icons/md";
+import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel, MdPeople, MdAttachMoney } from "react-icons/md";
 import { getAssetUrl } from "@/api";
 import styles from "./LobbyCard.module.css";
 
@@ -22,9 +22,9 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
         >
             {/* Player Avatar */}
             <div className={styles.avatarWrapper}>
-                <img 
-                    src={getAssetUrl(host?.profileImage)} 
-                    alt={host?.username || "Player"} 
+                <img
+                    src={getAssetUrl(host?.profileImage)}
+                    alt={host?.username || "Player"}
                     className={styles.avatarImg}
                 />
             </div>
@@ -56,16 +56,13 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
                         <><MdCancel /> No straights</>
                     )}
                 </span>
+                <span><MdPeople /> {game.players.length}/{game.numPlayers}</span>
+                <span><MdAttachMoney /> {game.buyIn} pts</span>
             </div>
 
             {/* Avg Elo */}
             <span className={styles.elo}>
                 <MdEmojiEvents /> {avgElo}
-            </span>
-
-            {/* Created time */}
-            <span className={styles.time}>
-                <MdSchedule /> {new Date(game.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
             </span>
 
             {onJoin && (
