@@ -1,0 +1,55 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.label {
+    font-weight: 700;
+    color: var(--text-h);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.label svg {
+    color: var(--accent);
+    font-size: 1.1rem;
+}
+
+.options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.option, .active {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.option {
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+.option:hover {
+    border-color: var(--accent);
+    background-color: var(--accent-bg);
+    color: var(--accent);
+}
+
+.active {
+    background-color: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+}

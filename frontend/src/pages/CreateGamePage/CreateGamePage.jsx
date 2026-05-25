@@ -5,6 +5,8 @@ import { apiFetch } from "@/api";
 import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
 import RulesSelector from "./components/RulesSelector/RulesSelector";
 import TimeControlSelector from "./components/TimeControlSelector/TimeControlSelector";
+import NumPlayerSelector from "./components/NumPlayerSelector/NumPlayerSelector";
+import BuyInSelector from "./components/BuyInSelector/BuyInSelector";
 import styles from "./CreateGamePage.module.css";
 
 export default function CreateGamePage() {
@@ -17,13 +19,15 @@ export default function CreateGamePage() {
     const [timeControl, setTimeControl] = useState(10);
     const [allowAnonymous, setAllowAnonymous] = useState(false);
     const [desiredElo, setDesiredElo] = useState("");
+    const [numPlayers, setNumPlayers] = useState(2);
+    const [buyIn, setBuyIn] = useState(1);
 
     const [error, setError] = useState(null); // error message shown if the API call fails
 
     if (!user) {
         return (
             <div className={styles.page}>
-                <p>You must be <Link to="/login">logged in</Link> to create a game.</p>
+                <p className={styles.guestMsg}>You must be <Link to="/login">logged in</Link> to create a game.</p>
             </div>
         );
     }
@@ -37,6 +41,8 @@ export default function CreateGamePage() {
                     players: [user._id], // the creator is automatically added as a player
                     variant: { rounds, rules, timeControl },
                     allowAnonymous,
+                    numPlayers,
+                    buyIn,
                     // Only include desiredElo if the user typed something, otherwise skip the field entirely
                     ...(desiredElo !== "" && { desiredElo: Number(desiredElo) })
                 })
@@ -57,6 +63,8 @@ export default function CreateGamePage() {
                 <RoundsSelector value={rounds} onChange={setRounds} />
                 <RulesSelector value={rules} onChange={setRules} />
                 <TimeControlSelector value={timeControl} onChange={setTimeControl} />
+                <NumPlayerSelector value={numPlayers} onChange={setNumPlayers} />
+                <BuyInSelector value={buyIn} onChange={setBuyIn} />
 
                 {/* Allow anonymous - only show to logged in users */}
                 {user && (

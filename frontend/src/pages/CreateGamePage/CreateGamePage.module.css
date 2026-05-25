@@ -105,6 +105,12 @@
     text-align: center;
 }
 
+.guestMsg {
+    text-align: center;
+    font-size: 1rem;
+    color: var(--text);
+}
+
 @media (max-width: 600px) {
     .page {
         justify-content: flex-start;
