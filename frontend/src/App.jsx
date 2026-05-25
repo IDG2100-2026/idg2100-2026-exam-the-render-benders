@@ -15,6 +15,7 @@ import TermsPage from "@/pages/TermsPage/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage/PrivacyPage";
 import AppearanceProvider from "@/providers/AppearanceProvider";
 import NotFoundPage from "@/pages/NotFoundPage/NotFoundPage";
+import ProtectedRoute from "@/components/auth/ProtectedRoute/ProtectedRoute";
 import "./App.css";
 
 function App() {
@@ -27,7 +28,9 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/create-game" element={<CreateGamePage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/create-game" element={<CreateGamePage />} />
+              </Route>
               <Route path="/lobby" element={<LobbyPage />} />
               <Route path="/users/:username" element={<UserProfilePage />} />
               <Route path="/users/:username/games" element={<UserGamesPage />} />

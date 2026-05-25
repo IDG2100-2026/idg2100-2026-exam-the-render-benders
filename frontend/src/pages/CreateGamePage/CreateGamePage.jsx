@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
 import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
@@ -23,14 +23,6 @@ export default function CreateGamePage() {
     const [buyIn, setBuyIn] = useState(1);
 
     const [error, setError] = useState(null); // error message shown if the API call fails
-
-    if (!user) {
-        return (
-            <div className={styles.page}>
-                <p className={styles.guestMsg}>You must be <Link to="/login">logged in</Link> to create a game.</p>
-            </div>
-        );
-    }
 
     async function handleSubmit(e) {
         e.preventDefault(); // stops the browser from reloading the page on form submit
@@ -66,17 +58,14 @@ export default function CreateGamePage() {
                 <NumPlayerSelector value={numPlayers} onChange={setNumPlayers} />
                 <BuyInSelector value={buyIn} onChange={setBuyIn} />
 
-                {/* Allow anonymous - only show to logged in users */}
-                {user && (
-                    <label className={styles.checkboxLabel}>
-                        <input
-                            type="checkbox"
-                            checked={allowAnonymous}
-                            onChange={(e) => setAllowAnonymous(e.target.checked)}
-                        />
-                        Allow anonymous players to join
-                    </label>
-                )}
+                <label className={styles.checkboxLabel}>
+                    <input
+                        type="checkbox"
+                        checked={allowAnonymous}
+                        onChange={(e) => setAllowAnonymous(e.target.checked)}
+                    />
+                    Allow anonymous players to join
+                </label>
                 <label className={styles.fieldLabel}>
                     Desired opponent Elo (optional)
                     <input
