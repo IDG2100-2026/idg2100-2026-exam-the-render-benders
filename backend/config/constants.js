@@ -1,3 +1,6 @@
+// Setup
+const { NODE_ENV } = process.env;
+
 // Minimum and maximum length for usernames, in characters
 export const MIN_USERNAME_LENGTH = 4;
 export const MAX_USERNAME_LENGTH = 64;
@@ -18,6 +21,12 @@ export const MAX_BIO_LENGTH = 500;
 // Maximum length for a comment body
 export const MAX_COMMENT_LENGTH = 1000;
 
+// Default "buy-in" points for users
+export const DEFAULT_POINTS = 100;
+
+// Minimum "buy-in" points for users
+export const MIN_POINTS = 0;
+
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
 
@@ -26,6 +35,22 @@ export const MAX_ELO = 3000;
 
 // Valid time controls in seconds (total per game, not per round)
 export const GAME_TIME_CONTROLS = [10, 30, 90];
+
+// Number of players per game
+export const GAME_PLAYER_COUNTS = [2, 3, 5];
+export const DEFAULT_PLAYER_COUNT = 2;
+
+// Per-player stack
+export const PLAYER_STACK_DEFAULT = 0;
+export const MIN_PLAYER_STACK_DEFAULT = 0;
+
+// Game buy-ins
+export const GAME_BUY_INS = [1, 10, 50];
+export const DEFAULT_GAME_BUY_INS = 1;
+
+// Game Pot
+export const DEFAULT_POT_VALUE = 0;
+export const MIN_POT_VALUE = 0;
 
 // Allowed status values for a game
 export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
@@ -41,3 +66,24 @@ export const DEFAULT_THEME = "dark";
 export const DEFAULT_BOARD_COLOR = "#3e3e68";
 export const DEFAULT_SOUND = true;
 export const DEFAULT_LOBBY_COUNT = 5;
+
+
+// JWT / Cookie age
+export const JWT_ACCESS_MAX_AGE_MS = 15 * 60 * 1000; // 15m
+export const JWT_REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7d
+export const JWT_ACCESS_EXPIRES_IN_SECONDS = JWT_ACCESS_MAX_AGE_MS / 1000;
+export const JWT_REFRESH_EXPIRES_IN_SECONDS = JWT_REFRESH_MAX_AGE_MS / 1000;
+
+export const ACCESS_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: JWT_ACCESS_MAX_AGE_MS
+};
+
+export const REFRESH_COOKIE_OPTIONS = {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: JWT_REFRESH_MAX_AGE_MS
+};

@@ -57,12 +57,15 @@ Useful reference code in `projects/`:
 ## Priority 1 - Authentication, Authorization, And Email Verification
 
 ### Part 1A - Backend Auth Foundation `[Sebbegang]`
-- [ ] Replace `backend/utils/hash.js` MD5 hashing with `bcrypt` or `argon2`
-- [ ] Install auth dependencies: `jsonwebtoken`, `cookie-parser`, `bcrypt`/`argon2`, `nodemailer`
-- [ ] Add `emailVerified` and refresh-token/session fields to `user.model.js`
-- [ ] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
-- [ ] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
-- [ ] Issue access and refresh tokens through httpOnly cookies
+- [X] Replace `backend/utils/hash.js` MD5 hashing with `bcrypt` or `argon2` | Decided to stick with crypto since it's what we used in class
+- [x] Install auth dependencies: `jsonwebtoken`, `cookie-parser`, `nodemailer`
+- [x] Add `emailVerified` and refresh-token/session fields to `user.model.js`
+- [x] Add `EmailVerification` model with `userId`, `code`, `expiresAt`
+- [x] Add auth routes: register, login, refresh, logout, verify-email, resend-verification
+- [x] Issue access and refresh tokens through httpOnly cookies
+
+#### Good to know (Just in case we get a security question related to the cookies):
+> Refresh tokens are now stored in the browser as httpOnly cookies and stored in MongoDB only as hashes. JavaScript cannot read the cookies directly, and a leaked database session hash is not itself a usable refresh token.
 
 ### Part 1B - Auth Middleware And Security Rules `[Tobbelobb]`
 - [ ] Update `auth.middleware.js` to verify JWT cookies instead of trusting `x-user-type` / `x-user-id` headers
@@ -84,9 +87,9 @@ Useful reference code in `projects/`:
 ## Priority 2 - Game Variants, Points, Buy-Ins, And Lobby Filtering
 
 ### Part 2A - Backend Data Model And Validation `[Sebbegang]`
-- [ ] Add `points` to `user.model.js`
-- [ ] Expand `game.model.js` with `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stacks
-- [ ] Update game validators for `numPlayers: 2/3/5` and `buyIn: 1/10/50`
+- [x] Add `points` to `user.model.js`
+- [x] Expand `game.model.js` with `numPlayers` (2/3/5), `buyIn` (1/10/50), `pot`, per-player stacks
+- [x] Update game validators for `numPlayers: 2/3/5` and `buyIn: 1/10/50`
 - [x] `timeControl: [10,30,90]` already correct, `MAX_ELO=3000` enforced
 
 ### Part 2B - Backend Join/Points Logic `[Tobbelobb]`
