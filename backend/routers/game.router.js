@@ -2,7 +2,7 @@ import express from "express";
 import gameController from "../controllers/game.controller.js";
 import commentController from "../controllers/comment.controller.js";
 import { validateCreateGame, validateUpdateGame, validateJoinGame, handleValidationErrors } from "../validators/game.validator.js";
-import { requireUser } from "../middleware/auth.middleware.js";
+import { requireUser, requireNotBanned } from "../middleware/auth.middleware.js";
 
 // Game router, handles all /games endpoints
 const gameRouter = express.Router();
@@ -24,7 +24,7 @@ gameRouter.post("/games", requireUser, validateCreateGame, handleValidationError
 gameRouter.put("/games/:gid", requireUser, validateUpdateGame, handleValidationErrors, gameController.updateGame);
 
 // POST /games/:gid/players - join a game (add yourself as a player)
-gameRouter.post("/games/:gid/players", validateJoinGame, handleValidationErrors, gameController.joinGame);
+gameRouter.post("/games/:gid/players", requireNotBanned, validateJoinGame, handleValidationErrors, gameController.joinGame);
 
 // DELETE /games/:gid/players/:uid - leave a game (remove yourself; forfeits if ongoing)
 gameRouter.delete("/games/:gid/players/:uid", requireUser, gameController.leaveGame);
