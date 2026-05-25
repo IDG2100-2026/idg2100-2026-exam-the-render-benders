@@ -25,6 +25,22 @@
     font-weight: 700;
 }
 
+.points {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--accent);
+    background-color: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    padding: 0.15rem 0.5rem;
+    border-radius: 99px;
+}
+
+@media (max-width: 800px) {
+    .points {
+        display: none;
+    }
+}
+
 /* Logout Button - made more visible with distinct danger colors */
 .button {
     background-color: var(--danger-bg);

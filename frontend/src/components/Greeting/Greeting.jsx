@@ -16,6 +16,7 @@ export default function Greeting() {
                         className={styles.profileIcon} 
                     />
                     <span className={styles.username}>Hello, {user.username}</span>
+                    <span className={styles.points}>{user.points ?? 0} pts</span>
                 </Link>
                 <button onClick={logout} className={styles.button}>Log out</button>
             </div>
