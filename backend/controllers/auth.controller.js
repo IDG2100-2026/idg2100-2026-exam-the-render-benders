@@ -4,8 +4,14 @@ import { ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "../config/constan
 
 async function register(req, res) {
     try {
-        const result = await authService.register(req.body);
-        res.status(201).json(result);
+        const result = await authService.register(req.body, req);
+        res.cookie("accessToken", result.accessToken, ACCESS_COOKIE_OPTIONS);
+        res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
+
+        res.status(201).json({
+            user: result.user,
+            message: result.message
+        });
     } catch (err) {
         res.status(400).json({ error: err.message});
     }
