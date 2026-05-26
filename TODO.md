@@ -75,15 +75,14 @@ Useful reference code in `projects/`:
 - [ ] Make admin-only writes depend on real admin auth
 
 ### Part 1C - Frontend Auth Flow `[Johchacho]`
-- [ ] Update `api.js` to use `credentials: "include"` and remove fake auth headers
-- [ ] Add automatic refresh/retry on 401, then logout/redirect if refresh fails
-- [ ] Update `AuthProvider` to load current session and expose `user`, `isAdmin`, `emailVerified`
-- [ ] Wire login/register pages to new auth endpoints
+- [x] Update `api.js` to use `credentials: "include"` and remove fake auth headers
+- [x] Add automatic refresh/retry on 401, then logout/redirect if refresh fails
+- [x] Update `AuthProvider` to restore session from `POST /auth/refresh` on mount
+- [x] Fix `AuthProvider` logout to call `POST /auth/logout` to clear JWT cookie
+- [x] Wire login/register pages to new auth endpoints
 - [ ] Add email verification result page and resend-verification UI
-- [x] Add `ProtectedRoute` component
-- [ ] Wire `ProtectedRoute` into App.jsx routes (do after 1C wiring is done)
-- [x] Add `AdminRoute` component
-- [ ] Wire `AdminRoute` into App.jsx on admin routes (do after admin pages exist)
+- [x] Add `ProtectedRoute` component - Wire into App.jsx routes (do after 1C wiring is done)
+- [x] Add `AdminRoute` component - Wire into App.jsx on admin routes (do after admin pages exist)
 
 ---
 

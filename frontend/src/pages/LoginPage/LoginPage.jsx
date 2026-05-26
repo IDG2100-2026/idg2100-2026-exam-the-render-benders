@@ -15,7 +15,7 @@ export default function LoginPage() {
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            const userData = await apiFetch("/sessions", {
+            const userData = await apiFetch("/auth/login", {
                 method: "POST",
                 body: JSON.stringify({ username, pwd: password })
             });
