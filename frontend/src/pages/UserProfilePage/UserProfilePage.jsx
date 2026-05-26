@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
-import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp } from "react-icons/md";
+import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp, MdWarning } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch, getAssetUrl } from "@/api";
 import styles from "./UserProfilePage.module.css";
@@ -121,6 +121,11 @@ export default function UserProfilePage() {
                             {isOwnProfile && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
                             <span className={styles.metaItem}><MdCalendarToday /> Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
                         </div>
+                        {isOwnProfile && !profile.emailVerified && (
+                            <Link to="/verify-email" className={styles.verifyBanner}>
+                                <MdWarning /> Verify your email
+                            </Link>
+                        )}
                         {isOwnProfile && !isEditing && (
                             <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Edit Profile</button>
                         )}

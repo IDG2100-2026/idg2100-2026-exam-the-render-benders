@@ -34,17 +34,13 @@ export default function RegisterPage() {
         }
 
         try {
-            await apiFetch("/users", {
+            // POST /auth/register creates the user and issues JWT cookies in one call
+            const result = await apiFetch("/auth/register", {
                 method: "POST",
                 body: JSON.stringify({ username, email, pwd: password, dateOfBirth })
             });
-            // Auto-login after successful registration
-            const userData = await apiFetch("/sessions", {
-                method: "POST",
-                body: JSON.stringify({ username, pwd: password })
-            });
-            login(userData);
-            navigate("/");
+            login(result.user);
+            navigate("/verify-email");
         } catch (err) {
             setError(err.message);
         }
