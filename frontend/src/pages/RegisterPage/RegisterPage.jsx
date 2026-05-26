@@ -2,11 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
+import { MIN_AGE, MAX_AGE } from "@/config/constants";
 import styles from "./RegisterPage.module.css";
 
 const today = new Date();
-const maxDob = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate()).toISOString().split("T")[0];
-const minDob = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+const maxDob = new Date(today.getFullYear() - MIN_AGE, today.getMonth(), today.getDate()).toISOString().split("T")[0];
+const minDob = new Date(today.getFullYear() - MAX_AGE, today.getMonth(), today.getDate()).toISOString().split("T")[0];
 
 export default function RegisterPage() {
     const navigate = useNavigate();

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
+import { MAX_ELO, RULES_STRAIGHTS, GAME_ROUND_COUNTS, GAME_TIME_CONTROLS, GAME_PLAYER_COUNTS, GAME_BUY_INS } from "@/config/constants";
 import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
 import RulesSelector from "./components/RulesSelector/RulesSelector";
 import TimeControlSelector from "./components/TimeControlSelector/TimeControlSelector";
@@ -14,13 +15,13 @@ export default function CreateGamePage() {
     const navigate = useNavigate();
 
     // Form state - one value per field, matches what the backend expects
-    const [rounds, setRounds] = useState(3);
-    const [rules, setRules] = useState("straights-allowed");
-    const [timeControl, setTimeControl] = useState(10);
+    const [rounds, setRounds] = useState(GAME_ROUND_COUNTS[0]);
+    const [rules, setRules] = useState(RULES_STRAIGHTS);
+    const [timeControl, setTimeControl] = useState(GAME_TIME_CONTROLS[0]);
     const [allowAnonymous, setAllowAnonymous] = useState(false);
     const [desiredElo, setDesiredElo] = useState("");
-    const [numPlayers, setNumPlayers] = useState(2);
-    const [buyIn, setBuyIn] = useState(1);
+    const [numPlayers, setNumPlayers] = useState(GAME_PLAYER_COUNTS[0]);
+    const [buyIn, setBuyIn] = useState(GAME_BUY_INS[0]);
 
     const [error, setError] = useState(null); // error message shown if the API call fails
 
@@ -74,7 +75,7 @@ export default function CreateGamePage() {
                         onChange={(e) => setDesiredElo(e.target.value)}
                         placeholder="e.g. 1000"
                         min="0"
-                        max="3000"
+                        max={MAX_ELO}
                     />
                 </label>
                 {/* Only shown if the API call fails */}

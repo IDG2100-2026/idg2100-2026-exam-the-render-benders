@@ -1,4 +1,5 @@
 import { MdPeople } from "react-icons/md";
+import { GAME_PLAYER_COUNTS } from "@/config/constants";
 import styles from "./NumPlayerSelector.module.css";
 
 // Selector for how many players can join the game (2, 3, or 5)
@@ -8,7 +9,7 @@ export default function NumPlayerSelector({ value, onChange }) {
         <div className={styles.container}>
             <p className={styles.label}><MdPeople /> Number of players</p>
             <div className={styles.options}>
-                {[2, 3, 5].map((n) => (
+                {GAME_PLAYER_COUNTS.map((n) => (
                     <button
                         key={n}
                         type="button"

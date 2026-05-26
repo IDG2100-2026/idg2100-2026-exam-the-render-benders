@@ -1,4 +1,5 @@
 import { MdAccessTime } from "react-icons/md";
+import { GAME_TIME_CONTROLS } from "@/config/constants";
 import styles from "./TimeControlSelector.module.css";
 
 export default function TimeControlSelector({ value, onChange }) {
@@ -6,7 +7,7 @@ export default function TimeControlSelector({ value, onChange }) {
         <div className={styles.container}>
             <p className={styles.label}><MdAccessTime /> Time per round</p>
             <div className={styles.options}>
-                {[3, 10, 30].map((n) => (
+                {GAME_TIME_CONTROLS.map((n) => (
                     <button
                         key={n}
                         type="button"

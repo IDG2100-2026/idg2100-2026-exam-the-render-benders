@@ -1,4 +1,5 @@
 import { MdCheckCircle } from "react-icons/md";
+import { RULES_STRAIGHTS, RULES_NO_STRAIGHTS } from "@/config/constants";
 import styles from "./RulesSelector.module.css";
 
 export default function RulesSelector({ value, onChange }) {
@@ -8,15 +9,15 @@ export default function RulesSelector({ value, onChange }) {
             <div className={styles.options}>
                 <button
                     type="button"
-                    className={value === "straights-allowed" ? styles.active : styles.option}
-                    onClick={() => onChange("straights-allowed")}
+                    className={value === RULES_STRAIGHTS ? styles.active : styles.option}
+                    onClick={() => onChange(RULES_STRAIGHTS)}
                 >
                     Straights allowed
                 </button>
                 <button
                     type="button"
-                    className={value === "no-straights" ? styles.active : styles.option}
-                    onClick={() => onChange("no-straights")}
+                    className={value === RULES_NO_STRAIGHTS ? styles.active : styles.option}
+                    onClick={() => onChange(RULES_NO_STRAIGHTS)}
                 >
                     No straights
                 </button>

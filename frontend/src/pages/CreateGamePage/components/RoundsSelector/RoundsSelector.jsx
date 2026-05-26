@@ -1,4 +1,5 @@
 import { MdLayers } from "react-icons/md";
+import { GAME_ROUND_COUNTS } from "@/config/constants";
 import styles from "./RoundsSelector.module.css";
 
 export default function RoundsSelector({ value, onChange }) {
@@ -6,7 +7,7 @@ export default function RoundsSelector({ value, onChange }) {
         <div className={styles.container}>
             <p className={styles.label}><MdLayers /> Number of rounds</p>
             <div className={styles.options}>
-                {[3, 5, 7].map((n) => (
+                {GAME_ROUND_COUNTS.map((n) => (
                     <button
                         key={n}
                         type="button"
