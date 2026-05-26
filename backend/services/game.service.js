@@ -13,7 +13,16 @@ function rollDice( count = DICE_COUNT) {
     return Array.from({ length: count }, () => rollDie());
 }
 
+// Compare player ids
+function idsEqual(a, b) {
+    if (!a || !b) return false;
+    return a.toString() === b.toString();
+}
 
+// Helper for public roll phases
+function rollsArePublic(game) {
+    return ["revealing", "round-ended", "finished"].includes(game.phase) || game.status === "finished";
+}
 
 // K-factor determines how much ELO changes per game (32 is standard for beginners)
 const K = 32;
@@ -320,6 +329,39 @@ export async function rollForPlayer(gid, playerId) {
     return game;
 }
 
+export function sanitizeGameForViewer(game, viewerId) {
+    if (!game) return null;
+
+    const safeGame = typeof game.toObject === "function"
+        ? game.toObject()
+        : game;
+
+    const publicRolls = rollsArePublic(safeGame);
+
+    safeGame.results = (safeGame.results || []).map((result) => {
+        const resultPlayerId = result.player?._id || result.player;
+        const isOwner = idsEqual(resultPlayerId, viewerId);
+
+        return {
+            ...result,
+
+            // Only the owning player can see their private dice
+            hiddenRolls: isOwner ? result.hiddenRolls : [],
+
+            // Everyone can see revealed rolls once reveal/end has happened
+            revealedRolls: publicRolls ? result.revealedRolls: [],
+
+            // Keep old `rolls` field safe too, because it currently dupes hiddenRolls
+            rolls: isOwner
+                ? result.rolls
+                : publicRolls
+                    ? result.revealedRolls
+                    : []
+        };
+    });
+
+    return safeGame;
+}
 
 export default {
     getAllGames,
@@ -329,5 +371,6 @@ export default {
     createGame,
     updateGame,
     leaveGame,
-    rollForPlayer
+    rollForPlayer,
+    sanitizeGameForViewer
 };
