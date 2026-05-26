@@ -10,19 +10,6 @@ function setAuthCookies(res, result) {
     res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
 }
 
-// POST /sessions - login, sets auth cookies and returns safe user data
-sessionRouter.post("/sessions", async (req, res) => {
-    try {
-        const result = await authService.login(req.body, req);
-        if (!result) return res.status(401).json({ msg: "Invalid username or password" });
-
-        setAuthCookies(res, result);
-        res.status(201).json(result.user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
 // POST /sessions/guest - create a temporary guest account so anonymous users can join games
 // Guest accounts have no password, email or date of birth - they only exist to hold a player slot
 sessionRouter.post("/sessions/guest", async (req, res) => {
@@ -33,20 +20,6 @@ sessionRouter.post("/sessions/guest", async (req, res) => {
 
         setAuthCookies(res, result);
         res.status(201).json(result.user);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-// DELETE /sessions - logout, clears auth cookies and removes refresh session
-sessionRouter.delete("/sessions", async (req, res) => {
-    try {
-        await authService.logout(req.cookies.refreshToken);
-
-        res.clearCookie("accessToken", ACCESS_COOKIE_OPTIONS);
-        res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
-
-        res.status(204).send();
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
