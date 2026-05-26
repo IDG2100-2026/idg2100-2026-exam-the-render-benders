@@ -81,6 +81,7 @@ Useful reference code in `projects/`:
 - [x] Fix `AuthProvider` logout to call `POST /auth/logout` to clear JWT cookie
 - [x] Wire login/register pages to new auth endpoints
 - [x] Add email verification result page and resend-verification UI
+- [ ] Auto-send verification code on EmailVerificationPage mount - user should not need to click Resend to get their first code
 - [x] Show "verify email" prompt on profile page if emailVerified is false
 - [x] Add `ProtectedRoute` component - Wire into App.jsx routes (do after 1C wiring is done)
 - [x] Add `AdminRoute` component - Wire into App.jsx on admin routes (do after admin pages exist)
