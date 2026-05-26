@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import {
     GAME_STATUSES,
+    GAME_PHASES,
     GAME_PLAYER_COUNTS,
     DEFAULT_PLAYER_COUNT,
     PLAYER_STACK_DEFAULT,
@@ -65,6 +66,12 @@ const gameSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: GAME_STATUSES,
+        default: "waiting"
+    },
+    // Detailed state inside the game flow
+    phase: {
+        type: String,
+        enum: GAME_PHASES,
         default: "waiting"
     },
     // Per-round data: dice rolls, held dice, round winner, and round timing
