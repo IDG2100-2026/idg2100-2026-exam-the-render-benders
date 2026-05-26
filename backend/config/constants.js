@@ -36,7 +36,6 @@ export const MAX_ELO = 3000;
 // Valid time controls in seconds (total per game, not per round)
 export const GAME_TIME_CONTROLS = [10, 30, 90];
 
-
 // Number of players per game
 export const GAME_PLAYER_COUNTS = [2, 3, 5];
 export const DEFAULT_PLAYER_COUNT = 2;
@@ -58,6 +57,16 @@ export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
 
 // Gameplay phases
 export const GAME_PHASES = ["waiting", "rolling", "betting", "revealing", "round-ended", "finished"];
+
+// Allowed Dice faces
+export const DICE_FACES = ["7", "8", "J", "Q", "K", "A"];
+
+// Max dice
+export const DICE_COUNT = 5;
+
+// Round
+export const DEFAULT_ROUND = 1;
+export const MIN_ROUND = 1;
 
 // Allowed status values for a tournament
 export const TOURNAMENT_STATUSES = ["upcoming", "ongoing", "finished"];

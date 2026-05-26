@@ -1,5 +1,19 @@
 import { Game } from "../models/game.model.js";
 import { User } from "../models/user.model.js";
+import { DICE_COUNT, DICE_FACES } from "../config/constants.js";
+
+// Dice helpers
+// Roll 1
+function rollDie() {
+    const index = Math.floor(Math.random() * DICE_FACES.length);
+    return DICE_FACES[index];
+}
+// Roll all
+function rollDice( count = DICE_COUNT) {
+    return Array.from({ length: count }, () => rollDie());
+}
+
+
 
 // K-factor determines how much ELO changes per game (32 is standard for beginners)
 const K = 32;
@@ -153,7 +167,8 @@ export async function joinGame(gid, playerId, requestingUser = null) {
 
     // auto-start when the required number of players have joined 
     if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
-        updated.status = "ongoing";
+        updated.status = "ongoing"; // Broad info
+        updated.phase = "rolling"; // Detailed info
         await updated.save();
     }
 
@@ -199,7 +214,13 @@ export async function updateGame(gid, data) {
     const oldGame = await Game.findById(gid);
     if (!oldGame) return null;
 
-    const game = await Game.findByIdAndUpdate(gid, data, { returnDocument: "after" });
+    const updateData = { ...data };
+    
+    if (updateData.status === "finished"){
+        updateData.phase = "finished";
+    }
+
+    const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
 
     // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
     if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.winner) {
@@ -240,6 +261,52 @@ export async function updateGame(gid, data) {
     return game;
 }
 
+export async function rollForPlayer(gid, playerId) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
+
+    if (game.status !== "ongoing" || game.phase !== "rolling") {
+        throw new Error("This game is not currently rolling");
+    }
+
+    const isPlayer = game.players.some(
+        player => player.toString() === playerId.toString()
+    );
+
+    if (!isPlayer) {
+        throw new Error("You are not a player in this game");
+    }
+
+    // Temp fix for logic duplicate roll prevention
+    const round = game.currentRound || 1;
+
+    const alreadyRolledThisRound = game.results.some(result =>
+        result.player?.toString() === playerId.toString() &&
+        result.round === round
+    );
+
+    if (alreadyRolledThisRound) {
+        throw new Error("You have already rolled this turn");
+    }
+
+    const rolls = rollDice();
+
+    game.results.push({
+        player: playerId,
+        round,
+        rolls,
+        holds: [false, false, false, false, false],
+        timestamps: {
+            startedAt: new Date()
+        }
+    });
+
+    await game.save();
+
+    return game;
+}
+
+
 export default {
     getAllGames,
     getTopGames,
@@ -247,5 +314,6 @@ export default {
     joinGame,
     createGame,
     updateGame,
-    leaveGame
+    leaveGame,
+    rollForPlayer
 };

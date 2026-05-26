@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import {
     GAME_STATUSES,
     GAME_PHASES,
+    DICE_FACES,
+    DEFAULT_ROUND,
+    MIN_ROUND,
     GAME_PLAYER_COUNTS,
     DEFAULT_PLAYER_COUNT,
     PLAYER_STACK_DEFAULT,
@@ -76,7 +79,16 @@ const gameSchema = new mongoose.Schema({
     },
     // Per-round data: dice rolls, held dice, round winner, and round timing
     results: [{
-        rolls: [{ type: String, enum: ["7", "8", "J", "Q", "K", "A"] }],
+        player: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
+        round:{
+            type: Number,
+            default: DEFAULT_ROUND,
+            min: MIN_ROUND
+        },
+        rolls: [{ type: String, enum: DICE_FACES }],
         holds: [{ type: Boolean }],
         outcome: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         timestamps: {

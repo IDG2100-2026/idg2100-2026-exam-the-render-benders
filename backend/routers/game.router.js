@@ -29,6 +29,9 @@ gameRouter.post("/games/:gid/players", requireUser, requireNotBanned, requireEma
 // DELETE /games/:gid/players/:uid - leave a game (remove yourself; forfeits if ongoing)
 gameRouter.delete("/games/:gid/players/:uid", requireUser, gameController.leaveGame);
 
+// POST /games/:gid/roll - backend generates dice for the logged in player
+gameRouter.post("/games/:gid/roll", requireUser, gameController.rollForPlayer);
+
 // Gets all comments for a specific game
 gameRouter.get("/games/:gid/comments", commentController.getCommentsByGame);
 

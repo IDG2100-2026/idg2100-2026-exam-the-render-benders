@@ -98,6 +98,23 @@ export async function updateGame(req, res) {
     }
 }
 
+export async function rollForPlayer(req, res) {
+    try {
+        const game = await gameService.rollForPlayer(req.params.gid, req.user.id);
+        if (!game) return res.status(404).json({ error: "Game not found" });
+
+        res.status(200).json(game);
+    } catch(err) {
+        const status = err.message.includes("not a player") ? 403
+        : err.message.includes("already rolled") ? 400
+        : err.message.includes("not currently rolling") ? 400
+        : 500;
+
+        res.status(status).json({ error: err.message });
+    }
+}
+
+
 export default {
     getAllGames,
     getTopGames,
@@ -105,5 +122,6 @@ export default {
     createGame,
     joinGame,
     leaveGame,
-    updateGame
+    updateGame,
+    rollForPlayer
 };
