@@ -130,12 +130,29 @@ export async function joinGame(gid, playerId, requestingUser = null) {
         if (activeGame) throw new Error("You are already in an active game");
     }
 
-    await Game.findByIdAndUpdate(gid, { $addToSet: { players: playerId } });
+    // fetching the user to check and deduct points 
+    const user = await User.findById(playerId);
+    if (!user) throw new Error("User not found");
 
-    const updated = await Game.findById(gid)
+    // reject if the user doesn't have enough points for the buy-in 
+    if (user.points < game.buyIn) {
+        throw new Error("You do not have enough points to join this game");
+    }
+
+    // deducting the buy-in from the user's points and adding them to the game pot and playerStack
+    await User.findByIdAndUpdate(playerId, { $inc: { points: -game.buyIn } });
+    await Game.findByIdAndUpdate(gid, {
+        $addToSet: { players: playerId },
+        $inc: { pot: game.buyIn },
+        $push: { playerStacks: { user: playerId, stack: game.buyIn } }
+    });
+
+    const updated = await Game
+        .findById(gid)
         .populate("players", "username elo elo10s elo30s elo90s profileImage");
 
-    if (updated && updated.players.length >= 2 && updated.status === "waiting") {
+    // auto-start when the required number of players have joined 
+    if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
         updated.status = "ongoing";
         await updated.save();
     }
@@ -209,6 +226,15 @@ export async function updateGame(gid, data) {
             $inc: { gamesPlayed: 1, wins: playerAWon ? 0 : 1 },
             $push: { eloHistory: { elo: generalEloB, date: new Date() } }
         });
+
+        // returning each player's remaining stack to their point balance
+        for (const entry of game.playerStacks) {
+            if (entry.stack > 0) {
+                await User.findByIdAndUpdate(entry.user, {
+                    $inc: { points: entry.stack }
+                });
+            }
+        }
     }
 
     return game;

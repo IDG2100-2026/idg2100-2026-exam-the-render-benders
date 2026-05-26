@@ -5,7 +5,9 @@ import { hashPwd } from "../utils/hash.js";
 import {
     JWT_ACCESS_EXPIRES_IN_SECONDS,
     JWT_REFRESH_EXPIRES_IN_SECONDS,
-    JWT_REFRESH_MAX_AGE_MS
+    JWT_REFRESH_MAX_AGE_MS,
+    WEEKLY_POINTS_GAINED,
+    WEEKLY_POINT_INTERVAL
 } from "../config/constants.js";
 
 const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } = process.env;
@@ -79,6 +81,14 @@ async function login({ username, pwd }, req) {
     const user = await User.findOne({ username });
     if (!user) return null;
     if (user.pwd !== hashPwd(pwd)) return null;
+
+    // granting +100 points if it has been at least 7 days since last login 
+    const now = new Date();
+    if (!user.lastLogin || now - user.lastLogin >= WEEKLY_POINT_INTERVAL) {
+        user.points += WEEKLY_POINTS_GAINED;
+    }
+    // updating the last login before issuing the session
+    user.lastLogin = now;
 
     return issueSessionForUser(user, req);
 }

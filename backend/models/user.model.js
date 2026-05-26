@@ -130,6 +130,12 @@ const userSchema = new mongoose.Schema({
         default: false
     },
 
+    // Last logged in, used for weekly point grants
+    lastLogin: {
+        type: Date,
+        default: null 
+    },
+
     // Appearance preferences saved per user
     preferences: {
         theme: { type: String, default: DEFAULT_THEME },

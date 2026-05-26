@@ -67,6 +67,9 @@ export const DEFAULT_BOARD_COLOR = "#3e3e68";
 export const DEFAULT_SOUND = true;
 export const DEFAULT_LOBBY_COUNT = 5;
 
+// Points granted to users who log in after 7 days
+export const WEEKLY_POINTS_GAINED = 100;
+export const WEEKLY_POINT_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7d
 
 // JWT / Cookie age
 export const JWT_ACCESS_MAX_AGE_MS = 15 * 60 * 1000; // 15m
