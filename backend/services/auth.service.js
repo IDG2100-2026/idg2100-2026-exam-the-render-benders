@@ -6,7 +6,9 @@ import {
     JWT_ACCESS_EXPIRES_IN_SECONDS,
     JWT_REFRESH_EXPIRES_IN_SECONDS,
     JWT_REFRESH_MAX_AGE_MS,
-    EMAIL_VERIFICATION_EXPIRES_MS
+    EMAIL_VERIFICATION_EXPIRES_MS,
+    WEEKLY_POINTS_GAINED,
+    WEEKLY_POINT_INTERVAL
 } from "../config/constants.js";
 
 import { EmailVerification } from "../models/emailVerification.model.js";
@@ -73,7 +75,7 @@ function createVerificationCode() {
     return crypto.randomInt(100000, 999999).toString();
 }
 
-function hashVerification(code) {
+function hashVerificationCode(code) {
     return crypto.createHash("sha256").update(code).digest("hex");
 }
 
@@ -82,7 +84,7 @@ async function createEmailVerification(user) {
 
     await EmailVerification.create({
         userId: user._id,
-        codeHash: hashVerification(code),
+        codeHash: hashVerificationCode(code),
         expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_EXPIRES_MS)
     });
 
@@ -126,7 +128,7 @@ async function verifyEmail({ userId, code }) {
 
     const codeHash = hashVerificationCode(code);
 
-    const verification = await EmailVerification.findOne({ userId, codeHah });
+    const verification = await EmailVerification.findOne({ userId, codeHash });
     if (!verification) {
         throw new Error("Invalid verification code");
     }
@@ -263,7 +265,7 @@ async function resendVerification(email) {
     await createEmailVerification(user);
 
     return {
-        message: "A new verifcation code has been sent"
+        message: "A new verification code has been sent"
     };
 }
 
