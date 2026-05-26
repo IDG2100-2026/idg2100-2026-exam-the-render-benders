@@ -68,11 +68,11 @@ Useful reference code in `projects/`:
 > Refresh tokens are now stored in the browser as httpOnly cookies and stored in MongoDB only as hashes. JavaScript cannot read the cookies directly, and a leaked database session hash is not itself a usable refresh token.
 
 ### Part 1B - Auth Middleware And Security Rules `[Tobbelobb]`
-- [ ] Update `auth.middleware.js` to verify JWT cookies instead of trusting `x-user-type` / `x-user-id` headers
-- [ ] Include userId, admin state, emailVerified, and issuing IP in token payload
-- [ ] Fix profile authorization: `requireSelfOrAdmin` currently allows any logged-in user to edit any profile
-- [ ] Require verified, non-banned users before joining games/tournaments
-- [ ] Make admin-only writes depend on real admin auth
+- [x] Update `auth.middleware.js` to verify JWT cookies instead of trusting `x-user-type` / `x-user-id` headers
+- [x] Include userId, admin state, emailVerified, and issuing IP in token payload
+- [x] Fix profile authorization: `requireSelfOrAdmin` currently allows any logged-in user to edit any profile
+- [x] Require verified, non-banned users before joining games/tournaments
+- [x] Make admin-only writes depend on real admin auth
 
 ### Part 1C - Frontend Auth Flow `[Johchacho]`
 - [ ] Update `api.js` to use `credentials: "include"` and remove fake auth headers
@@ -96,11 +96,11 @@ Useful reference code in `projects/`:
 - [x] `timeControl: [10,30,90]` already correct, `MAX_ELO=3000` enforced
 
 ### Part 2B - Backend Join/Points Logic `[Tobbelobb]`
-- [ ] Deduct buy-in from `User.points` when a verified user joins a game
-- [ ] Reject joins if the user lacks enough points
-- [ ] Add weekly +100 point grant on login or cron
-- [ ] Add per-player stacks back to profiles when a game ends
-- [ ] Start games automatically when required `numPlayers` have joined
+- [x] Deduct buy-in from `User.points` when a verified user joins a game
+- [x] Reject joins if the user lacks enough points
+- [x] Add weekly +100 point grant on login or cron
+- [x] Add per-player stacks back to profiles when a game ends
+- [x] Start games automatically when required `numPlayers` have joined
 - [x] `DELETE /games/:gid/players/:uid` - leave before start or forfeit ongoing
 
 ### Part 2C - Frontend Game Creation And Lobby `[Johchacho]`
