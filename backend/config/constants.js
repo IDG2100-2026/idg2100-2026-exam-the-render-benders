@@ -67,6 +67,8 @@ export const DEFAULT_BOARD_COLOR = "#3e3e68";
 export const DEFAULT_SOUND = true;
 export const DEFAULT_LOBBY_COUNT = 5;
 
+// Email verification expiry timer
+export const EMAIL_VERIFICATION_EXPIRES_MS = 15 * 60 * 1000;
 
 // JWT / Cookie age
 export const JWT_ACCESS_MAX_AGE_MS = 15 * 60 * 1000; // 15m

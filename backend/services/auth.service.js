@@ -5,8 +5,11 @@ import { hashPwd } from "../utils/hash.js";
 import {
     JWT_ACCESS_EXPIRES_IN_SECONDS,
     JWT_REFRESH_EXPIRES_IN_SECONDS,
-    JWT_REFRESH_MAX_AGE_MS
+    JWT_REFRESH_MAX_AGE_MS,
+    EMAIL_VERIFICATION_EXPIRES_MS
 } from "../config/constants.js";
+
+import { EmailVerification } from "../models/emailVerification.model.js";
 
 const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } = process.env;
 
@@ -66,13 +69,89 @@ async function issueSessionForUser(user, req) {
     };
 }
 
+function createVerificationCode() {
+    return crypto.randomInt(100000, 999999).toString();
+}
+
+function hashVerification(code) {
+    return crypto.createHash("sha256").update(code).digest("hex");
+}
+
+async function createEmailVerification(user) {
+    const code = createVerificationCode();
+
+    await EmailVerification.create({
+        userId: user._id,
+        codeHash: hashVerification(code),
+        expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_EXPIRES_MS)
+    });
+
+    // For exam/dev fallback until/if real nodemailer sending is wired
+    console.log(`Email verification code for ${user.email}: ${code}`);
+
+    return code;
+}
+
 async function register(data){
-    // TODO
-    // create user with emailVerified: false
-    // generate verification code
-    // save codeHash + expireAt in EmailVerification
-    // send email, or console.log code for now
-    // return safe user withour pwd
+    const existingUser = await User.findOne({
+        $or: [
+            { username: data.username },
+            { email: data.email?.toLowerCase() }
+        ]
+    });
+
+    if (existingUser) {
+        throw new Error("Username or email is already in use");
+    }
+
+    const user = await User.create({
+        ...data,
+        email: data.email?.toLowerCase(),
+        pwd: hashPwd(data.pwd),
+        emailVerified: false
+    });
+
+    await createEmailVerification(user);
+
+    return {
+        user: safeUser(user),
+        message: "User registered. Please verify your email before playing"
+    };
+}
+
+async function verifyEmail({ userId, code }) {
+    if(!userId || !code) {
+        throw new Error("Missing userId or verification code");
+    }
+
+    const codeHash = hashVerificationCode(code);
+
+    const verification = await EmailVerification.findOne({ userId, codeHah });
+    if (!verification) {
+        throw new Error("Invalid verification code");
+    }
+
+    if (verification.expiresAt <= new Date()) {
+        await EmailVerification.deleteOne({ _id: verification._id });
+        throw new Error("Verification code has expired");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        userId,
+        { emailVerified: true },
+        { new: true }
+    );
+
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    await EmailVerification.deleteMany({ userId });
+
+    return {
+        user: safeUser(user),
+        message: "Email verified successfully"
+    };
 }
 
 async function login({ username, pwd }, req) {
@@ -156,20 +235,28 @@ async function logout(refreshToken) {
     );
 }
 
-async function verifyEmail({ userId, code }) {
-    // TODO
-    // find EmailVerification by userId + codeHash
-    // check expiresAt is still in future
-    // set user.emailVerified = true
-    // delete used verification code
-}
-
 async function resendVerification(email) {
-    // TODO
-    // Find user by email
-    // delete old verification codes for that user
-    // create new codeHash + expiresAt
-    // send email/code
+    if (!email) {
+        throw new Error("Missing email");
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    if (user.emailVerified) {
+        return {
+            message: "Email is already verified"
+        };
+    }
+
+    await EmailVerification.deleteMany({ userId: user._id });
+    await createEmailVerification(user);
+
+    return {
+        message: "A new verifcation code has been sent"
+    };
 }
 
 export default {
