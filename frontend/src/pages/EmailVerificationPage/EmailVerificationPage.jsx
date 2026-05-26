@@ -8,18 +8,17 @@ export default function EmailVerificationPage() {
     const [code, setCode] = useState("");
     const [status, setStatus] = useState("pending"); // pending | success | error
     const [error, setError] = useState(null);
-
-    if (loading || !user) return null;
+    const [resendMsg, setResendMsg] = useState(null);
 
     // deletes the old code and sends a new one to the same email
     async function handleResend() {
         try {
             await apiFetch("/auth/resend-verification", {
                 method: "POST",
-                body: JSON.stringify({ email: user.email })
+                body: JSON.stringify({ email: user?.email })
             });
+            setResendMsg("A new code has been sent, check the server logs.");
             setError(null);
-            setStatus("pending");
         } catch (err) {
             setError(err.message);
         }
@@ -31,7 +30,7 @@ export default function EmailVerificationPage() {
             await apiFetch("/auth/verify-email", {
                 method: "POST",
                 // sends user._id so backend can find the matching verification code
-                body: JSON.stringify({ userId: user._id, code })
+                body: JSON.stringify({ userId: user?._id, code })
             });
             setStatus("success");
         } catch (err) {
@@ -40,10 +39,15 @@ export default function EmailVerificationPage() {
         }
     }
 
+    if (loading || !user) return null;
+
     if (status === "success") {
         return (
             <div className={styles.page}>
-                <p>Your email has been verified. You can now play!</p>
+                <div className={styles.form}>
+                    <h1>Email verified!</h1>
+                    <p>Your email has been verified. You can now play!</p>
+                </div>
             </div>
         );
     }
@@ -62,6 +66,7 @@ export default function EmailVerificationPage() {
                 {error && <p className={styles.error}>{error}</p>}
                 <button type="submit">Verify</button>
                 <button type="button" onClick={handleResend}>Resend code</button>
+                {resendMsg && <p className={styles.success}>{resendMsg}</p>}
             </form>
         </div>
     );
