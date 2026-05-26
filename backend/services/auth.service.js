@@ -94,7 +94,7 @@ async function createEmailVerification(user) {
     return code;
 }
 
-async function register(data){
+async function register(data, req){
     const existingUser = await User.findOne({
         $or: [
             { username: data.username },
@@ -115,9 +115,11 @@ async function register(data){
 
     await createEmailVerification(user);
 
+    const session = await issueSessionForUser(user, req);
+
     return {
-        user: safeUser(user),
-        message: "User registered. Please verify your email before playing"
+        ...session,
+        message: "User registered. Please verify your email before playing."
     };
 }
 
