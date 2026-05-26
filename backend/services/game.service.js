@@ -1,28 +1,19 @@
 import { Game } from "../models/game.model.js";
 import { User } from "../models/user.model.js";
-import { DICE_COUNT, DICE_FACES } from "../config/constants.js";
-
-// Dice helpers
-// Roll 1
-function rollDie() {
-    const index = Math.floor(Math.random() * DICE_FACES.length);
-    return DICE_FACES[index];
-}
-// Roll all
-function rollDice( count = DICE_COUNT) {
-    return Array.from({ length: count }, () => rollDie());
-}
-
-// Compare player ids
-function idsEqual(a, b) {
-    if (!a || !b) return false;
-    return a.toString() === b.toString();
-}
-
-// Helper for public roll phases
-function rollsArePublic(game) {
-    return ["revealing", "round-ended", "finished"].includes(game.phase) || game.status === "finished";
-}
+import {
+    rollDice,
+    idsEqual,
+    getActivePlayerIds,
+    moveToNextActivePlayer,
+    getPlayerStack,
+    getContribution,
+    pushBetLog,
+    rollsArePublic,
+    splitPot,
+    bettingRoundIsComplete,
+    getCurrentRoundResult,
+    resolveRound
+} from "../utils/gameHelpers.js";
 
 // K-factor determines how much ELO changes per game (32 is standard for beginners)
 const K = 32;
@@ -162,11 +153,10 @@ export async function joinGame(gid, playerId, requestingUser = null) {
         throw new Error("You do not have enough points to join this game");
     }
 
-    // deducting the buy-in from the user's points and adding them to the game pot and playerStack
+    // deducting the buy-in from the user's points and adding it as their in-game stack
     await User.findByIdAndUpdate(playerId, { $inc: { points: -game.buyIn } });
     await Game.findByIdAndUpdate(gid, {
         $addToSet: { players: playerId },
-        $inc: { pot: game.buyIn },
         $push: { playerStacks: { user: playerId, stack: game.buyIn } }
     });
 
@@ -235,6 +225,17 @@ export async function updateGame(gid, data) {
     
     if (updateData.status === "finished"){
         updateData.phase = "finished";
+
+        if (!updateData.result) {
+            updateData.result = {};
+        }
+
+        const oldGameWithStacks = oldGame;
+
+        updateData.result.scores = oldGameWithStacks.playerStacks.map(entry => ({
+            player: entry.user,
+            score: entry.stack
+        }));
     }
 
     const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
@@ -324,8 +325,164 @@ export async function rollForPlayer(gid, playerId) {
         }
     });
 
+    const activePlayers = getActivePlayerIds(game);
+
+    const everyoneRolled = activePlayers.every(activePlayerId =>
+        game.results.some(result => idsEqual(result.player, activePlayerId) && result.round === round)
+    );
+
+    if (everyoneRolled) {
+        game.phase = "betting";
+        game.currentTurn = activePlayers[0];
+
+        game.bettingState = {
+            currentBet: 0,
+            contributions: [],
+            actedUsers: [],
+            lastAggressor: null
+        };
+
+        game.timeoutState = {
+            turnStartedAt: new Date(),
+            turnExpiresAt: new Date(Date.now() + game.variant.timeControl * 1000),
+            timedOutUser: null,
+            timeoutCount: game.timeoutState.timeoutCount || 0
+        };
+    } else {
+        moveToNextActivePlayer(game);
+    }
+
     await game.save();
 
+    return game;
+}
+
+export async function placeBet(gid, playerId, { action, amount = 0 }) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
+
+    if (game.status !== "ongoing" || game.phase !== "betting") {
+        throw new Error("This game is not currently accepting bets");
+    }
+
+    if (!game.players.some(id => idsEqual(id, playerId))) {
+        throw new Error("You are not a player in this game");
+    }
+
+    if (game.foldedUsers.some(id => idsEqual(id, playerId))) {
+        throw new Error("You have already folded");
+    }
+
+    if (!idsEqual(game.currentTurn, playerId)) {
+        throw new Error("It is not your turn");
+    }
+
+    const stackEntry = getPlayerStack(game, playerId);
+    if (!stackEntry) throw new Error("Player stack not found");
+
+    const contribution = getContribution(game, playerId);
+    const currentBet = game.bettingState.currentBet;
+    const amountNeededToMatch = currentBet - contribution.amount;
+
+    if (action === "fold") {
+        if(!game.foldedUsers.some(id => idsEqual(id, playerId))) {
+            game.foldedUsers.push(playerId);
+        }
+        pushBetLog(game, playerId, "fold", 0);
+    } else if (action === "bet") {
+        if (currentBet > 0) {
+            throw new Error("Cannot bet because a bet already exists; use raise or match");
+        }
+        if (amount <= 0) {
+            throw new Error("Bet amount must be a number greater than 0");
+        }
+        if (stackEntry.stack < amount) {
+            throw new Error("Not enough points in stack");
+        }
+
+        stackEntry.stack -= amount;
+        contribution.amount += amount;
+        game.pot += amount;
+
+        game.bettingState.currentBet = contribution.amount;
+        game.bettingState.lastAggressor = playerId;
+        game.bettingState.actedUsers = [playerId];
+
+        pushBetLog(game, playerId, "bet", amount);
+    } else if (action === "match") {
+        if (amountNeededToMatch <= 0) {
+            if (!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
+                game.bettingState.actedUsers.push(playerId);
+            }
+
+            pushBetLog(game, playerId, "match", 0);
+        } else {
+            if (stackEntry.stack < amountNeededToMatch) {
+                throw new Error("Not enough points in stack");
+            }
+
+            stackEntry.stack -= amountNeededToMatch;
+            contribution.amount += amountNeededToMatch;
+            game.pot += amountNeededToMatch;
+
+            if(!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
+                game.bettingState.actedUsers.push(playerId);
+            }
+            pushBetLog(game, playerId, "match", amountNeededToMatch);
+        }
+    } else if (action === "raise") {
+        if (amount <= amountNeededToMatch) {
+            throw new Error("Raise must be greater than the amount needed to match");
+        }
+        if (stackEntry.stack < amount) {
+            throw new Error("Not enough points in stack");
+        }
+
+        stackEntry.stack -= amount;
+        contribution.amount += amount;
+        game.pot += amount;
+
+        game.bettingState.currentBet = contribution.amount;
+        game.bettingState.lastAggressor = playerId;
+        game.bettingState.actedUsers = [playerId];
+
+        pushBetLog(game, playerId, "raise", amount);
+    } else {
+        throw new Error("Invalid betting action");
+    }
+
+    const activePlayers = getActivePlayerIds(game);
+
+    if (activePlayers.length === 1) {
+        splitPot(game, [activePlayers[0]]);
+
+        game.phase = "round-ended";
+        game.currentTurn = null;
+
+        const result = getCurrentRoundResult(game, activePlayers[0]);
+
+        if (result) {
+            result.outcome = activePlayers[0];
+            result.timestamps.endedAt = new Date();
+        } else {
+            game.results.push({
+                player: activePlayers[0],
+                round: game.currentRound,
+                outcome: activePlayers[0],
+                timestamps: {
+                    startedAt: new Date(),
+                    endedAt: new Date()
+                }
+            });
+        }
+
+    } else if (bettingRoundIsComplete(game)) {
+        resolveRound(game);
+    } else {
+        moveToNextActivePlayer(game);
+    }
+
+    await game.save();
     return game;
 }
 
@@ -372,5 +529,6 @@ export default {
     updateGame,
     leaveGame,
     rollForPlayer,
-    sanitizeGameForViewer
+    sanitizeGameForViewer,
+    placeBet
 };

@@ -82,3 +82,15 @@ export function handleValidationErrors(req, res, next) {
     }
     next();
 }
+
+export const validateBet = [
+    body("action")
+        .isIn(["bet", "match", "raise", "fold"])
+        .withMessage("Action must be bet, match, raise or fold"),
+
+    body("amount")
+        .optional()
+        .isInt({ min: 0 })
+        .toInt()
+        .withMessage("Amount must be a positive integer")
+];

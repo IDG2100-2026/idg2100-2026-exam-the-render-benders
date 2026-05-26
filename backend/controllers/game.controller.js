@@ -121,6 +121,25 @@ export async function rollForPlayer(req, res) {
     }
 }
 
+export async function placeBet(req, res) {
+    try {
+        const game = await gameService.placeBet(req.params.gid, req.user.id, req.body);
+
+        if (!game) return res.status(404).json({ error: "Game not found" });
+
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+    } catch (err) {
+        const status = err.message.includes("not a player") ? 403
+            : err.message.includes("not your turn") ? 403
+            : err.message.includes("already folded") ? 400
+            : err.message.includes("not currently accepting bets") ? 400
+            : err.message.includes("Not enough") ? 400
+            : err.message.includes("Invalid") ? 400
+            : 500;
+
+        res.status(status).json({ error: err.message });
+    }
+}
 
 export default {
     getAllGames,
@@ -130,5 +149,6 @@ export default {
     joinGame,
     leaveGame,
     updateGame,
-    rollForPlayer
+    rollForPlayer,
+    placeBet
 };

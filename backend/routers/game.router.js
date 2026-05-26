@@ -1,7 +1,7 @@
 import express from "express";
 import gameController from "../controllers/game.controller.js";
 import commentController from "../controllers/comment.controller.js";
-import { validateCreateGame, validateUpdateGame, validateJoinGame, handleValidationErrors } from "../validators/game.validator.js";
+import { validateCreateGame, validateUpdateGame, validateJoinGame, handleValidationErrors, validateBet } from "../validators/game.validator.js";
 import { requireUser, requireNotBanned, requireEmailVerified } from "../middleware/auth.middleware.js";
 
 // Game router, handles all /games endpoints
@@ -28,6 +28,9 @@ gameRouter.post("/games/:gid/players", requireUser, requireNotBanned, requireEma
 
 // DELETE /games/:gid/players/:uid - leave a game (remove yourself; forfeits if ongoing)
 gameRouter.delete("/games/:gid/players/:uid", requireUser, gameController.leaveGame);
+
+// POST /games/:gid/bets - Betting
+gameRouter.post("/games/:gid/bets", requireUser, requireNotBanned, requireEmailVerified, validateBet, handleValidationErrors, gameController.placeBet);
 
 // POST /games/:gid/roll - backend generates dice for the logged in player
 gameRouter.post("/games/:gid/roll", requireUser, gameController.rollForPlayer);

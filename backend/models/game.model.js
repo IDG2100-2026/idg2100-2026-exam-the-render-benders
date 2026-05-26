@@ -94,6 +94,34 @@ const gameSchema = new mongoose.Schema({
         ref: "User",
         default: null
     },
+    bettingState: {
+        currentBet: {
+            type: Number,
+            default: DEFAULT_BET,
+            min: MIN_BET
+        },
+        contributions: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                required: true
+            },
+            amount:{
+                type: Number,
+                default: DEFAULT_BET,
+                min: MIN_BET
+            }
+        }],
+        actedUsers: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        }],
+        lastAggressor: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        }
+    },
     // Players who have folded in the current round/game
     foldedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
