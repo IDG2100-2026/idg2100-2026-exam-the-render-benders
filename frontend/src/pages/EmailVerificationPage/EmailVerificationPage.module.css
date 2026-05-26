@@ -1,0 +1,117 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 2rem 1rem;
+    min-height: 80vh;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 16px;
+    background-color: var(--bg-secondary);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
+
+.form h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.6rem;
+    text-align: center;
+    font-weight: 800;
+}
+
+.form p {
+    font-size: 0.9rem;
+    color: var(--text);
+    text-align: center;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.form input {
+    padding: 0.7rem 1rem;
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: var(--bg-secondary);
+}
+
+.form button[type="submit"] {
+    padding: 0.8rem;
+    background-color: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    margin-top: 0.5rem;
+}
+
+.form button[type="submit"]:hover {
+    background-color: var(--accent-hover);
+    transform: translateY(-1px);
+}
+
+.form button[type="button"] {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+    opacity: 0.6;
+    font-family: inherit;
+    text-align: center;
+}
+
+.form button[type="button"]:hover {
+    opacity: 1;
+    color: var(--accent);
+}
+
+.error {
+    color: var(--danger-text);
+    font-size: 0.85rem;
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .page {
+        justify-content: flex-start;
+        padding-top: 3rem;
+    }
+
+    .form {
+        padding: 1.5rem;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        max-width: 100%;
+    }
+}

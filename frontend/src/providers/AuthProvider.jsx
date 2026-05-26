@@ -11,7 +11,7 @@ export default function AuthProvider({ children }) {
     useEffect(() => {
         fetch(API_URL + "/auth/refresh", { method: "POST", credentials: "include" })
             .then((res) => res.ok ? res.json() : null)
-            .then((data) => { if (data?.user) setUser(data.user); })
+            .then((data) => { if (data?._id) setUser(data); })
             .catch(() => {})
             .finally(() => setLoading(false));
     }, []);
