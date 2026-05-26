@@ -16,7 +16,9 @@ export async function getAllGames(req, res) {
             requestingUser: req.user,
             mine: req.query.mine === "true"
         });
-        res.status(200).json(games);
+        res.status(200).json(
+            games.map(game => gameService.sanitizeGameForViewer(game, req.user?.id))
+        );
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -26,7 +28,9 @@ export async function getAllGames(req, res) {
 export async function getTopGames(req, res) {
     try {
         const games = await gameService.getTopGames();
-        res.status(200).json(games);
+        res.status(200).json(
+            games.map(game => gameService.sanitizeGameForViewer(game, req.user?.id))
+        );
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -37,7 +41,7 @@ export async function getGame(req, res) {
     try {
         const game = await gameService.getGame(req.params.gid);
         if (!game) return res.status(404).json({ error: "Game not found" });
-        res.status(200).json(game);
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -49,7 +53,7 @@ export async function createGame(req, res) {
     try {
         const isAnonymous = req.user?.type === "anonymous";
         const game = await gameService.createGame({ ...req.body, isAnonymous });
-        res.status(201).json(game);
+        res.status(201).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -60,7 +64,7 @@ export async function joinGame(req, res) {
     try {
         const game = await gameService.joinGame(req.params.gid, req.body.player, req.user);
         if (!game) return res.status(404).json({ error: "Game not found" });
-        res.status(201).json(game);
+        res.status(201).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
         const status = err.message.includes("does not allow anonymous") ? 403
             : err.message.includes("already in an active game") ? 400 : 500;
@@ -79,7 +83,9 @@ export async function leaveGame(req, res) {
         }
         const result = await gameService.leaveGame(req.params.gid, uid);
         if (!result) return res.status(404).json({ error: "Game not found" });
-        res.status(200).json(result);
+
+        if (result.deleted) return res.status(200).json(result);
+        res.status(200).json(gameService.sanitizeGameForViewer(result, req.user?.id));
     } catch (err) {
         const status = err.message.includes("not in this game") ? 403
             : err.message.includes("finished") ? 400 : 500;
@@ -92,9 +98,46 @@ export async function updateGame(req, res) {
     try {
         const game = await gameService.updateGame(req.params.gid, req.body);
         if (!game) return res.status(404).json({ error: "Game not found" });
-        res.status(200).json(game);
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+}
+
+export async function rollForPlayer(req, res) {
+    try {
+        const game = await gameService.rollForPlayer(req.params.gid, req.user.id);
+        if (!game) return res.status(404).json({ error: "Game not found" });
+
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+    } catch(err) {
+        const status = err.message.includes("not a player") ? 403
+        : err.message.includes("not your turn") ? 403
+        : err.message.includes("already rolled") ? 400
+        : err.message.includes("not currently rolling") ? 400
+        : 500;
+
+        res.status(status).json({ error: err.message });
+    }
+}
+
+export async function placeBet(req, res) {
+    try {
+        const game = await gameService.placeBet(req.params.gid, req.user.id, req.body);
+
+        if (!game) return res.status(404).json({ error: "Game not found" });
+
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+    } catch (err) {
+        const status = err.message.includes("not a player") ? 403
+            : err.message.includes("not your turn") ? 403
+            : err.message.includes("already folded") ? 400
+            : err.message.includes("not currently accepting bets") ? 400
+            : err.message.includes("Not enough") ? 400
+            : err.message.includes("Invalid") ? 400
+            : 500;
+
+        res.status(status).json({ error: err.message });
     }
 }
 
@@ -105,5 +148,7 @@ export default {
     createGame,
     joinGame,
     leaveGame,
-    updateGame
+    updateGame,
+    rollForPlayer,
+    placeBet
 };
