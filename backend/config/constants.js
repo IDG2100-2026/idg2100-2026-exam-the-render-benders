@@ -25,7 +25,7 @@ export const MAX_COMMENT_LENGTH = 1000;
 export const DEFAULT_POINTS = 100;
 
 // Minimum "buy-in" points for users
-export const MIN_POINTS = 0;
+export const MIN_POINTS = 1;
 
 // Default ELO rating for new users, all players start at the same level
 export const DEFAULT_ELO = 1000;
@@ -58,6 +58,13 @@ export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
 // Gameplay phases
 export const GAME_PHASES = ["waiting", "rolling", "betting", "revealing", "round-ended", "finished"];
 
+// Bet actions
+export const BET_ACTIONS = ["bet", "match", "raise", "fold", "timeout"];
+
+// Default / Minimum Bet value
+export const DEFAULT_BET = 0;
+export const MIN_BET = 0;
+
 // Allowed Dice faces
 export const DICE_FACES = ["7", "8", "J", "Q", "K", "A"];
 
@@ -67,6 +74,10 @@ export const DICE_COUNT = 5;
 // Round
 export const DEFAULT_ROUND = 1;
 export const MIN_ROUND = 1;
+
+// Timeout
+export const DEFAULT_TIMEOUT = 0;
+export const MIN_TIMEOUT = 0;
 
 // Allowed status values for a tournament
 export const TOURNAMENT_STATUSES = ["upcoming", "ongoing", "finished"];

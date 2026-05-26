@@ -13,7 +13,12 @@ import {
     DEFAULT_GAME_BUY_INS,
     DEFAULT_ELO,
     DEFAULT_POT_VALUE,
-    MIN_POT_VALUE
+    MIN_POT_VALUE,
+    DEFAULT_TIMEOUT,
+    MIN_TIMEOUT,
+    BET_ACTIONS,
+    DEFAULT_BET,
+    MIN_BET
 } from "../config/constants.js";
 
 // Game schema defines structure for a poker dice game
@@ -77,6 +82,44 @@ const gameSchema = new mongoose.Schema({
         enum: GAME_PHASES,
         default: "waiting"
     },
+    // Current round number, starts with 1 once game begins
+    currentRound: {
+        type: Number,
+        default: DEFAULT_ROUND,
+        min: MIN_ROUND
+    },
+    // User whose turn it is
+    currentTurn: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        default: null
+    },
+    // Players who have folded in the current round/game
+    foldedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    // Timeout tracking for the current turn
+    timeoutState: {
+        turnStartedAt: {
+            type: Date,
+            default: null
+        },
+        turnExpiresAt: {
+            type: Date,
+            default: null
+        },
+        timedOutUser: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            default: null
+        },
+        timeoutCount: {
+            type: Number,
+            default: DEFAULT_TIMEOUT,
+            min: MIN_TIMEOUT
+        }
+    },
     // Per-round data: dice rolls, held dice, round winner, and round timing
     results: [{
         player: {
@@ -88,9 +131,43 @@ const gameSchema = new mongoose.Schema({
             default: DEFAULT_ROUND,
             min: MIN_ROUND
         },
+        // Private dice values. Should only be shown to the owning player
+        hiddenRolls: [{ type: String, enum: DICE_FACES }],
+
+        // Public dice values, Can be shown to everyone
+        revealedRolls: [{ type: String, enum: DICE_FACES }],
+        
+        // For backwards-compatability / simple roll field
+        // Can be removed later once the frontend uses hidden/revealedRolls
         rolls: [{ type: String, enum: DICE_FACES }],
+        
+        // Which dice the player is holding between rerolls
         holds: [{ type: Boolean }],
-        outcome: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+        bets: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+            action: {
+                type: String,
+                enum: BET_ACTIONS
+            },
+            amount: {
+                type: Number,
+                default: DEFAULT_BET,
+                min: MIN_BET
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
+
+        outcome: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User"
+        },
         timestamps: {
             startedAt: { type: Date, default: Date.now },
             endedAt: { type: Date }

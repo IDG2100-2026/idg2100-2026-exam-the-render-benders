@@ -169,6 +169,14 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
         updated.status = "ongoing"; // Broad info
         updated.phase = "rolling"; // Detailed info
+        updated.currentRound = 1;
+        updated.currentTurn = updated.players[0]._id || updated.players[0];
+        updated.timeoutState = {
+            turnStartedAt: new Date(),
+            turnExpiresAt: new Date(Date.now() + updated.variant.timeControl * 1000),
+            timedOutUser: null,
+            timeoutCount: 0
+        };
         await updated.save();
     }
 
@@ -277,6 +285,10 @@ export async function rollForPlayer(gid, playerId) {
         throw new Error("You are not a player in this game");
     }
 
+    if (game.currentTurn?.toString() !== playerId.toString()) {
+        throw new Error("It is not your turn");
+    }
+    
     // Temp fix for logic duplicate roll prevention
     const round = game.currentRound || 1;
 
@@ -294,6 +306,8 @@ export async function rollForPlayer(gid, playerId) {
     game.results.push({
         player: playerId,
         round,
+        hiddenRolls: rolls,
+        revealedRolls: [],
         rolls,
         holds: [false, false, false, false, false],
         timestamps: {

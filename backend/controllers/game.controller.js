@@ -106,6 +106,7 @@ export async function rollForPlayer(req, res) {
         res.status(200).json(game);
     } catch(err) {
         const status = err.message.includes("not a player") ? 403
+        : err.message.includes("not your turn") ? 403
         : err.message.includes("already rolled") ? 400
         : err.message.includes("not currently rolling") ? 400
         : 500;
