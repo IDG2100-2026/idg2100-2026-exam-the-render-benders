@@ -80,7 +80,10 @@ Useful reference code in `projects/`:
 - [ ] Update `AuthProvider` to load current session and expose `user`, `isAdmin`, `emailVerified`
 - [ ] Wire login/register pages to new auth endpoints
 - [ ] Add email verification result page and resend-verification UI
-- [ ] Add `ProtectedRoute` and `AdminRoute` components
+- [x] Add `ProtectedRoute` component
+- [ ] Wire `ProtectedRoute` into App.jsx routes (do after 1C wiring is done)
+- [x] Add `AdminRoute` component
+- [ ] Wire `AdminRoute` into App.jsx on admin routes (do after admin pages exist)
 
 ---
 
@@ -101,11 +104,11 @@ Useful reference code in `projects/`:
 - [x] `DELETE /games/:gid/players/:uid` - leave before start or forfeit ongoing
 
 ### Part 2C - Frontend Game Creation And Lobby `[Johchacho]`
-- [ ] Update `CreateGamePage` with number of players and buy-in
-- [ ] Update lobby cards to show buy-in, player count, join eligibility
-- [ ] Add lobby filters: straights, rounds, time control, num players, buy-in
+- [x] Update `CreateGamePage` with number of players and buy-in
+- [x] Update lobby cards to show buy-in, player count, join eligibility
+- [x] Add lobby filters: straights, rounds, time control, num players, buy-in
 - [x] Anonymous users: "Play as Guest" on allowAnonymous games, redirected elsewhere
-- [ ] Show points balance before join/create actions
+- [x] Show points balance in header (Greeting chip)
 
 ---
 
