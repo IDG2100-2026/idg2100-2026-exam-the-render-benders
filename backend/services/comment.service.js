@@ -25,7 +25,8 @@ export async function createComment(data) {
 
 // Updates a Comment by ID (cid), then returns the updated document
 export async function updateComment(cid, data) {
-    return await Comment.findByIdAndUpdate(cid, data, { returnDocument: "after" });
+    return await Comment.findByIdAndUpdate(cid, data, { returnDocument: "after" })
+        .populate("author", "username");
 }
 
 // Deletes a Comment by ID (cid)

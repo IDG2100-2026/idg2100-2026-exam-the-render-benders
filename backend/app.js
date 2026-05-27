@@ -4,6 +4,7 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { setUserType } from "./middleware/auth.middleware.js";
+import { setupCommentSockets } from "./services/commentSocket.service.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
@@ -62,6 +63,8 @@ app.use("/api/v1/auth", authRouter);
 
 // Listens on a port
 const httpServer = app.listen(process.env.APP_PORT);
+
+setupCommentSockets(httpServer);
 
 httpServer.on("listening", () =>
   console.log(
