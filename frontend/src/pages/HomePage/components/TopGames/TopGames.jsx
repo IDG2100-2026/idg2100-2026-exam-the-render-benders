@@ -8,6 +8,7 @@ import styles from "./TopGames.module.css";
 export default function TopGames() {
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Fetches top games when the component mounts
@@ -19,6 +20,8 @@ export default function TopGames() {
                 setGames(data);
             } catch (err) {
                 setError(err.message);
+            } finally {
+                setLoading(false);
             }
         }
         fetchGames();
@@ -28,7 +31,8 @@ export default function TopGames() {
         <div className={styles.container}>
             <h2>Top Games</h2>
             {error && <p className={styles.error}>{error}</p>}
-            {games.length === 0 && !error && <p>No games to display.</p>}
+            {loading && <p>Loading...</p>}
+            {!loading && games.length === 0 && !error && <p>No games to display.</p>}
             <ol className={styles.list}>
                 {games.map((game, index) => {
                     // calculates average Elo of all players in the game

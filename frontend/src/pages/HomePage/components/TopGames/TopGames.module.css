@@ -71,10 +71,10 @@
     flex-shrink: 0;
 }
 
-.ongoing { 
-    background-color: #2ecc711a; 
-    color: #2ecc71; 
-    border: 1px solid #2ecc7166; 
+.ongoing {
+    background-color: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
 }
 
 .finished { 

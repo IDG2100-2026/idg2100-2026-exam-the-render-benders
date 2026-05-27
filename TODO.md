@@ -137,7 +137,8 @@ Useful reference code in `projects/`:
 - [x] Replace placeholder dice area in `GamePage`
 - [x] Wire Socket.IO into GameBoard.jsx - replace mock state with real game-state events
 - [x] Add betting controls and turn/phase display
-- [ ] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
+- [x] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
+- [x] Countdown timer in game board - calls `POST /games/:gid/timeout` when it hits zero
 - [ ] Add sound effects gated by `sound` appearance preference
 
 ---
@@ -203,10 +204,10 @@ Useful reference code in `projects/`:
 - [ ] Profile edit works with real auth (after Priority 1 done)
 
 ### Part 6C - Profile Permissions And Edge Cases `[Johchacho]`
-- [ ] Users can only edit their own profile (fix `requireSelfOrAdmin`)
-- [ ] Hide email for non-owner/non-admin viewers
-- [ ] Handle banned users consistently
-- [ ] Empty states: no trophies, no games, no bio
+- [x] Users can only edit their own profile (fix `requireSelfOrAdmin`)
+- [x] Hide email for non-owner/non-admin viewers
+- [x] Handle banned users consistently
+- [x] Empty states: no trophies, no games, no bio
 
 ---
 
@@ -224,7 +225,7 @@ Useful reference code in `projects/`:
 
 ### Part 7C - UX/Responsive Polish `[Johchacho]`
 - [ ] Responsive layout across all pages
-- [ ] Loading/error/empty states consistently
+- [x] Loading/error/empty states consistently
 - [ ] Stats understandable for anonymous users
 
 ---

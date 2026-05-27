@@ -10,6 +10,7 @@ export default function LobbyPage() {
     const { user, login } = useAuth();
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Filter state - null means "show all", a value means only show games matching that value
@@ -21,11 +22,14 @@ export default function LobbyPage() {
 
     useEffect(() => {
         async function fetchGames() {
+            setLoading(true);
             try {
                 const data = await apiFetch("/games?status=waiting");
                 setGames(data);
             } catch (err) {
                 setError(err.message);
+            } finally {
+                setLoading(false);
             }
         }
         fetchGames();
@@ -110,7 +114,8 @@ export default function LobbyPage() {
                 </div>
             </div>
 
-            {filteredGames.length === 0 && !error && (
+            {loading && <p className={styles.emptyMsg}>Loading games...</p>}
+            {!loading && filteredGames.length === 0 && !error && (
                 <div className={styles.emptyMsg}>
                     <p>No suitable games waiting for players.</p>
                 </div>
