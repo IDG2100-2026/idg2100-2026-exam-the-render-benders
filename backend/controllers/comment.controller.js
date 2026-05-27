@@ -25,6 +25,7 @@ export async function getComment(req, res) {
     }
 }
 
+// REST is still the source of truth, WebSockets only broadcast successful REST mutations
 // Create a new Comment and returns as JSON
 export async function createComment(req, res) {
     try {
@@ -78,7 +79,8 @@ export async function deleteComment(req, res) {
     try {
         const comment = await commentService.getComment(req.params.cid);
         if (!comment) return res.status(404).json({ error: "Comment not found" });
-        const isOwner = comment.author.toString() === req.user?.id;
+        const authorId = comment.author._id || comment.author;
+        const isOwner = authorId.toString() === req.user?.id;
         const isAdmin = req.user?.type === "admin";
         if (!isOwner && !isAdmin) return res.status(403).json({ error: "You can only delete your own comments" });
         await commentService.deleteComment(req.params.cid);

@@ -6,12 +6,16 @@ import { User } from "../models/user.model.js";
 // Returns all the Comments from the DB, supports pagination and search by body text
 export async function getAllComments({ skip = 0, limit = 20, search } = {}) {
     const filter = search ? { body: { $regex: search, $options: "i" } } : {};
-    return await Comment.find(filter).skip(skip).limit(limit);
+
+    return await Comment.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .populate("author", "username");
 }
 
 // Gets a single Comment by the id
 export async function getComment(cid) {
-    return await Comment.findById(cid);
+    return await Comment.findById(cid).populate("author", "username");
 }
 
 // Creates a new Comment - checks author exists and is not banned
@@ -45,7 +49,7 @@ export async function getCommentsByGame(gid) {
 export async function getCommentsByTournament(tid) {
     const tournament = await Tournament.findById(tid);
     if (!tournament) return null;
-    return await Comment.find({ tournament: tid });
+    return await Comment.find({ tournament: tid }).populate("author", "username");
 }
 
 export default {
