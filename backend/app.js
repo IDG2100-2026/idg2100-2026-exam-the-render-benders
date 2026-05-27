@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { setUserType } from "./middleware/auth.middleware.js";
 import { setupCommentSockets } from "./services/commentSocket.service.js";
+import { initializeGameSocket } from "./socket/game.socket.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
@@ -65,6 +66,10 @@ app.use("/api/v1/auth", authRouter);
 const httpServer = app.listen(process.env.APP_PORT);
 
 setupCommentSockets(httpServer);
+
+// initializing Socket.IO and attaching it to the HTTP server so WebSocket
+    // connections can be handled
+initializeGameSocket(httpServer);
 
 httpServer.on("listening", () =>
   console.log(

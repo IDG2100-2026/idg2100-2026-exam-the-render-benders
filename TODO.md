@@ -125,10 +125,10 @@ Useful reference code in `projects/`:
 - [ ] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
 
 ### Part 3B - WebSocket Server And Events `[Tobbelobb]`
-- [ ] Add WebSocket support beside Express (`ws` or Socket.IO)
+- [x] Add WebSocket support beside Express (`ws` or Socket.IO)
 - [ ] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
-- [ ] Add `GET /games/:gid/state` for reload/navigation restore
-- [ ] Emit state updates to all players and spectators in the game room
+- [x] Add `GET /games/:gid/state` for reload/navigation restore
+- [x] Emit state updates to all players and spectators in the game room
 - [ ] Keep player-private dice data private in emitted payloads
 
 ### Part 3C - Frontend Web Components And Game Page `[Johchacho]`

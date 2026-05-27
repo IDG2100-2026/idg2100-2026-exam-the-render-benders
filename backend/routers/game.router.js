@@ -17,6 +17,9 @@ gameRouter.get("/games/top", gameController.getTopGames);
 // Gets a specific game
 gameRouter.get("/games/:gid", gameController.getGame);
 
+// Gets the current state of a game (used for reload/navigation restoring)
+gameRouter.get("/games/:gid/state", gameController.getGameState);
+
 // Creates a new game (start matchmaking)
 gameRouter.post("/games", requireUser, validateCreateGame, handleValidationErrors, gameController.createGame);
 
