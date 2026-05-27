@@ -1,4 +1,4 @@
-import WebSocketServer from "ws";
+import { WebSocketServer } from "ws";
 
 const rooms = new Map();
 
@@ -67,7 +67,7 @@ export function setupCommentSockets(httpServer) {
             } catch {
                 sendJson(ws, {
                     type: "error",
-                    errir: "Invalid JSON message"
+                    error: "Invalid JSON message"
                 });
                 return;
             }
