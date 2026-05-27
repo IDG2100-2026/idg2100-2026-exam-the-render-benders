@@ -96,7 +96,8 @@ export default function UserProfilePage() {
         : 0;
 
     const isOwnProfile = loggedInUser?.username === profile.username;
-    
+    const isAdmin = loggedInUser?.isAdmin;
+
     // Determine which image to show - getAssetUrl handles the default fallback
     const displayImage = profileImagePreview || getAssetUrl(profile.profileImage);
 
@@ -119,13 +120,18 @@ export default function UserProfilePage() {
                             {isOwnProfile && <span className={styles.youBadge}>You</span>}
                         </div>
                         <div className={styles.metaRow}>
-                            {isOwnProfile && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
+                            {(isOwnProfile || isAdmin) && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
                             <span className={styles.metaItem}><MdCalendarToday /> Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
                         </div>
                         {isOwnProfile && !profile.emailVerified && (
                             <Link to="/verify-email" className={styles.verifyBanner}>
                                 <MdWarning /> Verify your email
                             </Link>
+                        )}
+                        {profile.isBanned && (
+                            <span className={styles.bannedBanner}>
+                                <MdWarning /> This account is banned
+                            </span>
                         )}
                         {isOwnProfile && !isEditing && (
                             <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Edit Profile</button>
@@ -229,9 +235,9 @@ export default function UserProfilePage() {
                 </div>
             </div>
 
-            {profile.trophies?.length > 0 && (
-                <div className={styles.sectionCard}>
-                    <h2><MdEmojiEvents /> Trophies</h2>
+            <div className={styles.sectionCard}>
+                <h2><MdEmojiEvents /> Trophies</h2>
+                {profile.trophies?.length > 0 ? (
                     <div className={styles.trophyList}>
                         {profile.trophies.map((trophy, index) => (
                             <div key={index} className={styles.trophy}>
@@ -240,8 +246,10 @@ export default function UserProfilePage() {
                             </div>
                         ))}
                     </div>
-                </div>
-            )}
+                ) : (
+                    <p className={styles.emptyMsg}>No trophies yet.</p>
+                )}
+            </div>
 
             <div className={styles.sectionCard}>
                 <div className={styles.sectionHeader}>
