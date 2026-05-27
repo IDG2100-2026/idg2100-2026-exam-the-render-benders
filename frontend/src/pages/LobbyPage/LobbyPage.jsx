@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
+import { GAME_ROUND_COUNTS, GAME_TIME_CONTROLS, GAME_PLAYER_COUNTS, GAME_BUY_INS, RULES_STRAIGHTS, RULES_NO_STRAIGHTS } from "@/config/constants";
 import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./LobbyPage.module.css";
 
@@ -80,30 +81,30 @@ export default function LobbyPage() {
                 <div className={styles.filterGroup}>
                     <span>Rules</span>
                     <button onClick={() => setFilterRules(null)} className={!filterRules ? styles.filterActive : styles.filterBtn}>All</button>
-                    <button onClick={() => setFilterRules("straights-allowed")} className={filterRules === "straights-allowed" ? styles.filterActive : styles.filterBtn}>Straights</button>
-                    <button onClick={() => setFilterRules("no-straights")} className={filterRules === "no-straights" ? styles.filterActive : styles.filterBtn}>No straights</button>
+                    <button onClick={() => setFilterRules(RULES_STRAIGHTS)} className={filterRules === RULES_STRAIGHTS ? styles.filterActive : styles.filterBtn}>Straights</button>
+                    <button onClick={() => setFilterRules(RULES_NO_STRAIGHTS)} className={filterRules === RULES_NO_STRAIGHTS ? styles.filterActive : styles.filterBtn}>No straights</button>
                 </div>
                 <div className={styles.filterGroup}>
                     <span>Rounds</span>
-                    {[3, 5, 7].map(n => (
+                    {GAME_ROUND_COUNTS.map(n => (
                         <button key={n} onClick={() => setFilterRounds(filterRounds === n ? null : n)} className={filterRounds === n ? styles.filterActive : styles.filterBtn}>{n}</button>
                     ))}
                 </div>
                 <div className={styles.filterGroup}>
                     <span>Time</span>
-                    {[10, 30, 90].map(n => (
+                    {GAME_TIME_CONTROLS.map(n => (
                         <button key={n} onClick={() => setFilterTimeControl(filterTimeControl === n ? null : n)} className={filterTimeControl === n ? styles.filterActive : styles.filterBtn}>{n}s</button>
                     ))}
                 </div>
                 <div className={styles.filterGroup}>
                     <span>Players</span>
-                    {[2, 3, 5].map(n => (
+                    {GAME_PLAYER_COUNTS.map(n => (
                         <button key={n} onClick={() => setFilterNumPlayers(filterNumPlayers === n ? null : n)} className={filterNumPlayers === n ? styles.filterActive : styles.filterBtn}>{n}</button>
                     ))}
                 </div>
                 <div className={styles.filterGroup}>
                     <span>Buy-in</span>
-                    {[1, 10, 50].map(n => (
+                    {GAME_BUY_INS.map(n => (
                         <button key={n} onClick={() => setFilterBuyIn(filterBuyIn === n ? null : n)} className={filterBuyIn === n ? styles.filterActive : styles.filterBtn}>{n} pts</button>
                     ))}
                 </div>

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router";
-import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp } from "react-icons/md";
+import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp, MdWarning } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch, getAssetUrl } from "@/api";
+import { DEFAULT_ELO, MAX_BIO_LENGTH } from "@/config/constants";
 import styles from "./UserProfilePage.module.css";
 
 export default function UserProfilePage() {
@@ -121,6 +122,11 @@ export default function UserProfilePage() {
                             {isOwnProfile && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
                             <span className={styles.metaItem}><MdCalendarToday /> Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
                         </div>
+                        {isOwnProfile && !profile.emailVerified && (
+                            <Link to="/verify-email" className={styles.verifyBanner}>
+                                <MdWarning /> Verify your email
+                            </Link>
+                        )}
                         {isOwnProfile && !isEditing && (
                             <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Edit Profile</button>
                         )}
@@ -135,7 +141,7 @@ export default function UserProfilePage() {
                                 onChange={(e) => setAboutMe(e.target.value)}
                                 placeholder="Tell us about yourself..."
                                 rows={3}
-                                maxLength={500}
+                                maxLength={MAX_BIO_LENGTH}
                             />
                             <div className={styles.editFormRow}>
                                 <input
@@ -172,15 +178,15 @@ export default function UserProfilePage() {
                     <div className={styles.eloBreakdown}>
                         <div className={styles.variantElo}>
                             <span className={styles.vLabel}>Blitz (10s)</span>
-                            <span className={styles.vValue}>{profile.elo10s || 1000}</span>
+                            <span className={styles.vValue}>{profile.elo10s || DEFAULT_ELO}</span>
                         </div>
                         <div className={styles.variantElo}>
                             <span className={styles.vLabel}>Rapid (30s)</span>
-                            <span className={styles.vValue}>{profile.elo30s || 1000}</span>
+                            <span className={styles.vValue}>{profile.elo30s || DEFAULT_ELO}</span>
                         </div>
                         <div className={styles.variantElo}>
                             <span className={styles.vLabel}>Classic (90s)</span>
-                            <span className={styles.vValue}>{profile.elo90s || 1000}</span>
+                            <span className={styles.vValue}>{profile.elo90s || DEFAULT_ELO}</span>
                         </div>
                     </div>
                 </div>

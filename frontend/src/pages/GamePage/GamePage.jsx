@@ -4,6 +4,7 @@ import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty, MdEx
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { apiFetch, getAssetUrl } from "@/api";
+import { DEFAULT_ELO, MAX_COMMENT_LENGTH, RULES_STRAIGHTS } from "@/config/constants";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -109,7 +110,7 @@ export default function GamePage() {
                                 <MdAccessTime /> {game.variant.timeControl}s
                             </span>
                             <span className={styles.variantBadge}>
-                                {game.variant.rules === "straights-allowed" ? "Straights" : "No straights"}
+                                {game.variant.rules === RULES_STRAIGHTS ? "Straights" : "No straights"}
                             </span>
                             {canLeave && (
                                 <button className={styles.leaveBtn} onClick={handleLeaveGame}>
@@ -132,7 +133,7 @@ export default function GamePage() {
                                 <Link to={`/users/${host?.username}`} className={styles.pName}>
                                     {host?.username} {user?.username === host?.username && "(You)"}
                                 </Link>
-                                <span className={styles.pElo}>{host?.elo || 1000} ELO</span>
+                                <span className={styles.pElo}>{host?.elo || DEFAULT_ELO} ELO</span>
                             </div>
                         </div>
 
@@ -151,7 +152,7 @@ export default function GamePage() {
                                         <Link to={`/users/${opponent.username}`} className={styles.pName}>
                                             {opponent.username}
                                         </Link>
-                                        <span className={styles.pElo}>{opponent.elo || 1000} ELO</span>
+                                        <span className={styles.pElo}>{opponent.elo || DEFAULT_ELO} ELO</span>
                                     </div>
                                 </>
                             ) : (
@@ -223,7 +224,7 @@ export default function GamePage() {
                                 value={commentBody}
                                 onChange={(e) => setCommentBody(e.target.value)}
                                 placeholder="Add a comment..."
-                                maxLength={1000}
+                                maxLength={MAX_COMMENT_LENGTH}
                                 required
                             />
                             {commentError && <p className={styles.error}>{commentError}</p>}
