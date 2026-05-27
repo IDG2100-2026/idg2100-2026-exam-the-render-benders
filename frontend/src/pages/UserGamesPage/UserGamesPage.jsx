@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { MdLayers, MdAccessTime, MdArrowForward, MdHistory, MdArrowBack } from "react-icons/md";
 import { apiFetch } from "@/api";
+import { RULES_STRAIGHTS } from "@/config/constants";
 import styles from "./UserGamesPage.module.css";
 
 export default function UserGamesPage() {
@@ -70,7 +71,7 @@ export default function UserGamesPage() {
                                         <span><MdLayers /> {game.variant.rounds}r</span>
                                         <span><MdAccessTime /> {game.variant.timeControl}s</span>
                                         <span className={styles.rulesText}>
-                                            {game.variant.rules === "straights-allowed" ? "Straights" : "No straights"}
+                                            {game.variant.rules === RULES_STRAIGHTS ? "Straights" : "No straights"}
                                         </span>
                                     </div>
                                     {game.status === "finished" && game.result?.winner && (

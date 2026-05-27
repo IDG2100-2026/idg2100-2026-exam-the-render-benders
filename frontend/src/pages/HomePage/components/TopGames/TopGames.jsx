@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { MdLayers, MdAccessTime, MdEmojiEvents } from "react-icons/md";
 import { apiFetch, getAssetUrl } from "@/api";
+import { DEFAULT_ELO } from "@/config/constants";
 import styles from "./TopGames.module.css";
 
 export default function TopGames() {
@@ -32,7 +33,7 @@ export default function TopGames() {
                 {games.map((game, index) => {
                     // calculates average Elo of all players in the game
                     const avgElo = Math.round(
-                        game.players.reduce((sum, p) => sum + (p.elo || 1000), 0) / (game.players.length || 1)
+                        game.players.reduce((sum, p) => sum + (p.elo || DEFAULT_ELO), 0) / (game.players.length || 1)
                     );
 
                     return (

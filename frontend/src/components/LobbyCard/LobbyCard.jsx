@@ -1,13 +1,14 @@
 import { Link } from "react-router";
 import { MdEmojiEvents, MdAccessTime, MdLayers, MdCheckCircle, MdCancel, MdPeople, MdAttachMoney } from "react-icons/md";
 import { getAssetUrl } from "@/api";
+import { DEFAULT_ELO, RULES_STRAIGHTS } from "@/config/constants";
 import styles from "./LobbyCard.module.css";
 
 // Shared card component used in both LobbySection and LobbyPage.
 // onGuestJoin: called when an anonymous user clicks "Play as Guest" on an allowAnonymous game
 export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
     const avgElo = Math.round(
-        game.players.reduce((sum, p) => sum + (p.elo || 1000), 0) / (game.players.length || 1)
+        game.players.reduce((sum, p) => sum + (p.elo || DEFAULT_ELO), 0) / (game.players.length || 1)
     );
 
     const cardClass = `${styles.card} ${onCardClick ? styles.clickable : ""}`.trim();
@@ -50,7 +51,7 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
                 <span><MdLayers /> {game.variant.rounds}r</span>
                 <span><MdAccessTime /> {game.variant.timeControl}s</span>
                 <span className={styles.rules}>
-                    {game.variant.rules === "straights-allowed" ? (
+                    {game.variant.rules === RULES_STRAIGHTS ? (
                         <><MdCheckCircle /> Straights</>
                     ) : (
                         <><MdCancel /> No straights</>
