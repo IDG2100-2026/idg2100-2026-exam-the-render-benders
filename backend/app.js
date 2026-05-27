@@ -4,7 +4,7 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { setUserType } from "./middleware/auth.middleware.js";
-import { setupCommentSockets } from "./services/commentSocket.service.js";
+import { setupCommentSockets } from "./socket/comment.socket.js"; 
 import { initializeGameSocket } from "./socket/game.socket.js";
 
 // Import Routers

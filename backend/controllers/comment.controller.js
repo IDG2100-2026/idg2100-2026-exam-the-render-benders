@@ -1,5 +1,5 @@
 import commentService from "../services/comment.service.js";
-import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTournamentRoom } from "../services/commentSocket.service.js";
+import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTournamentRoom } from "../socket/comment.socket.js";
 
 // Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
