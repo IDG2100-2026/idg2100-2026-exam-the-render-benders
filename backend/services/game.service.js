@@ -13,7 +13,9 @@ import {
     splitPot,
     bettingRoundIsComplete,
     getCurrentRoundResult,
-    resolveRound
+    resolveRound,
+    turnHasExpired,
+    startTurnTimer
 } from "../utils/gameHelpers.js";
 
 // K-factor determines how much ELO changes per game (32 is standard for beginners)
@@ -285,6 +287,19 @@ export async function updateGame(gid, data) {
     return game;
 }
 
+function enterBettingPhase(game, activePlayers) {
+    game.phase = "betting";
+
+    game.bettingState = {
+        currentBet: 0,
+        contributions: [],
+        actedUsers: [],
+        lastAggressor: null
+    };
+
+    startTurnTimer(game, activePlayers[0]);
+}
+
 export async function rollForPlayer(gid, playerId) {
     const game = await Game.findById(gid);
     if (!game) return null;
@@ -338,22 +353,7 @@ export async function rollForPlayer(gid, playerId) {
     );
 
     if (everyoneRolled) {
-        game.phase = "betting";
-        game.currentTurn = activePlayers[0];
-
-        game.bettingState = {
-            currentBet: 0,
-            contributions: [],
-            actedUsers: [],
-            lastAggressor: null
-        };
-
-        game.timeoutState = {
-            turnStartedAt: new Date(),
-            turnExpiresAt: new Date(Date.now() + game.variant.timeControl * 1000),
-            timedOutUser: null,
-            timeoutCount: game.timeoutState.timeoutCount || 0
-        };
+        enterBettingPhase(game, activePlayers);
     } else {
         moveToNextActivePlayer(game);
     }
@@ -503,6 +503,139 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     return game;
 }
 
+export async function handleTimeout(gid) {
+    const game = await Game.findById(gid);
+    if(!game) return null;
+
+    if (game.status !== "ongoing") {
+        throw new Error("Only ongoing games can time out");
+    }
+
+    if (!game.currentTurn) {
+        throw new Error("No active turn to time out");
+    }
+
+    if (!turnHasExpired(game)) {
+        throw new Error("Current turn has not expired yet");
+    }
+
+    const timedOutPlayerId = game.currentTurn;
+
+    game.timeoutState.timedOutUser = timedOutPlayerId;
+    game.timeoutState.timeoutCount = (game.timeoutState.timeoutCount || 0) + 1;
+
+    if (game.phase === "rolling") {
+        const round = game.currentRound || 1;
+
+        const alreadyRolledThisRound = game.results.some(result =>
+            idsEqual(result.player, timedOutPlayerId) && result.round === round);
+
+        if (!alreadyRolledThisRound) {
+            const rolls = rollDice();
+
+            game.results.push({
+                player: timedOutPlayerId,
+                round,
+                hiddenRolls: rolls,
+                revealedRolls: [],
+                rolls,
+                holds: [false, false, false, false, false],
+                bets: [{
+                    user: timedOutPlayerId,
+                    action: "timeout",
+                    amount: 0,
+                    createdAt: new Date()
+                }],
+                timestamps: {
+                    startedAt: new Date()
+                }
+            });
+        }
+
+        const activePlayers = getActivePlayerIds(game);
+
+        const everyoneRolled = activePlayers.every(activePlayerId =>
+            game.results.some(result =>
+                idsEqual(result.player, activePlayerId) && result.round === round
+            )
+        );
+
+        if (everyoneRolled) {
+            enterBettingPhase(game, activePlayers);
+        } else {
+            moveToNextActivePlayer(game);
+        }
+    } else if (game.phase === "betting") {
+        const stackEntry = getPlayerStack(game, timedOutPlayerId);
+        if (!stackEntry) throw new Error("Player stack not found");
+
+        const contribution = getContribution(game, timedOutPlayerId);
+        const amountNeededToMatch = game.bettingState.currentBet - contribution.amount;
+
+        if (amountNeededToMatch > 0) {
+            if (stackEntry.stack < amountNeededToMatch) {
+                if (!game.foldedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                    game.foldedUsers.push(timedOutPlayerId);
+                }
+
+                pushBetLog(game, timedOutPlayerId, "timeout", 0);
+                pushBetLog(game, timedOutPlayerId, "fold", 0);
+            } else {
+                stackEntry.stack -= amountNeededToMatch;
+                contribution.amount += amountNeededToMatch;
+                game.pot += amountNeededToMatch;
+
+                pushBetLog(game, timedOutPlayerId, "timeout", amountNeededToMatch);
+                pushBetLog(game, timedOutPlayerId, "match", amountNeededToMatch);
+
+                if (!game.bettingState.actedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                    game.bettingState.actedUsers.push(timedOutPlayerId);
+                }
+            }
+        } else {
+            pushBetLog(game, timedOutPlayerId, "timeout", 0);
+            pushBetLog(game, timedOutPlayerId, "match", 0);
+
+            if (!game.bettingState.actedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                game.bettingState.actedUsers.push(timedOutPlayerId);
+            }
+        }
+
+        const activePlayers = getActivePlayerIds(game);
+
+        if (activePlayers.length === 1) {
+            splitPot(game, [activePlayers[0]]);
+
+            game.phase = "round-ended";
+            game.currentTurn = null;
+
+            const result = getCurrentRoundResult(game, activePlayers[0]);
+
+            if (result) {
+                result.outcome = activePlayers[0];
+                result.timestamps.endedAt = new Date();
+            }
+        } else if (bettingRoundIsComplete(game)) {
+            resolveRound(game);
+        } else {
+            moveToNextActivePlayer(game);
+        }
+    } else {
+        throw new Error("Current phase cannot time out");
+    }
+
+    await game.save();
+
+    getIO()?.to(gid.toString()).emit("timeout", {
+        user: timedOutPlayerId,
+        phase: game.phase,
+        round: game.currentRound
+    });
+
+    getIO()?.to(gid.toString()).emit("game-state", sanitizeGameForViewer(game, null));
+    return game;
+}
+
 export function sanitizeGameForViewer(game, viewerId) {
     if (!game) return null;
 
@@ -547,5 +680,6 @@ export default {
     leaveGame,
     rollForPlayer,
     sanitizeGameForViewer,
-    placeBet
+    placeBet,
+    handleTimeout
 };
