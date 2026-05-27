@@ -1,11 +1,16 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router";
+import { MdDelete } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext.jsx";
-import { 
-    getGameComments, 
-    getTournamentComments, 
-    postGameComment, 
-    postTournamentComment 
+import {
+    getGameComments,
+    getTournamentComments,
+    postGameComment,
+    postTournamentComment,
+    deleteComment
 } from "@/services/commentService.js";
+import { MAX_COMMENT_LENGTH } from "@/config/constants.js";
+import styles from "./Comments.module.css";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_URL;
 
@@ -17,16 +22,15 @@ export default function Comments({ gameId, tournamentId }) {
 
     // connecting to WebSocket and joining the correct room
     useEffect(() => {
-        // connecting to the comment WebSocket server
         const ws = new WebSocket(`${WS_BASE_URL}/ws/comments`);
         webSocketRef.current = ws;
 
         ws.onopen = () => {
-            // join the coorect room based on game or tournament 
+            // join the correct room based on game or tournament
             if (gameId) {
                 ws.send(JSON.stringify({ type: "join-comment-room", game: gameId }));
             } else if (tournamentId) {
-                ws.send(JSON.stringify({ type: "join-comment-room", tournament: tournamentId })); 
+                ws.send(JSON.stringify({ type: "join-comment-room", tournament: tournamentId }));
             }
         };
 
@@ -34,25 +38,21 @@ export default function Comments({ gameId, tournamentId }) {
             const message = JSON.parse(event.data);
 
             if (message.type === "comment-created") {
-                // appending the new comment to the list without reload
                 setComments(prev => [...prev, message.comment]);
             }
 
             if (message.type === "comment-deleted") {
-                // removing deleted comment from the list without reload 
                 setComments(prev => prev.filter(cmnt => cmnt._id !== message.commentId));
             }
         };
 
-        // disconnect when component unmounts
         return () => ws.close();
     }, [gameId, tournamentId]);
 
     // fetching initial comments from the REST API on mount
     useEffect(() => {
         async function fetchComments() {
-            // fetching game or tournament based on which id is passed in 
-            const data = gameId 
+            const data = gameId
                 ? await getGameComments(gameId)
                 : await getTournamentComments(tournamentId);
             setComments(data);
@@ -63,7 +63,6 @@ export default function Comments({ gameId, tournamentId }) {
     async function handleSubmit(e) {
         e.preventDefault();
         if (!newComment.trim()) return;
-        // post to game or tournament based on which id was passed in 
         const created = gameId
             ? await postGameComment(gameId, newComment, user._id)
             : await postTournamentComment(tournamentId, newComment, user._id);
@@ -71,24 +70,59 @@ export default function Comments({ gameId, tournamentId }) {
         setNewComment("");
     }
 
+    async function handleDelete(commentId) {
+        await deleteComment(commentId);
+        setComments(prev => prev.filter(c => c._id !== commentId));
+    }
+
+    const canDelete = (comment) =>
+        user && (user._id === comment.author?._id || user.isAdmin);
+
     return (
         <div>
-            <ul>
+            <ul className={styles.commentList}>
+                {comments.length === 0 && (
+                    <li className={styles.noComments}>No comments yet.</li>
+                )}
                 {comments.map(comment => (
-                    <li key={comment._id}>
-                        <strong>{comment.author?.username}</strong>: {comment.body}
+                    <li key={comment._id} className={styles.comment}>
+                        <div className={styles.commentHeader}>
+                            <strong>
+                                <Link to={`/users/${comment.author?.username}`}>
+                                    {comment.author?.username}
+                                </Link>
+                            </strong>
+                            <div className={styles.commentMeta}>
+                                <small>{new Date(comment.createdAt).toLocaleDateString()}</small>
+                                {canDelete(comment) && (
+                                    <button
+                                        className={styles.deleteBtn}
+                                        onClick={() => handleDelete(comment._id)}
+                                        aria-label="Delete comment"
+                                    >
+                                        <MdDelete />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <p>{comment.body}</p>
                     </li>
                 ))}
             </ul>
-            {user && (
-                <form onSubmit={handleSubmit}>
-                    <input
+            {user ? (
+                <form className={styles.commentForm} onSubmit={handleSubmit}>
+                    <textarea
                         value={newComment}
                         onChange={e => setNewComment(e.target.value)}
-                        placeholder="Write a comment"
+                        placeholder="Write a comment..."
+                        maxLength={MAX_COMMENT_LENGTH}
                     />
                     <button type="submit">Post</button>
                 </form>
+            ) : (
+                <div className={styles.loginHint}>
+                    <p><Link to="/login">Log in</Link> to leave a comment.</p>
+                </div>
             )}
         </div>
     );
