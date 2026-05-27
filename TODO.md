@@ -280,10 +280,10 @@ Useful reference code in `projects/`:
 ## Priority 10 - Comments With WebSockets
 
 ### Part 10A - Backend Comment Events `[Sebbegang]`
-- [ ] Comment WebSocket events: create/update/delete
-- [ ] Broadcast new game comments to game room
-- [ ] Broadcast new tournament comments to tournament page
-- [ ] Keep REST endpoints as fallback
+- [x] Comment WebSocket events: create/update/delete
+- [x] Broadcast new game comments to game room
+- [x] Broadcast new tournament comments to tournament page
+- [x] Keep REST endpoints as fallback
 
 ### Part 10B - Shared Frontend Comment Component `[Tobbelobb]`
 - [ ] Extract reusable comment component for games and tournaments
