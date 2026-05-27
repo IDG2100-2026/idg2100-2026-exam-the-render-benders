@@ -17,36 +17,7 @@ import {
     turnHasExpired,
     startTurnTimer
 } from "../utils/gameHelpers.js";
-
-// K-factor determines how much ELO changes per game (32 is standard for beginners)
-const K = 32;
-
-// Calculates new ELO ratings for two players after a game
-function calculateElo(players, winnerId, timeControl = 10) {
-    const [playerA, playerB] = players;
-
-    // Determine which Elo rating to use as base (defaulting to 1000 if not set)
-    let eloField = "elo";
-    if (timeControl === 10) eloField = "elo10s";
-    else if (timeControl === 30) eloField = "elo30s";
-    else if (timeControl === 90) eloField = "elo90s";
-
-    const ratingA = playerA[eloField] || 1000;
-    const ratingB = playerB[eloField] || 1000;
-
-    // Expected scores based on current ratings (probability of winning)
-    const expectedA = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
-    const expectedB = 1 / (1 + Math.pow(10, (ratingA - ratingB) / 400));
-
-    // Check who won
-    const playerAWon = playerA._id.equals(winnerId);
-
-    return {
-        newEloA: Math.round(ratingA + K * ((playerAWon ? 1 : 0) - expectedA)),
-        newEloB: Math.round(ratingB + K * ((playerAWon ? 0 : 1) - expectedB)),
-        eloField
-    };
-}
+import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
 
 // Returns all games from the database, supports pagination and advanced filtering
 // mine=true returns only the requesting user's own active games (waiting/ongoing)
@@ -239,35 +210,54 @@ export async function updateGame(gid, data) {
             player: entry.user,
             score: entry.stack
         }));
+
+        if(!updateData.result.winner && updateData.result.scores.length > 0) {
+            const topScore = Math.max(...updateData.result.scores.map(score => score.score));
+            const winners = updateData.result.scores.filter(score => score.score === topScore);
+
+            if (winners.length === 1) {
+                updateData.result.winner = winners[0].player;
+            }
+        }
     }
 
     const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
 
     // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
-    if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.winner) {
+    if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.scores?.length) {
         const players = await User.find({ _id: { $in: game.players } });
+        const eloField = getEloField(game.variant.timeControl);
 
-        // Calculate new Elo for the specific time control variant
-        const { newEloA, newEloB, eloField } = calculateElo(players, game.result.winner, game.variant.timeControl);
+        const scoreByPlayerId = new Map(
+            (game.result?.scores || []).map(score => [
+                score.player.toString(),
+                score.score
+            ])
+        );
 
-        // We also update the general Elo for the leaderboard (average change)
-        const diffA = newEloA - (players[0][eloField] || 1000);
-        const diffB = newEloB - (players[1][eloField] || 1000);
-        const generalEloA = players[0].elo + diffA;
-        const generalEloB = players[1].elo + diffB;
+        const eloUpdates = calculatePairwiseEloUpdates(players, scoreByPlayerId, eloField);
 
-        const playerAWon = players[0]._id.equals(game.result.winner);
+        for (const update of eloUpdates) {
+            const generalElo = Math.max(0, (update.player.elo || 1000) + update.delta);
+            const playerWon = game.result?.winner?.toString() === update.playerId;
 
-        await User.findByIdAndUpdate(players[0]._id, {
-            $set: { [eloField]: newEloA, elo: generalEloA },
-            $inc: { gamesPlayed: 1, wins: playerAWon ? 1 : 0 },
-            $push: { eloHistory: { elo: generalEloA, date: new Date() } }
-        });
-        await User.findByIdAndUpdate(players[1]._id, {
-            $set: { [eloField]: newEloB, elo: generalEloB },
-            $inc: { gamesPlayed: 1, wins: playerAWon ? 0 : 1 },
-            $push: { eloHistory: { elo: generalEloB, date: new Date() } }
-        });
+            await User.findByIdAndUpdate(update.playerId, {
+                $set: {
+                    [eloField]: update.newRating,
+                    elo: generalElo
+                },
+                $inc: {
+                    gamesPlayed: 1,
+                    wins: playerWon ? 1 : 0
+                },
+                $push: {
+                    eloHistory: {
+                        elo: generalElo,
+                        date: new Date()
+                    }
+                }
+            });
+        }
 
         // returning each player's remaining stack to their point balance
         for (const entry of game.playerStacks) {
