@@ -1,0 +1,105 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.phaseInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.phase {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 99px;
+    padding: 0.2rem 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.7rem;
+}
+
+.rollBtn {
+    background-color: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.65rem 2rem;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.rollBtn:hover {
+    opacity: 0.85;
+}
+
+.betControls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.betControls button {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 800;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.betControls button:first-child {
+    background-color: var(--danger-bg, #e74c3c1a);
+    border: 1px solid var(--danger-border, #e74c3c66);
+    color: var(--danger-text, #e74c3c);
+}
+
+.betControls button:nth-child(2) {
+    background-color: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+}
+
+.betInput {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.betInput input {
+    width: 60px;
+    padding: 0.4rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-weight: 700;
+    text-align: center;
+}
+
+.betInput button {
+    background-color: var(--accent);
+    color: var(--bg);
+}
+
+.waiting {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    margin: 0;
+}
+
+.error {
+    font-size: 0.85rem;
+    color: #e74c3c;
+    margin: 0;
+}

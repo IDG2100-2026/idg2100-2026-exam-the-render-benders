@@ -53,7 +53,7 @@ class GameBoard extends HTMLElement {
             }
             .dice-row {
                 display: flex;
-                gap: 16px;
+                gap: 10px;
             }
         </style>
         <div class="dice-row">${diceHTML}</div>

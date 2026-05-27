@@ -11,16 +11,14 @@ class GameDie extends HTMLElement {
     }
 
     connectedCallback() {
-        this.render();
+        // listener is on shadowRoot itself, not on innerHTML content,
+        // so it survives every render() call that rewrites innerHTML
         this.shadowRoot.addEventListener("click", () => {
             if (this.hasAttribute("spectator")) return;
             // bubbles: true so game-board can catch all die clicks with one listener
-            this.dispatchEvent(
-                new CustomEvent("die-click", {
-                    bubbles: true
-                })
-            );
+            this.dispatchEvent(new CustomEvent("die-click", { bubbles: true }));
         });
+        this.render();
     }
 
     attributeChangedCallback() {
@@ -40,15 +38,15 @@ class GameDie extends HTMLElement {
             <style>
                 :host {
                     display: inline-flex;
-                    width: 64px;
-                    height: 64px;
+                    width: var(--die-size, 56px);
+                    height: var(--die-size, 56px);
                     background: ${background};
                     border: 4px solid ${border};
                     border-radius: 10px;
                     align-items: center;
                     justify-content: center;
                     cursor: ${cursor};
-                    font-size: 1.6rem;
+                    font-size: var(--die-font-size, 1.9rem);
                     font-weight: bold;
                     color: ${color};
                     user-select: none;
