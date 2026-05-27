@@ -91,6 +91,18 @@
     color: var(--bg);
 }
 
+.timer {
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.7);
+    margin-left: auto;
+}
+
+.timerLow {
+    font-weight: 800;
+    color: var(--danger-text);
+    margin-left: auto;
+}
+
 .waiting {
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
@@ -100,6 +112,6 @@
 
 .error {
     font-size: 0.85rem;
-    color: #e74c3c;
+    color: var(--danger-text);
     margin: 0;
 }

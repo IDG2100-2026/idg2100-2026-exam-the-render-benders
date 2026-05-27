@@ -16,6 +16,19 @@ export default function GameBoard({ isPlayer, gameId }) {
     const [heldDice, setHeldDice] = useState(new Set());
     const [betAmount, setBetAmount] = useState(1);
     const [actionError, setActionError] = useState(null);
+    const [secondsLeft, setSecondsLeft] = useState(null);
+
+    const isMyTurn = serverState?.currentTurn?.toString() === user?._id;
+    const phase = serverState?.phase;
+    const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
+
+    // fetch initial state via REST so the board shows immediately on reload
+    useEffect(() => {
+        if (!gameId) return;
+        apiFetch(`/games/${gameId}/state`)
+            .then(data => setServerState(data))
+            .catch(() => {});
+    }, [gameId]);
 
     // connect to Socket.IO, join the game room and listen for state updates
     useEffect(() => {
@@ -82,6 +95,26 @@ export default function GameBoard({ isPlayer, gameId }) {
         return () => board.removeEventListener("hold-die", handleHoldDie);
     }, [serverState, heldDice, isPlayer, user]);
 
+    // countdown timer - ticks every second, triggers timeout endpoint when it hits zero
+    useEffect(() => {
+        if (!turnExpiresAt) return;
+
+        function tick() {
+            const remaining = Math.max(0, Math.floor((new Date(turnExpiresAt) - Date.now()) / 1000));
+            setSecondsLeft(remaining);
+            if (remaining === 0 && isMyTurn) {
+                apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {});
+            }
+        }
+
+        tick();
+        const id = setInterval(tick, 1000);
+        return () => {
+            clearInterval(id);
+            setSecondsLeft(null);
+        };
+    }, [turnExpiresAt, isMyTurn, gameId]);
+
     async function handleRoll() {
         setActionError(null);
         try {
@@ -103,9 +136,6 @@ export default function GameBoard({ isPlayer, gameId }) {
         }
     }
 
-    const isMyTurn = serverState?.currentTurn?.toString() === user?._id;
-    const phase = serverState?.phase;
-
     return (
         <div className={styles.wrapper}>
             {serverState && (
@@ -113,6 +143,11 @@ export default function GameBoard({ isPlayer, gameId }) {
                     <span>Round {serverState.currentRound}</span>
                     <span className={styles.phase}>{phase}</span>
                     <span>Pot: {serverState.pot ?? 0}</span>
+                    {secondsLeft !== null && (
+                        <span className={secondsLeft <= 5 ? styles.timerLow : styles.timer}>
+                            {secondsLeft}s
+                        </span>
+                    )}
                 </div>
             )}
 
