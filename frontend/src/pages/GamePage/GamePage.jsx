@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { apiFetch, getAssetUrl } from "@/api";
 import { DEFAULT_ELO, MAX_COMMENT_LENGTH, RULES_STRAIGHTS } from "@/config/constants";
+import GameBoard from "@/components/Game/GameBoard";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -123,10 +124,10 @@ export default function GamePage() {
                     {/* Participants Section - Required by TASK.md */}
                     <div className={styles.playersSection}>
                         <div className={styles.playerItem}>
-                            <img 
-                                src={getAssetUrl(host?.profileImage)} 
-                                alt="" 
-                                className={styles.pAvatar} 
+                            <img
+                                src={getAssetUrl(host?.profileImage)}
+                                alt=""
+                                className={styles.pAvatar}
                             />
                             <div className={styles.pInfo}>
                                 <span className={styles.pLabel}>Host</span>
@@ -142,10 +143,10 @@ export default function GamePage() {
                         <div className={styles.playerItem}>
                             {opponent ? (
                                 <>
-                                    <img 
-                                        src={getAssetUrl(opponent.profileImage)} 
-                                        alt="" 
-                                        className={styles.pAvatar} 
+                                    <img
+                                        src={getAssetUrl(opponent.profileImage)}
+                                        alt=""
+                                        className={styles.pAvatar}
                                     />
                                     <div className={styles.pInfo}>
                                         <span className={styles.pLabel}>Opponent</span>
@@ -166,10 +167,8 @@ export default function GamePage() {
 
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
-                            {/* Area for actual game reserved as required by TASK.md */}
-                            <div className={styles.placeholderState}>
-                                <h2>Dice Area</h2>
-                            </div>
+                            {/* Game board, Web Components wired in GameBoard.jsx */}
+                            <GameBoard isPlayer={isPlayer} />
 
                             {/* Overlays for Game Status */}
                             {game.status === "waiting" && (
