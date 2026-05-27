@@ -8,6 +8,11 @@ const {
     JWT_ACCESS_SECRET
 } = process.env;
 
+let _io = null;
+
+// allows game.service.js to emit events without a circular import
+export function getIO() { return _io; }
+
 export function initializeGameSocket(httpServer) {
     // attaching Socket.IO to the existing Express server
     const io = new Server(httpServer, {
@@ -18,6 +23,7 @@ export function initializeGameSocket(httpServer) {
             credentials: true
         }
     });
+    _io = io;
 
     // middleware that runs before every socket connection is established
     // authenticating the user the same way auth.middleware.js does for HTTP
