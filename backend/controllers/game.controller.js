@@ -47,6 +47,17 @@ export async function getGame(req, res) {
     }
 }
 
+// Returns the state of a game (used to restore state after reload)
+export async function getGameState(req, res) {
+    try {
+        const game = await gameService.getGame(req.params.gid);
+        if (!game) return res.status(404).json({ error: "Game not found" });
+        res.status(200).json(game);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+} 
+
 // Create a new game and returns as JSON
 // Anonymous games are flagged so they are excluded from platform activity
 export async function createGame(req, res) {
@@ -145,6 +156,7 @@ export default {
     getAllGames,
     getTopGames,
     getGame,
+    getGameState,
     createGame,
     joinGame,
     leaveGame,

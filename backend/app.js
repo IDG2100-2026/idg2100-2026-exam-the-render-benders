@@ -4,6 +4,8 @@ import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { setUserType } from "./middleware/auth.middleware.js";
+import { setupCommentSockets } from "./socket/comment.socket.js"; 
+import { initializeGameSocket } from "./socket/game.socket.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
@@ -62,6 +64,12 @@ app.use("/api/v1/auth", authRouter);
 
 // Listens on a port
 const httpServer = app.listen(process.env.APP_PORT);
+
+setupCommentSockets(httpServer);
+
+// initializing Socket.IO and attaching it to the HTTP server so WebSocket
+    // connections can be handled
+initializeGameSocket(httpServer);
 
 httpServer.on("listening", () =>
   console.log(

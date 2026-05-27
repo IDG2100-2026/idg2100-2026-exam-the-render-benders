@@ -125,10 +125,10 @@ Useful reference code in `projects/`:
 - [ ] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
 
 ### Part 3B - WebSocket Server And Events `[Tobbelobb]`
-- [ ] Add WebSocket support beside Express (`ws` or Socket.IO)
+- [x] Add WebSocket support beside Express (`ws` or Socket.IO)
 - [ ] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
-- [ ] Add `GET /games/:gid/state` for reload/navigation restore
-- [ ] Emit state updates to all players and spectators in the game room
+- [x] Add `GET /games/:gid/state` for reload/navigation restore
+- [x] Emit state updates to all players and spectators in the game room
 - [ ] Keep player-private dice data private in emitted payloads
 
 ### Part 3C - Frontend Web Components And Game Page `[Johchacho]`
@@ -280,10 +280,10 @@ Useful reference code in `projects/`:
 ## Priority 10 - Comments With WebSockets
 
 ### Part 10A - Backend Comment Events `[Sebbegang]`
-- [ ] Comment WebSocket events: create/update/delete
-- [ ] Broadcast new game comments to game room
-- [ ] Broadcast new tournament comments to tournament page
-- [ ] Keep REST endpoints as fallback
+- [x] Comment WebSocket events: create/update/delete
+- [x] Broadcast new game comments to game room
+- [x] Broadcast new tournament comments to tournament page
+- [x] Keep REST endpoints as fallback
 
 ### Part 10B - Shared Frontend Comment Component `[Tobbelobb]`
 - [ ] Extract reusable comment component for games and tournaments

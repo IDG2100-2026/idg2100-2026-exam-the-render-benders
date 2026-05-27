@@ -4,7 +4,8 @@ import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty, MdEx
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { apiFetch, getAssetUrl } from "@/api";
-import { DEFAULT_ELO, MAX_COMMENT_LENGTH, RULES_STRAIGHTS } from "@/config/constants";
+import { DEFAULT_ELO, RULES_STRAIGHTS } from "@/config/constants";
+import Comments from "@/components/Comments/Comments.jsx";
 import GameBoard from "@/components/Game/GameBoard";
 import styles from "./GamePage.module.css";
 
@@ -14,10 +15,7 @@ export default function GamePage() {
     const { user } = useAuth();
     const { preferences } = useAppearance();
     const [game, setGame] = useState(null);
-    const [comments, setComments] = useState([]);
     const [error, setError] = useState(null);
-    const [commentBody, setCommentBody] = useState("");
-    const [commentError, setCommentError] = useState(null);
 
     useEffect(() => {
         async function fetchGame() {
@@ -28,50 +26,16 @@ export default function GamePage() {
                 setError(err.message);
             }
         }
-        async function fetchComments() {
-            try {
-                const data = await apiFetch(`/games/${id}/comments`);
-                setComments(data);
-            } catch (err) {
-                setError(err.message);
-            }
-        }
 
         fetchGame();
-        fetchComments();
 
         // 15-second polling as required by Task.md
         const intervalId = setInterval(() => {
             fetchGame();
-            fetchComments();
         }, 15000);
 
         return () => clearInterval(intervalId);
     }, [id]);
-
-    async function handleCommentSubmit(e) {
-        e.preventDefault();
-        setCommentError(null);
-        try {
-            const newComment = await apiFetch("/comments", {
-                method: "POST",
-                body: JSON.stringify({ body: commentBody, author: user._id, game: id })
-            });
-            setComments((prev) => [...prev, newComment]);
-            setCommentBody("");
-        } catch (err) {
-            setCommentError(err.message);
-        }
-    }
-
-    async function handleDeleteComment(commentId) {
-        try {
-            await apiFetch(`/comments/${commentId}`, { method: "DELETE" });
-            setComments((prev) => prev.filter((c) => c._id !== commentId));
-        } catch (err) {
-            setCommentError(err.message);
-        }
-    }
 
     async function handleLeaveGame() {
         const confirmMsg = game.status === "ongoing"
@@ -194,46 +158,7 @@ export default function GamePage() {
             <aside className={styles.sidebar}>
                 <div className={styles.commentCard}>
                     <h2>Comments</h2>
-                    <ul className={styles.commentList}>
-                        {comments.length === 0 && <li className={styles.noComments}>No comments yet.</li>}
-                        {comments.map((comment) => (
-                            <li key={comment._id} className={styles.comment}>
-                                <div className={styles.commentHeader}>
-                                    <strong>{comment.author?.username ?? "User"}</strong>
-                                    <div className={styles.commentMeta}>
-                                        <small>{new Date(comment.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}</small>
-                                        {(user?._id === comment.author?._id || user?.isAdmin) && (
-                                            <button
-                                                className={styles.deleteBtn}
-                                                onClick={() => handleDeleteComment(comment._id)}
-                                                title="Delete comment"
-                                            >
-                                                &times;
-                                            </button>
-                                        )}
-                                    </div>
-                                </div>
-                                <p>{comment.body}</p>
-                            </li>
-                        ))}
-                    </ul>
-                    {user ? (
-                        <form onSubmit={handleCommentSubmit} className={styles.commentForm}>
-                            <textarea
-                                value={commentBody}
-                                onChange={(e) => setCommentBody(e.target.value)}
-                                placeholder="Add a comment..."
-                                maxLength={MAX_COMMENT_LENGTH}
-                                required
-                            />
-                            {commentError && <p className={styles.error}>{commentError}</p>}
-                            <button type="submit">Send</button>
-                        </form>
-                    ) : (
-                        <div className={styles.loginHint}>
-                            <p>Please <Link to="/login">log in</Link> to comment.</p>
-                        </div>
-                    )}
+                    <Comments gameId={id}/>
                 </div>
             </aside>
         </div>
