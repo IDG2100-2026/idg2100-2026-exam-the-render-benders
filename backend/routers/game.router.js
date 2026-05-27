@@ -35,6 +35,9 @@ gameRouter.delete("/games/:gid/players/:uid", requireUser, gameController.leaveG
 // POST /games/:gid/bets - Betting
 gameRouter.post("/games/:gid/bets", requireUser, requireNotBanned, requireEmailVerified, validateBet, handleValidationErrors, gameController.placeBet);
 
+// POST /games/:gid/timeout - Timeout
+gameRouter.post("/games/:gid/timeout", requireUser, gameController.handleTimeout);
+
 // POST /games/:gid/roll - backend generates dice for the logged in player
 gameRouter.post("/games/:gid/roll", requireUser, gameController.rollForPlayer);
 

@@ -158,6 +158,16 @@ export function initializeGameSocket(httpServer) {
             }
         });
 
+        // Player timeout
+        socket.on("timeout", async ({ gid }) => {
+            try {
+                const game = await gameService.handleTimeout(gid);
+                if (!game) return socket.emit("error", { message: "Game not found" });
+            } catch (err) {
+                socket.emit("error", { message: err.message });
+            }
+        });
+
         // fires when a client disconnects (closes tab, looses connection etc.)
         socket.on("disconnect", () => {});
     });

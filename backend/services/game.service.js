@@ -13,38 +13,11 @@ import {
     splitPot,
     bettingRoundIsComplete,
     getCurrentRoundResult,
-    resolveRound
+    resolveRound,
+    turnHasExpired,
+    startTurnTimer
 } from "../utils/gameHelpers.js";
-
-// K-factor determines how much ELO changes per game (32 is standard for beginners)
-const K = 32;
-
-// Calculates new ELO ratings for two players after a game
-function calculateElo(players, winnerId, timeControl = 10) {
-    const [playerA, playerB] = players;
-
-    // Determine which Elo rating to use as base (defaulting to 1000 if not set)
-    let eloField = "elo";
-    if (timeControl === 10) eloField = "elo10s";
-    else if (timeControl === 30) eloField = "elo30s";
-    else if (timeControl === 90) eloField = "elo90s";
-
-    const ratingA = playerA[eloField] || 1000;
-    const ratingB = playerB[eloField] || 1000;
-
-    // Expected scores based on current ratings (probability of winning)
-    const expectedA = 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
-    const expectedB = 1 / (1 + Math.pow(10, (ratingA - ratingB) / 400));
-
-    // Check who won
-    const playerAWon = playerA._id.equals(winnerId);
-
-    return {
-        newEloA: Math.round(ratingA + K * ((playerAWon ? 1 : 0) - expectedA)),
-        newEloB: Math.round(ratingB + K * ((playerAWon ? 0 : 1) - expectedB)),
-        eloField
-    };
-}
+import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
 
 // Returns all games from the database, supports pagination and advanced filtering
 // mine=true returns only the requesting user's own active games (waiting/ongoing)
@@ -237,35 +210,54 @@ export async function updateGame(gid, data) {
             player: entry.user,
             score: entry.stack
         }));
+
+        if(!updateData.result.winner && updateData.result.scores.length > 0) {
+            const topScore = Math.max(...updateData.result.scores.map(score => score.score));
+            const winners = updateData.result.scores.filter(score => score.score === topScore);
+
+            if (winners.length === 1) {
+                updateData.result.winner = winners[0].player;
+            }
+        }
     }
 
     const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
 
     // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
-    if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.winner) {
+    if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.scores?.length) {
         const players = await User.find({ _id: { $in: game.players } });
+        const eloField = getEloField(game.variant.timeControl);
 
-        // Calculate new Elo for the specific time control variant
-        const { newEloA, newEloB, eloField } = calculateElo(players, game.result.winner, game.variant.timeControl);
+        const scoreByPlayerId = new Map(
+            (game.result?.scores || []).map(score => [
+                score.player.toString(),
+                score.score
+            ])
+        );
 
-        // We also update the general Elo for the leaderboard (average change)
-        const diffA = newEloA - (players[0][eloField] || 1000);
-        const diffB = newEloB - (players[1][eloField] || 1000);
-        const generalEloA = players[0].elo + diffA;
-        const generalEloB = players[1].elo + diffB;
+        const eloUpdates = calculatePairwiseEloUpdates(players, scoreByPlayerId, eloField);
 
-        const playerAWon = players[0]._id.equals(game.result.winner);
+        for (const update of eloUpdates) {
+            const generalElo = Math.max(0, (update.player.elo || 1000) + update.delta);
+            const playerWon = game.result?.winner?.toString() === update.playerId;
 
-        await User.findByIdAndUpdate(players[0]._id, {
-            $set: { [eloField]: newEloA, elo: generalEloA },
-            $inc: { gamesPlayed: 1, wins: playerAWon ? 1 : 0 },
-            $push: { eloHistory: { elo: generalEloA, date: new Date() } }
-        });
-        await User.findByIdAndUpdate(players[1]._id, {
-            $set: { [eloField]: newEloB, elo: generalEloB },
-            $inc: { gamesPlayed: 1, wins: playerAWon ? 0 : 1 },
-            $push: { eloHistory: { elo: generalEloB, date: new Date() } }
-        });
+            await User.findByIdAndUpdate(update.playerId, {
+                $set: {
+                    [eloField]: update.newRating,
+                    elo: generalElo
+                },
+                $inc: {
+                    gamesPlayed: 1,
+                    wins: playerWon ? 1 : 0
+                },
+                $push: {
+                    eloHistory: {
+                        elo: generalElo,
+                        date: new Date()
+                    }
+                }
+            });
+        }
 
         // returning each player's remaining stack to their point balance
         for (const entry of game.playerStacks) {
@@ -283,6 +275,19 @@ export async function updateGame(gid, data) {
     }
 
     return game;
+}
+
+function enterBettingPhase(game, activePlayers) {
+    game.phase = "betting";
+
+    game.bettingState = {
+        currentBet: 0,
+        contributions: [],
+        actedUsers: [],
+        lastAggressor: null
+    };
+
+    startTurnTimer(game, activePlayers[0]);
 }
 
 export async function rollForPlayer(gid, playerId) {
@@ -338,22 +343,7 @@ export async function rollForPlayer(gid, playerId) {
     );
 
     if (everyoneRolled) {
-        game.phase = "betting";
-        game.currentTurn = activePlayers[0];
-
-        game.bettingState = {
-            currentBet: 0,
-            contributions: [],
-            actedUsers: [],
-            lastAggressor: null
-        };
-
-        game.timeoutState = {
-            turnStartedAt: new Date(),
-            turnExpiresAt: new Date(Date.now() + game.variant.timeControl * 1000),
-            timedOutUser: null,
-            timeoutCount: game.timeoutState.timeoutCount || 0
-        };
+        enterBettingPhase(game, activePlayers);
     } else {
         moveToNextActivePlayer(game);
     }
@@ -503,6 +493,139 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     return game;
 }
 
+export async function handleTimeout(gid) {
+    const game = await Game.findById(gid);
+    if(!game) return null;
+
+    if (game.status !== "ongoing") {
+        throw new Error("Only ongoing games can time out");
+    }
+
+    if (!game.currentTurn) {
+        throw new Error("No active turn to time out");
+    }
+
+    if (!turnHasExpired(game)) {
+        throw new Error("Current turn has not expired yet");
+    }
+
+    const timedOutPlayerId = game.currentTurn;
+
+    game.timeoutState.timedOutUser = timedOutPlayerId;
+    game.timeoutState.timeoutCount = (game.timeoutState.timeoutCount || 0) + 1;
+
+    if (game.phase === "rolling") {
+        const round = game.currentRound || 1;
+
+        const alreadyRolledThisRound = game.results.some(result =>
+            idsEqual(result.player, timedOutPlayerId) && result.round === round);
+
+        if (!alreadyRolledThisRound) {
+            const rolls = rollDice();
+
+            game.results.push({
+                player: timedOutPlayerId,
+                round,
+                hiddenRolls: rolls,
+                revealedRolls: [],
+                rolls,
+                holds: [false, false, false, false, false],
+                bets: [{
+                    user: timedOutPlayerId,
+                    action: "timeout",
+                    amount: 0,
+                    createdAt: new Date()
+                }],
+                timestamps: {
+                    startedAt: new Date()
+                }
+            });
+        }
+
+        const activePlayers = getActivePlayerIds(game);
+
+        const everyoneRolled = activePlayers.every(activePlayerId =>
+            game.results.some(result =>
+                idsEqual(result.player, activePlayerId) && result.round === round
+            )
+        );
+
+        if (everyoneRolled) {
+            enterBettingPhase(game, activePlayers);
+        } else {
+            moveToNextActivePlayer(game);
+        }
+    } else if (game.phase === "betting") {
+        const stackEntry = getPlayerStack(game, timedOutPlayerId);
+        if (!stackEntry) throw new Error("Player stack not found");
+
+        const contribution = getContribution(game, timedOutPlayerId);
+        const amountNeededToMatch = game.bettingState.currentBet - contribution.amount;
+
+        if (amountNeededToMatch > 0) {
+            if (stackEntry.stack < amountNeededToMatch) {
+                if (!game.foldedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                    game.foldedUsers.push(timedOutPlayerId);
+                }
+
+                pushBetLog(game, timedOutPlayerId, "timeout", 0);
+                pushBetLog(game, timedOutPlayerId, "fold", 0);
+            } else {
+                stackEntry.stack -= amountNeededToMatch;
+                contribution.amount += amountNeededToMatch;
+                game.pot += amountNeededToMatch;
+
+                pushBetLog(game, timedOutPlayerId, "timeout", amountNeededToMatch);
+                pushBetLog(game, timedOutPlayerId, "match", amountNeededToMatch);
+
+                if (!game.bettingState.actedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                    game.bettingState.actedUsers.push(timedOutPlayerId);
+                }
+            }
+        } else {
+            pushBetLog(game, timedOutPlayerId, "timeout", 0);
+            pushBetLog(game, timedOutPlayerId, "match", 0);
+
+            if (!game.bettingState.actedUsers.some(id => idsEqual(id, timedOutPlayerId))) {
+                game.bettingState.actedUsers.push(timedOutPlayerId);
+            }
+        }
+
+        const activePlayers = getActivePlayerIds(game);
+
+        if (activePlayers.length === 1) {
+            splitPot(game, [activePlayers[0]]);
+
+            game.phase = "round-ended";
+            game.currentTurn = null;
+
+            const result = getCurrentRoundResult(game, activePlayers[0]);
+
+            if (result) {
+                result.outcome = activePlayers[0];
+                result.timestamps.endedAt = new Date();
+            }
+        } else if (bettingRoundIsComplete(game)) {
+            resolveRound(game);
+        } else {
+            moveToNextActivePlayer(game);
+        }
+    } else {
+        throw new Error("Current phase cannot time out");
+    }
+
+    await game.save();
+
+    getIO()?.to(gid.toString()).emit("timeout", {
+        user: timedOutPlayerId,
+        phase: game.phase,
+        round: game.currentRound
+    });
+
+    getIO()?.to(gid.toString()).emit("game-state", sanitizeGameForViewer(game, null));
+    return game;
+}
+
 export function sanitizeGameForViewer(game, viewerId) {
     if (!game) return null;
 
@@ -547,5 +670,6 @@ export default {
     leaveGame,
     rollForPlayer,
     sanitizeGameForViewer,
-    placeBet
+    placeBet,
+    handleTimeout
 };
