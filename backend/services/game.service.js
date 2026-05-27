@@ -1,5 +1,6 @@
 import { Game } from "../models/game.model.js";
 import { User } from "../models/user.model.js";
+import { getIO } from "../socket/game.socket.js";
 import {
     rollDice,
     idsEqual,
@@ -276,6 +277,11 @@ export async function updateGame(gid, data) {
         }
     }
 
+    // notifying all players in the room that the game has ended
+    if (!oldGame.isAnonymous && oldGame.status !== "finished" && game.status === "finished") {
+        getIO()?.to(gid.toString()).emit("game-end", { winner: game.result?.winner });
+    }
+
     return game;
 }
 
@@ -353,6 +359,11 @@ export async function rollForPlayer(gid, playerId) {
     }
 
     await game.save();
+
+    if (everyoneRolled) {
+        // notify all players in the room that the betting round has started
+        getIO()?.to(gid.toString()).emit("round-start", { round: game.currentRound });
+    }
 
     return game;
 }
@@ -483,6 +494,12 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     }
 
     await game.save();
+
+    if (game.phase === "round-ended") {
+        // notify all players in the room that the round has ended
+        getIO()?.to(gid.toString()).emit("round-end", { round: game.currentRound });
+    }
+
     return game;
 }
 

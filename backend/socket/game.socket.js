@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { Game } from "../models/game.model.js";
+import gameService from "../services/game.service.js";
 
 const {
     FRONTEND_URL,
@@ -71,13 +72,81 @@ export function initializeGameSocket(httpServer) {
             }
         });
 
+        // player holds their dice
         socket.on("hold-dice", async ({ gid, heldDiceIndexes }) => {
             try {
                 const game = await Game.findById(gid);
                 if (!game) return socket.emit("error", { message: "Game not found" });
 
-                // emitting the updated state to everyone in the room (all players and spectators)
+                // sending personalized state to each socket in the room, hiding other players' dice
+                const sockets = await io.in(gid).fetchSockets();
+                for (const s of sockets) {
+                    s.emit("game-state", buildGameState(game, s.user?.id));
+                }
+            } catch (error) {
+                socket.emit("error", { message: error.message });
+            }
+        });
+
+        // player places a bet
+        socket.on("bet", async ({ gid, amount }) => {
+            try {
+                const game = await gameService.placeBet(gid, socket.user.id,{ action: "bet", amount});
+                if (!game) return socket.emit("error", { message: "Game not found" });
+                // emitting the updated state to everyone in the room
                 io.to(gid).emit("game-state", buildGameState(game, null));
+            } catch (error) {
+                socket.emit("error", { message: error.message });
+            }
+        });
+
+        // player matches the current bet
+        socket.on("match", async ({ gid }) => {
+            try {
+                const game = await gameService.placeBet(gid, socket.user.id, { action: "match" });
+                if (!game) return socket.emit("error", { message: "Game not found" });
+                io.to(gid).emit("game-state", buildGameState(game, null));
+            } catch (error) {
+                socket.emit("error", { message: error.message });
+            }
+        });
+
+        // player raises the bet
+        socket.on("raise", async ({ gid, amount }) => {
+            try {
+                const game = await gameService.placeBet(gid, socket.user.id, { action: "raise", amount });
+                if (!game) return socket.emit("error", { message: "Game not found" });
+                io.to(gid).emit("game-state", buildGameState(game, null));
+            } catch (error) {
+                socket.emit("error", { message: error.message });
+            }
+        });
+
+        // player folds
+        socket.on("fold", async ({ gid }) => {
+            try {
+                const game = await gameService.placeBet(gid, socket.user.id, { action: "fold" });
+                if (!game) return socket.emit("error", { message: "Game not found" });
+                io.to(gid).emit("game-state", buildGameState(game, null));
+            } catch (error) {
+                socket.emit("error", { message: error.message });
+            }
+        });
+
+        // player leaves the game before it has started
+        socket.on("leave-before-start", async ({ gid }) => {
+            try {
+                const result = await gameService.leaveGame(gid, socket.user.id);
+                if (!result) return socket.emit("error", { message: "Game not found" });
+
+                // removing the socket from the room
+                socket.leave(gid);
+
+                // if the last player left, the game is deleted & notifying the room
+                if (result.deleted) return io.to(gid).emit("game-deleted", { gid });
+
+                // notifying remaining players in the room
+                io.to(gid).emit("game-state", buildGameState(result, null)); 
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -93,13 +162,35 @@ export function initializeGameSocket(httpServer) {
 // building the game state object to send to the clients
 // requestingUserId is used to hide other players' private dice
 function buildGameState(game, requestingUserId) {
+    // checking if rolls should be visible to everyone (revealing/round-ended/finished)
+    const rollsPublic = ["revealing", "round-ended", "finished"].includes(game.phase) || game.status === "finished";
+
     return {
         _id: game._id,
         status: game.status,
+        phase: game.phase ?? null,
+        currentRound: game.currentRound ?? null,
         players: game.players, 
         currentTurn: game.currentTurn ?? null,
         pot: game.pot,
         playerStacks: game.playerStacks,
+        bettingState: game.bettingState ?? null,
+        foldedUsers: game.foldedUsers ?? [],
+        timeoutState: game.timeoutState ?? null,
+        // building the results per player, hiding private dice from other players
+        results: (game.results ?? []).map(round => ({
+            player: round.player,
+            round: round.round,
+            holds: round.holds,
+            bets: round.bets,
+            outcome: round.outcome, 
+            timestamps: round.timestamps,
+            // showing the revealed rolls to everyone, only showing hidden rolls to the owning player
+            revealedRolls: round.revealedRolls,
+            hiddenRolls: rollsPublic || round.player?.toString() === requestingUserId
+                ? round.hiddenRolls 
+                : []
+        })), 
         result: game.result ?? null
     };
 }
