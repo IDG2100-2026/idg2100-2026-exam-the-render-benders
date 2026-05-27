@@ -116,11 +116,11 @@ Useful reference code in `projects/`:
 ## Priority 3 - Realtime Game And Web Component Board
 
 ### Part 3A - Backend Game State Machine `[Sebbegang]`
-- [ ] Define game phases: waiting, rolling, betting, revealing, round-ended, finished
-- [ ] Generate dice rolls on backend only
-- [ ] Store hidden rolls, revealed rolls, holds, bets, folded users, current turn, current round, timeout state
-- [ ] Hide other players' rolls until reveal/end-of-round
-- [ ] Implement betting: bet, match, raise, fold, pot calculation, draw split
+- [x] Define game phases: waiting, rolling, betting, revealing, round-ended, finished
+- [x] Generate dice rolls on backend only
+- [x] Store hidden rolls, revealed rolls, holds, bets, folded users, current turn, current round, timeout state
+- [x] Hide other players' rolls until reveal/end-of-round
+- [x] Implement betting: bet, match, raise, fold, pot calculation, draw split
 - [ ] Implement timeout: auto-roll, no holds/rerolls, auto-match
 - [ ] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
 

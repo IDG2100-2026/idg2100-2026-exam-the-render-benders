@@ -1,5 +1,19 @@
 import { Game } from "../models/game.model.js";
 import { User } from "../models/user.model.js";
+import {
+    rollDice,
+    idsEqual,
+    getActivePlayerIds,
+    moveToNextActivePlayer,
+    getPlayerStack,
+    getContribution,
+    pushBetLog,
+    rollsArePublic,
+    splitPot,
+    bettingRoundIsComplete,
+    getCurrentRoundResult,
+    resolveRound
+} from "../utils/gameHelpers.js";
 
 // K-factor determines how much ELO changes per game (32 is standard for beginners)
 const K = 32;
@@ -139,11 +153,10 @@ export async function joinGame(gid, playerId, requestingUser = null) {
         throw new Error("You do not have enough points to join this game");
     }
 
-    // deducting the buy-in from the user's points and adding them to the game pot and playerStack
+    // deducting the buy-in from the user's points and adding it as their in-game stack
     await User.findByIdAndUpdate(playerId, { $inc: { points: -game.buyIn } });
     await Game.findByIdAndUpdate(gid, {
         $addToSet: { players: playerId },
-        $inc: { pot: game.buyIn },
         $push: { playerStacks: { user: playerId, stack: game.buyIn } }
     });
 
@@ -153,7 +166,16 @@ export async function joinGame(gid, playerId, requestingUser = null) {
 
     // auto-start when the required number of players have joined 
     if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
-        updated.status = "ongoing";
+        updated.status = "ongoing"; // Broad info
+        updated.phase = "rolling"; // Detailed info
+        updated.currentRound = 1;
+        updated.currentTurn = updated.players[0]._id || updated.players[0];
+        updated.timeoutState = {
+            turnStartedAt: new Date(),
+            turnExpiresAt: new Date(Date.now() + updated.variant.timeControl * 1000),
+            timedOutUser: null,
+            timeoutCount: 0
+        };
         await updated.save();
     }
 
@@ -199,7 +221,24 @@ export async function updateGame(gid, data) {
     const oldGame = await Game.findById(gid);
     if (!oldGame) return null;
 
-    const game = await Game.findByIdAndUpdate(gid, data, { returnDocument: "after" });
+    const updateData = { ...data };
+    
+    if (updateData.status === "finished"){
+        updateData.phase = "finished";
+
+        if (!updateData.result) {
+            updateData.result = {};
+        }
+
+        const oldGameWithStacks = oldGame;
+
+        updateData.result.scores = oldGameWithStacks.playerStacks.map(entry => ({
+            player: entry.user,
+            score: entry.stack
+        }));
+    }
+
+    const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
 
     // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
     if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.winner) {
@@ -240,6 +279,247 @@ export async function updateGame(gid, data) {
     return game;
 }
 
+export async function rollForPlayer(gid, playerId) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
+
+    if (game.status !== "ongoing" || game.phase !== "rolling") {
+        throw new Error("This game is not currently rolling");
+    }
+
+    const isPlayer = game.players.some(
+        player => player.toString() === playerId.toString()
+    );
+
+    if (!isPlayer) {
+        throw new Error("You are not a player in this game");
+    }
+
+    if (game.currentTurn?.toString() !== playerId.toString()) {
+        throw new Error("It is not your turn");
+    }
+    
+    // Temp fix for logic duplicate roll prevention
+    const round = game.currentRound || 1;
+
+    const alreadyRolledThisRound = game.results.some(result =>
+        result.player?.toString() === playerId.toString() &&
+        result.round === round
+    );
+
+    if (alreadyRolledThisRound) {
+        throw new Error("You have already rolled this turn");
+    }
+
+    const rolls = rollDice();
+
+    game.results.push({
+        player: playerId,
+        round,
+        hiddenRolls: rolls,
+        revealedRolls: [],
+        rolls,
+        holds: [false, false, false, false, false],
+        timestamps: {
+            startedAt: new Date()
+        }
+    });
+
+    const activePlayers = getActivePlayerIds(game);
+
+    const everyoneRolled = activePlayers.every(activePlayerId =>
+        game.results.some(result => idsEqual(result.player, activePlayerId) && result.round === round)
+    );
+
+    if (everyoneRolled) {
+        game.phase = "betting";
+        game.currentTurn = activePlayers[0];
+
+        game.bettingState = {
+            currentBet: 0,
+            contributions: [],
+            actedUsers: [],
+            lastAggressor: null
+        };
+
+        game.timeoutState = {
+            turnStartedAt: new Date(),
+            turnExpiresAt: new Date(Date.now() + game.variant.timeControl * 1000),
+            timedOutUser: null,
+            timeoutCount: game.timeoutState.timeoutCount || 0
+        };
+    } else {
+        moveToNextActivePlayer(game);
+    }
+
+    await game.save();
+
+    return game;
+}
+
+export async function placeBet(gid, playerId, { action, amount = 0 }) {
+    const game = await Game.findById(gid);
+    if (!game) return null;
+
+    if (game.status !== "ongoing" || game.phase !== "betting") {
+        throw new Error("This game is not currently accepting bets");
+    }
+
+    if (!game.players.some(id => idsEqual(id, playerId))) {
+        throw new Error("You are not a player in this game");
+    }
+
+    if (game.foldedUsers.some(id => idsEqual(id, playerId))) {
+        throw new Error("You have already folded");
+    }
+
+    if (!idsEqual(game.currentTurn, playerId)) {
+        throw new Error("It is not your turn");
+    }
+
+    const stackEntry = getPlayerStack(game, playerId);
+    if (!stackEntry) throw new Error("Player stack not found");
+
+    const contribution = getContribution(game, playerId);
+    const currentBet = game.bettingState.currentBet;
+    const amountNeededToMatch = currentBet - contribution.amount;
+
+    if (action === "fold") {
+        if(!game.foldedUsers.some(id => idsEqual(id, playerId))) {
+            game.foldedUsers.push(playerId);
+        }
+        pushBetLog(game, playerId, "fold", 0);
+    } else if (action === "bet") {
+        if (currentBet > 0) {
+            throw new Error("Cannot bet because a bet already exists; use raise or match");
+        }
+        if (amount <= 0) {
+            throw new Error("Bet amount must be a number greater than 0");
+        }
+        if (stackEntry.stack < amount) {
+            throw new Error("Not enough points in stack");
+        }
+
+        stackEntry.stack -= amount;
+        contribution.amount += amount;
+        game.pot += amount;
+
+        game.bettingState.currentBet = contribution.amount;
+        game.bettingState.lastAggressor = playerId;
+        game.bettingState.actedUsers = [playerId];
+
+        pushBetLog(game, playerId, "bet", amount);
+    } else if (action === "match") {
+        if (amountNeededToMatch <= 0) {
+            if (!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
+                game.bettingState.actedUsers.push(playerId);
+            }
+
+            pushBetLog(game, playerId, "match", 0);
+        } else {
+            if (stackEntry.stack < amountNeededToMatch) {
+                throw new Error("Not enough points in stack");
+            }
+
+            stackEntry.stack -= amountNeededToMatch;
+            contribution.amount += amountNeededToMatch;
+            game.pot += amountNeededToMatch;
+
+            if(!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
+                game.bettingState.actedUsers.push(playerId);
+            }
+            pushBetLog(game, playerId, "match", amountNeededToMatch);
+        }
+    } else if (action === "raise") {
+        if (amount <= amountNeededToMatch) {
+            throw new Error("Raise must be greater than the amount needed to match");
+        }
+        if (stackEntry.stack < amount) {
+            throw new Error("Not enough points in stack");
+        }
+
+        stackEntry.stack -= amount;
+        contribution.amount += amount;
+        game.pot += amount;
+
+        game.bettingState.currentBet = contribution.amount;
+        game.bettingState.lastAggressor = playerId;
+        game.bettingState.actedUsers = [playerId];
+
+        pushBetLog(game, playerId, "raise", amount);
+    } else {
+        throw new Error("Invalid betting action");
+    }
+
+    const activePlayers = getActivePlayerIds(game);
+
+    if (activePlayers.length === 1) {
+        splitPot(game, [activePlayers[0]]);
+
+        game.phase = "round-ended";
+        game.currentTurn = null;
+
+        const result = getCurrentRoundResult(game, activePlayers[0]);
+
+        if (result) {
+            result.outcome = activePlayers[0];
+            result.timestamps.endedAt = new Date();
+        } else {
+            game.results.push({
+                player: activePlayers[0],
+                round: game.currentRound,
+                outcome: activePlayers[0],
+                timestamps: {
+                    startedAt: new Date(),
+                    endedAt: new Date()
+                }
+            });
+        }
+
+    } else if (bettingRoundIsComplete(game)) {
+        resolveRound(game);
+    } else {
+        moveToNextActivePlayer(game);
+    }
+
+    await game.save();
+    return game;
+}
+
+export function sanitizeGameForViewer(game, viewerId) {
+    if (!game) return null;
+
+    const safeGame = typeof game.toObject === "function"
+        ? game.toObject()
+        : game;
+
+    const publicRolls = rollsArePublic(safeGame);
+
+    safeGame.results = (safeGame.results || []).map((result) => {
+        const resultPlayerId = result.player?._id || result.player;
+        const isOwner = idsEqual(resultPlayerId, viewerId);
+
+        return {
+            ...result,
+
+            // Only the owning player can see their private dice
+            hiddenRolls: isOwner ? result.hiddenRolls : [],
+
+            // Everyone can see revealed rolls once reveal/end has happened
+            revealedRolls: publicRolls ? result.revealedRolls: [],
+
+            // Keep old `rolls` field safe too, because it currently dupes hiddenRolls
+            rolls: isOwner
+                ? result.rolls
+                : publicRolls
+                    ? result.revealedRolls
+                    : []
+        };
+    });
+
+    return safeGame;
+}
+
 export default {
     getAllGames,
     getTopGames,
@@ -247,5 +527,8 @@ export default {
     joinGame,
     createGame,
     updateGame,
-    leaveGame
+    leaveGame,
+    rollForPlayer,
+    sanitizeGameForViewer,
+    placeBet
 };
