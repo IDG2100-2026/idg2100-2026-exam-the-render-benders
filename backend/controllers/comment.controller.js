@@ -1,5 +1,5 @@
 import commentService from "../services/comment.service.js";
-import { broadcastToCommentRoom, broadcastToGameCommentRoom } from "../services/commentSocket.service.js";
+import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTournamentRoom } from "../services/commentSocket.service.js";
 
 // Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
@@ -34,6 +34,12 @@ export async function createComment(req, res) {
             broadcastToGameCommentRoom(comment.game, {
                 type: "game-comment:created",
                 game: comment.game,
+                comment
+            });
+        } else if (comment.tournament) {
+            broadcastToTournamentRoom(comment.tournament, {
+                type: "tournament-comment:created",
+                tournament: comment.tournament,
                 comment
             });
         } else {

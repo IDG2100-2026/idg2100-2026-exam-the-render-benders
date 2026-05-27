@@ -61,6 +61,17 @@ export function broadcastToGameCommentRoom(gameId, payload) {
     }
 }
 
+export function broadcastToTournamentRoom(tournamentId, payload){
+    const roomKey = `tournament:${tournamentId.toString()}`;
+    const room = rooms.get(roomKey);
+
+    if (!room) return;
+
+    for (const ws of room) {
+        sendJson(ws, payload);
+    }
+}
+
 export function setupCommentSockets(httpServer) {
     const wss = new WebSocketServer({
         server: httpServer,
