@@ -81,7 +81,7 @@ Useful reference code in `projects/`:
 - [x] Fix `AuthProvider` logout to call `POST /auth/logout` to clear JWT cookie
 - [x] Wire login/register pages to new auth endpoints
 - [x] Add email verification result page and resend-verification UI
-- [ ] Auto-send verification code on EmailVerificationPage mount - user should not need to click Resend to get their first code
+- [x] Auto-send verification code on EmailVerificationPage mount - user should not need to click Resend to get their first code
 - [x] Show "verify email" prompt on profile page if emailVerified is false
 - [x] Add `ProtectedRoute` component - Wire into App.jsx routes (do after 1C wiring is done)
 - [x] Add `AdminRoute` component - Wire into App.jsx on admin routes (do after admin pages exist)
@@ -126,16 +126,17 @@ Useful reference code in `projects/`:
 
 ### Part 3B - WebSocket Server And Events `[Tobbelobb]`
 - [x] Add WebSocket support beside Express (`ws` or Socket.IO)
-- [ ] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
+- [x] Define events: join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, error
 - [x] Add `GET /games/:gid/state` for reload/navigation restore
 - [x] Emit state updates to all players and spectators in the game room
-- [ ] Keep player-private dice data private in emitted payloads
+- [x] Keep player-private dice data private in emitted payloads
 
 ### Part 3C - Frontend Web Components And Game Page `[Johchacho]`
-- [ ] Build `<game-board>`, `<game-die>`, `<game-player>` Web Components
-- [ ] Add `GameBoardWrapper.jsx` React wrapper to connect state/WebSocket to Web Components
-- [ ] Replace placeholder dice area in `GamePage`
-- [ ] Add betting controls and turn/phase display
+- [x] Build `<game-board>`, `<game-die>`, `<game-player>` Web Components
+- [x] Add `GameBoard.jsx` React wrapper to connect state/WebSocket to Web Components
+- [x] Replace placeholder dice area in `GamePage`
+- [x] Wire Socket.IO into GameBoard.jsx - replace mock state with real game-state events
+- [x] Add betting controls and turn/phase display
 - [ ] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
 - [ ] Add sound effects gated by `sound` appearance preference
 
@@ -286,16 +287,16 @@ Useful reference code in `projects/`:
 - [x] Keep REST endpoints as fallback
 
 ### Part 10B - Shared Frontend Comment Component `[Tobbelobb]`
-- [ ] Extract reusable comment component for games and tournaments
-- [ ] Subscribe to comment WebSocket events
-- [ ] Append/delete comments without page reload
-- [ ] Keep REST fetch for initial load
+- [x] Extract reusable comment component for games and tournaments
+- [x] Subscribe to comment WebSocket events
+- [x] Append/delete comments without page reload
+- [x] Keep REST fetch for initial load
 
 ### Part 10C - Moderation And Error Handling `[Johchacho]`
-- [ ] Respect banned-user checks
-- [ ] Handle deleted comments in realtime
-- [ ] Loading, empty, error states
-- [ ] Admin deletion updates open comment lists live
+- [x] Respect banned-user checks
+- [x] Handle deleted comments in realtime
+- [x] Loading, empty, error states
+- [x] Admin deletion updates open comment lists live
 
 ---
 
@@ -315,6 +316,16 @@ Safest to simplify:
 - [ ] Forgot-password
 - [ ] Extra tournament types (one random-pairing round-based is enough)
 - [ ] Advanced sound effects beyond preference-gated simple sound
+
+---
+
+## Needs Team Discussion
+- [ ] `allowAnonymous` checkbox on CreateGamePage contradicts README line 94 - "Anonymous user can no longer play games". Discuss with Seb before removing.
+- [ ] Refresh token rotation logs user out when navigating quickly (e.g. joining a game from another tab). Blocked on Seb to fix.
+
+## Deferred / Post-Defense
+
+- [ ] Restructure frontend components out of page folders and into `frontend/src/components/` (Tobias's suggestion - not worth the risk before the defense)
 
 ---
 

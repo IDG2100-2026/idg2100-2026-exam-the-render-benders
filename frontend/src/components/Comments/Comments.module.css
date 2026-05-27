@@ -1,19 +1,8 @@
-.card {
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    max-height: calc(100vh - 2rem);
+.container {
     display: flex;
     flex-direction: column;
-    box-shadow: var(--shadow);
-    box-sizing: border-box;
-}
-
-.card h2 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    font-weight: 800;
+    flex: 1;
+    min-height: 0;
 }
 
 .commentList {
@@ -27,11 +16,12 @@
     margin-bottom: 1.25rem;
 }
 
-.noComments {
+.empty {
     font-size: 0.85rem;
     opacity: 0.4;
     text-align: center;
     padding-top: 2rem;
+    list-style: none;
 }
 
 .comment {
@@ -97,7 +87,7 @@
     overflow-wrap: break-word;
 }
 
-.commentForm {
+.form {
     display: flex;
     flex-direction: column;
     gap: 0.6rem;
@@ -105,7 +95,7 @@
     border-top: 1px solid var(--border);
 }
 
-.commentForm textarea {
+.form textarea {
     background-color: var(--bg);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -117,7 +107,7 @@
     height: 80px;
 }
 
-.commentForm button {
+.form button {
     background-color: var(--accent);
     color: var(--bg);
     border: none;
@@ -147,10 +137,7 @@
 }
 
 .error {
-    color: var(--danger-text);
-    background-color: var(--danger-bg);
-    padding: 1rem;
-    border-radius: 10px;
-    text-align: center;
-    font-size: 0.95rem;
+    color: var(--danger-text, #e74c3c);
+    font-size: 0.85rem;
+    margin: 0;
 }
