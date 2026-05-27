@@ -81,7 +81,7 @@ Useful reference code in `projects/`:
 - [x] Fix `AuthProvider` logout to call `POST /auth/logout` to clear JWT cookie
 - [x] Wire login/register pages to new auth endpoints
 - [x] Add email verification result page and resend-verification UI
-- [ ] Auto-send verification code on EmailVerificationPage mount - user should not need to click Resend to get their first code
+- [x] Auto-send verification code on EmailVerificationPage mount - user should not need to click Resend to get their first code
 - [x] Show "verify email" prompt on profile page if emailVerified is false
 - [x] Add `ProtectedRoute` component - Wire into App.jsx routes (do after 1C wiring is done)
 - [x] Add `AdminRoute` component - Wire into App.jsx on admin routes (do after admin pages exist)
@@ -121,22 +121,28 @@ Useful reference code in `projects/`:
 - [x] Store hidden rolls, revealed rolls, holds, bets, folded users, current turn, current round, timeout state
 - [x] Hide other players' rolls until reveal/end-of-round
 - [x] Implement betting: bet, match, raise, fold, pot calculation, draw split
-- [ ] Implement timeout: auto-roll, no holds/rerolls, auto-match
-- [ ] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
+- [x] Implement timeout: auto-roll, no holds/rerolls, auto-match
+- [x] Update ELO for 2-5 players using pairwise comparisons and `backend/utils/elo.js`
 
 ### Part 3B - WebSocket Server And Events `[Tobbelobb]`
 - [x] Add WebSocket support beside Express (`ws` or Socket.IO)
+<<<<<<< HEAD
 - [x] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
+=======
+- [x] Define events: join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, error
+>>>>>>> 59e7ce0e5276d897d0b008fc27a495ad38160e7d
 - [x] Add `GET /games/:gid/state` for reload/navigation restore
 - [x] Emit state updates to all players and spectators in the game room
 - [x] Keep player-private dice data private in emitted payloads
 
 ### Part 3C - Frontend Web Components And Game Page `[Johchacho]`
-- [ ] Build `<game-board>`, `<game-die>`, `<game-player>` Web Components
-- [ ] Add `GameBoardWrapper.jsx` React wrapper to connect state/WebSocket to Web Components
-- [ ] Replace placeholder dice area in `GamePage`
-- [ ] Add betting controls and turn/phase display
-- [ ] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
+- [x] Build `<game-board>`, `<game-die>`, `<game-player>` Web Components
+- [x] Add `GameBoard.jsx` React wrapper to connect state/WebSocket to Web Components
+- [x] Replace placeholder dice area in `GamePage`
+- [x] Wire Socket.IO into GameBoard.jsx - replace mock state with real game-state events
+- [x] Add betting controls and turn/phase display
+- [x] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
+- [x] Countdown timer in game board - calls `POST /games/:gid/timeout` when it hits zero
 - [ ] Add sound effects gated by `sound` appearance preference
 
 ---
@@ -202,10 +208,10 @@ Useful reference code in `projects/`:
 - [ ] Profile edit works with real auth (after Priority 1 done)
 
 ### Part 6C - Profile Permissions And Edge Cases `[Johchacho]`
-- [ ] Users can only edit their own profile (fix `requireSelfOrAdmin`)
-- [ ] Hide email for non-owner/non-admin viewers
-- [ ] Handle banned users consistently
-- [ ] Empty states: no trophies, no games, no bio
+- [x] Users can only edit their own profile (fix `requireSelfOrAdmin`)
+- [x] Hide email for non-owner/non-admin viewers
+- [x] Handle banned users consistently
+- [x] Empty states: no trophies, no games, no bio
 
 ---
 
@@ -223,7 +229,7 @@ Useful reference code in `projects/`:
 
 ### Part 7C - UX/Responsive Polish `[Johchacho]`
 - [ ] Responsive layout across all pages
-- [ ] Loading/error/empty states consistently
+- [x] Loading/error/empty states consistently
 - [ ] Stats understandable for anonymous users
 
 ---
@@ -292,10 +298,10 @@ Useful reference code in `projects/`:
 - [x] Keep REST fetch for initial load
 
 ### Part 10C - Moderation And Error Handling `[Johchacho]`
-- [ ] Respect banned-user checks
-- [ ] Handle deleted comments in realtime
-- [ ] Loading, empty, error states
-- [ ] Admin deletion updates open comment lists live
+- [x] Respect banned-user checks
+- [x] Handle deleted comments in realtime
+- [x] Loading, empty, error states
+- [x] Admin deletion updates open comment lists live
 
 ---
 
@@ -315,6 +321,16 @@ Safest to simplify:
 - [ ] Forgot-password
 - [ ] Extra tournament types (one random-pairing round-based is enough)
 - [ ] Advanced sound effects beyond preference-gated simple sound
+
+---
+
+## Needs Team Discussion
+- [ ] `allowAnonymous` checkbox on CreateGamePage contradicts README line 94 - "Anonymous user can no longer play games". Discuss with Seb before removing.
+- [ ] Refresh token rotation logs user out when navigating quickly (e.g. joining a game from another tab). Blocked on Seb to fix.
+
+## Deferred / Post-Defense
+
+- [ ] Restructure frontend components out of page folders and into `frontend/src/components/` (Tobias's suggestion - not worth the risk before the defense)
 
 ---
 

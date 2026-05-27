@@ -152,6 +152,23 @@ export async function placeBet(req, res) {
     }
 }
 
+export async function handleTimeout(req, res) {
+    try {
+        const game = await gameService.handleTimeout(req.params.gid);
+        if (!game) return res.status(404).json({ error: "Game not found" });
+
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+    } catch(err) {
+        const status = err.message.includes("not expired") ? 400
+            : err.message.includes("No active turn") ? 400
+            : err.message.includes("Only ongoing") ? 400
+            : err.message.includes("cannot time out") ? 400
+            : 500;
+
+        res.status(status).json(({ error: err.message }));
+    }
+}
+
 export default {
     getAllGames,
     getTopGames,
@@ -162,5 +179,6 @@ export default {
     leaveGame,
     updateGame,
     rollForPlayer,
-    placeBet
+    placeBet,
+    handleTimeout
 };

@@ -16,6 +16,7 @@ import PrivacyPage from "@/pages/PrivacyPage/PrivacyPage";
 import AppearanceProvider from "@/providers/AppearanceProvider";
 import NotFoundPage from "@/pages/NotFoundPage/NotFoundPage";
 import EmailVerificationPage from "@/pages/EmailVerificationPage/EmailVerificationPage";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import "./App.css";
 
 function App() {
@@ -28,12 +29,14 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
-              <Route path="/verify-email" element={<EmailVerificationPage />} />
-              <Route path="/create-game" element={<CreateGamePage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/create-game" element={<CreateGamePage />} />
+                <Route path="/games/:id" element={<GamePage />} />
+              </Route>
               <Route path="/lobby" element={<LobbyPage />} />
               <Route path="/users/:username" element={<UserProfilePage />} />
               <Route path="/users/:username/games" element={<UserGamesPage />} />
-              <Route path="/games/:id" element={<GamePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/about-spanish-dice" element={<AboutSpanishDicePage />} />
               <Route path="/terms" element={<TermsPage />} />

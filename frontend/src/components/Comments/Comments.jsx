@@ -18,6 +18,9 @@ export default function Comments({ gameId, tournamentId }) {
     const { user } = useAuth();
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(null);
+    const [submitError, setSubmitError] = useState(null);
     const webSocketRef = useRef(null);
 
     // connecting to WebSocket and joining the correct room
@@ -52,10 +55,19 @@ export default function Comments({ gameId, tournamentId }) {
     // fetching initial comments from the REST API on mount
     useEffect(() => {
         async function fetchComments() {
-            const data = gameId
-                ? await getGameComments(gameId)
-                : await getTournamentComments(tournamentId);
-            setComments(data);
+            setLoading(true);
+            setFetchError(null);
+            try {
+                // fetching game or tournament based on which id is passed in
+                const data = gameId
+                    ? await getGameComments(gameId)
+                    : await getTournamentComments(tournamentId);
+                setComments(data);
+            } catch (err) {
+                setFetchError(err.message);
+            } finally {
+                setLoading(false);
+            }
         }
         fetchComments();
     }, [gameId, tournamentId]);
@@ -63,37 +75,56 @@ export default function Comments({ gameId, tournamentId }) {
     async function handleSubmit(e) {
         e.preventDefault();
         if (!newComment.trim()) return;
-        const created = gameId
-            ? await postGameComment(gameId, newComment, user._id)
-            : await postTournamentComment(tournamentId, newComment, user._id);
-        setComments(prev => [...prev, created]);
-        setNewComment("");
+        setSubmitError(null);
+        try {
+            // post to game or tournament based on which id was passed in
+            gameId
+                ? await postGameComment(gameId, newComment, user._id)
+                : await postTournamentComment(tournamentId, newComment, user._id);
+            // don't add locally — WebSocket broadcasts comment-created back to all clients including sender
+            setNewComment("");
+        } catch (err) {
+            // server rejects banned users with an error here
+            setSubmitError(err.message);
+        }
     }
 
     async function handleDelete(commentId) {
-        await deleteComment(commentId);
-        setComments(prev => prev.filter(c => c._id !== commentId));
+        setSubmitError(null);
+        try {
+            await deleteComment(commentId);
+            // don't remove locally — WebSocket broadcasts comment-deleted to all open lists
+        } catch (err) {
+            setSubmitError(err.message);
+        }
     }
 
     const canDelete = (comment) =>
         user && (user._id === comment.author?._id || user.isAdmin);
 
     return (
-        <div>
+        <div className={styles.container}>
             <ul className={styles.commentList}>
-                {comments.length === 0 && (
-                    <li className={styles.noComments}>No comments yet.</li>
+                {loading && <li className={styles.empty}>Loading...</li>}
+                {fetchError && <li className={styles.error}>{fetchError}</li>}
+                {!loading && !fetchError && comments.length === 0 && (
+                    <li className={styles.empty}>No comments yet.</li>
                 )}
                 {comments.map(comment => (
                     <li key={comment._id} className={styles.comment}>
                         <div className={styles.commentHeader}>
                             <strong>
                                 <Link to={`/users/${comment.author?.username}`}>
-                                    {comment.author?.username}
+                                    {comment.author?.username ?? "User"}
                                 </Link>
                             </strong>
                             <div className={styles.commentMeta}>
-                                <small>{new Date(comment.createdAt).toLocaleDateString()}</small>
+                                <small>
+                                    {new Date(comment.createdAt).toLocaleString([], {
+                                        dateStyle: "short",
+                                        timeStyle: "short"
+                                    })}
+                                </small>
                                 {canDelete(comment) && (
                                     <button
                                         className={styles.deleteBtn}
@@ -109,8 +140,9 @@ export default function Comments({ gameId, tournamentId }) {
                     </li>
                 ))}
             </ul>
+            {submitError && <p className={styles.error}>{submitError}</p>}
             {user ? (
-                <form className={styles.commentForm} onSubmit={handleSubmit}>
+                <form className={styles.form} onSubmit={handleSubmit}>
                     <textarea
                         value={newComment}
                         onChange={e => setNewComment(e.target.value)}

@@ -13,11 +13,6 @@ export async function postGameComment(gid, body, authorId) {
     });
 }
 
-// delete a comment
-export async function deleteComment(cid) {
-    return await apiFetch(`/comments/${cid}`, { method: "DELETE" });
-}
-
 // get all comments for a specific tournament
 export async function getTournamentComments(tid) {
     return await apiFetch(`/tournaments/${tid}/comments`);

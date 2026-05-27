@@ -199,6 +199,19 @@ export function splitPot(game, winnerIds) {
     game.pot = 0;
 }
 //---- ROUND RELATED HELPERS ----//
+
+export function turnHasExpired(game){
+    return Boolean(
+        game.timeoutState?.turnExpiresAt && new Date(game.timeoutState.turnExpiresAt).getTime() <= Date.now()
+    );
+}
+
+export function startTurnTimer(game, playerId) {
+    game.currentTurn = playerId;
+    game.timeoutState.turnStartedAt = new Date();
+    game.timeoutState.turnExpiresAt = new Date(Date.now() + game.variant.timeControl * 1000);
+}
+
 // Turn advancement
 export function moveToNextActivePlayer(game) {
     const activePlayers = getActivePlayerIds(game);
@@ -212,9 +225,7 @@ export function moveToNextActivePlayer(game) {
 
     const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % activePlayers.length;
 
-    game.currentTurn = activePlayers[nextIndex];
-    game.timeoutState.turnStartedAt = new Date();
-    game.timeoutState.turnExpiresAt = new Date(Date.now() + game.variant.timeControl * 1000);
+    startTurnTimer(game, activePlayers[nextIndex]);
 }
 
 // Detect when betting is done

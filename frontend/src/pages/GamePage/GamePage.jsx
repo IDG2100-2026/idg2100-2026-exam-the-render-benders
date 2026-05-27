@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router";
-import { MdLayers, MdAccessTime, MdEmojiEvents, MdPeople, MdHourglassEmpty, MdExitToApp } from "react-icons/md";
+import { useParams, useNavigate } from "react-router";
+import { MdLayers, MdAccessTime, MdEmojiEvents, MdHourglassEmpty, MdExitToApp } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { apiFetch, getAssetUrl } from "@/api";
-import { DEFAULT_ELO, RULES_STRAIGHTS } from "@/config/constants";
+import { apiFetch } from "@/api";
+import { RULES_STRAIGHTS } from "@/config/constants";
 import Comments from "@/components/Comments/Comments.jsx";
+import GameBoard from "@/components/Game/GameBoard";
+import PlayersSection from "./components/PlayersSection";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
@@ -37,6 +39,7 @@ export default function GamePage() {
     }, [id]);
 
     async function handleLeaveGame() {
+        if (!game) return;
         const confirmMsg = game.status === "ongoing"
             ? "Leaving an ongoing game will forfeit the match to your opponent. Continue?"
             : "Are you sure you want to leave this game?";
@@ -52,8 +55,6 @@ export default function GamePage() {
     if (error) return <div className={styles.pageLayout}><p className={styles.error}>{error}</p></div>;
     if (!game) return <div className={styles.pageLayout}><p>Loading...</p></div>;
 
-    const host = game.players[0];
-    const opponent = game.players[1];
     const isPlayer = user && game.players.some(p => p._id === user._id);
     const canLeave = isPlayer && game.status !== "finished";
 
@@ -84,58 +85,13 @@ export default function GamePage() {
                         </div>
                     </div>
 
-                    {/* Participants Section - Required by TASK.md */}
-                    <div className={styles.playersSection}>
-                        <div className={styles.playerItem}>
-                            <img 
-                                src={getAssetUrl(host?.profileImage)} 
-                                alt="" 
-                                className={styles.pAvatar} 
-                            />
-                            <div className={styles.pInfo}>
-                                <span className={styles.pLabel}>Host</span>
-                                <Link to={`/users/${host?.username}`} className={styles.pName}>
-                                    {host?.username} {user?.username === host?.username && "(You)"}
-                                </Link>
-                                <span className={styles.pElo}>{host?.elo || DEFAULT_ELO} ELO</span>
-                            </div>
-                        </div>
-
-                        <div className={styles.vsDivider}>VS</div>
-
-                        <div className={styles.playerItem}>
-                            {opponent ? (
-                                <>
-                                    <img 
-                                        src={getAssetUrl(opponent.profileImage)} 
-                                        alt="" 
-                                        className={styles.pAvatar} 
-                                    />
-                                    <div className={styles.pInfo}>
-                                        <span className={styles.pLabel}>Opponent</span>
-                                        <Link to={`/users/${opponent.username}`} className={styles.pName}>
-                                            {opponent.username}
-                                        </Link>
-                                        <span className={styles.pElo}>{opponent.elo || DEFAULT_ELO} ELO</span>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className={styles.waitingSlot}>
-                                    <MdPeople className={styles.waitingIcon} />
-                                    <span>Waiting...</span>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <PlayersSection game={game} />
 
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
-                            {/* Area for actual game reserved as required by TASK.md */}
-                            <div className={styles.placeholderState}>
-                                <h2>Dice Area</h2>
-                            </div>
+                            {/* Game board - Web Components wired in GameBoard.jsx */}
+                            <GameBoard isPlayer={isPlayer} gameId={id} />
 
-                            {/* Overlays for Game Status */}
                             {game.status === "waiting" && (
                                 <div className={styles.overlay}>
                                     <MdHourglassEmpty className={styles.pulse} />

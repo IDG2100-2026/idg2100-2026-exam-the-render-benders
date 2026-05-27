@@ -12,6 +12,9 @@
   --danger-text: #e05c6a;
   --danger-bg: #e05c6a1a;
   --danger-border: #e05c6a66;
+  --success: #2ecc71;
+  --success-bg: #2ecc711a;
+  --success-border: #2ecc7166;
   --shadow: rgba(0, 0, 0, 0.6) 0 10px 15px -3px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;

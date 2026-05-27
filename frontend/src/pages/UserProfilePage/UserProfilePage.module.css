@@ -21,6 +21,21 @@
     border-color: var(--danger);
 }
 
+.bannedBanner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--danger-text);
+    background-color: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    border-radius: 6px;
+    padding: 0.25rem 0.7rem;
+    margin-top: 0.25rem;
+    align-self: flex-start;
+}
+
 .page {
     margin: auto;
     padding: 2rem 1rem;
@@ -387,7 +402,7 @@
     align-items: baseline;
 }
 
-.winCount { color: #2ecc71; font-weight: 900; font-size: 1.1rem; }
+.winCount { color: var(--success); font-weight: 900; font-size: 1.1rem; }
 .lossCount { color: var(--danger-text); font-weight: 900; font-size: 1.1rem; opacity: 0.7; }
 
 /* Section Cards */
@@ -478,7 +493,7 @@
 }
 
 .waiting { background-color: var(--accent-bg); color: var(--accent); border: 1px solid var(--accent-border); }
-.ongoing { background-color: #2ecc711a; color: #2ecc71; border: 1px solid #2ecc7166; }
+.ongoing { background-color: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
 .finished { background-color: var(--bg-secondary); color: var(--text); opacity: 0.6; }
 
 .gameDetails {
