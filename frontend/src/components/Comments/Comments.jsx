@@ -22,6 +22,13 @@ export default function Comments({ gameId, tournamentId }) {
     const [fetchError, setFetchError] = useState(null);
     const [submitError, setSubmitError] = useState(null);
     const webSocketRef = useRef(null);
+    const listRef = useRef(null);
+
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.scrollTop = listRef.current.scrollHeight;
+        }
+    }, [comments]);
 
     // connecting to WebSocket and joining the correct room
     useEffect(() => {
@@ -40,11 +47,11 @@ export default function Comments({ gameId, tournamentId }) {
         ws.onmessage = (event) => {
             const message = JSON.parse(event.data);
 
-            if (message.type === "comment-created") {
+            if (message.type === "game-comment:created" || message.type === "tournament-comment:created" || message.type === "comment:created") {
                 setComments(prev => [...prev, message.comment]);
             }
 
-            if (message.type === "comment-deleted") {
+            if (message.type === "comment:deleted") {
                 setComments(prev => prev.filter(cmnt => cmnt._id !== message.commentId));
             }
         };
@@ -104,7 +111,7 @@ export default function Comments({ gameId, tournamentId }) {
 
     return (
         <div className={styles.container}>
-            <ul className={styles.commentList}>
+            <ul className={styles.commentList} ref={listRef}>
                 {loading && <li className={styles.empty}>Loading...</li>}
                 {fetchError && <li className={styles.error}>{fetchError}</li>}
                 {!loading && !fetchError && comments.length === 0 && (
