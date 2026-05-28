@@ -126,11 +126,7 @@ Useful reference code in `projects/`:
 
 ### Part 3B - WebSocket Server And Events `[Tobbelobb]`
 - [x] Add WebSocket support beside Express (`ws` or Socket.IO)
-<<<<<<< HEAD
 - [x] Define events: connect/auth, join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, round-start, round-end, game-end, error
-=======
-- [x] Define events: join-room, game-state, hold-dice, bet, match, raise, fold, leave-before-start, error
->>>>>>> 59e7ce0e5276d897d0b008fc27a495ad38160e7d
 - [x] Add `GET /games/:gid/state` for reload/navigation restore
 - [x] Emit state updates to all players and spectators in the game room
 - [x] Keep player-private dice data private in emitted payloads

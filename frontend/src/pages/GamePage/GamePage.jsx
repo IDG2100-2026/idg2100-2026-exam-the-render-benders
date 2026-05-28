@@ -90,7 +90,7 @@ export default function GamePage() {
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
                             {/* Game board - Web Components wired in GameBoard.jsx */}
-                            <GameBoard isPlayer={isPlayer} gameId={id} />
+                            <GameBoard isPlayer={isPlayer} gameId={id} onStateUpdate={(state) => setGame(prev => prev ? { ...prev, status: state.status, result: state.result, players: state.players } : prev)} />
 
                             {game.status === "waiting" && (
                                 <div className={styles.overlay}>

@@ -22,9 +22,12 @@ export default function LoginPage() {
             login(userData);
             navigate("/");
         } catch (err) {
-            // Generic message from backend is intentional (don't reveal which field is wrong)
-            // Add a hint about password requirements so users don't get stuck
-            setError("Invalid username or password. Remember: passwords require uppercase, a number and a symbol (e.g. Password123!).");
+            if (err.message?.toLowerCase().includes("too many")) {
+                setError(err.message);
+            } else {
+                // Generic message is intentional - don't reveal which field is wrong
+                setError("Invalid username or password. Remember: passwords require uppercase, a number and a symbol (e.g. Password123!).");
+            }
         }
     }
 

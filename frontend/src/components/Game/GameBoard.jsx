@@ -8,8 +8,9 @@ import styles from "./GameBoard.module.css";
 // Socket.IO lives on the backend root, not under /api/v1
 const SOCKET_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
 
-export default function GameBoard({ isPlayer, gameId }) {
+export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     const boardRef = useRef(null);
+    const onStateUpdateRef = useRef(onStateUpdate);
     const { user } = useAuth();
     const [serverState, setServerState] = useState(null);
     // holds are tracked locally - server does not persist them between clicks
@@ -22,6 +23,8 @@ export default function GameBoard({ isPlayer, gameId }) {
     const phase = serverState?.phase;
     const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
 
+    useEffect(() => { onStateUpdateRef.current = onStateUpdate; }, [onStateUpdate]);
+
     // fetch initial state via REST so the board shows immediately on reload
     useEffect(() => {
         if (!gameId) return;
@@ -33,7 +36,7 @@ export default function GameBoard({ isPlayer, gameId }) {
     // connect to Socket.IO, join the game room and listen for state updates
     useEffect(() => {
         if (!gameId) return;
-        const socket = io(SOCKET_URL, { withCredentials: true });
+        const socket = io(SOCKET_URL, { withCredentials: true, transports: ["websocket"] });
 
         socket.on("connect", () => {
             socket.emit("join-room", { gid: gameId });
@@ -46,6 +49,7 @@ export default function GameBoard({ isPlayer, gameId }) {
             // clear held dice when the server pushes a new round
             setHeldDice(new Set());
             setActionError(null);
+            onStateUpdateRef.current?.(state);
         });
 
         return () => socket.disconnect();
@@ -99,10 +103,12 @@ export default function GameBoard({ isPlayer, gameId }) {
     useEffect(() => {
         if (!turnExpiresAt) return;
 
+        let timeoutCalled = false;
         function tick() {
             const remaining = Math.max(0, Math.floor((new Date(turnExpiresAt) - Date.now()) / 1000));
             setSecondsLeft(remaining);
-            if (remaining === 0 && isMyTurn) {
+            if (remaining === 0 && isMyTurn && !timeoutCalled) {
+                timeoutCalled = true;
                 apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {});
             }
         }
