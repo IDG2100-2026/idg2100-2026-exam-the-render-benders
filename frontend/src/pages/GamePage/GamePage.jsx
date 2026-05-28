@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router";
 import { MdLayers, MdAccessTime, MdEmojiEvents, MdHourglassEmpty, MdExitToApp } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,12 +17,14 @@ export default function GamePage() {
     const { preferences } = useAppearance();
     const [game, setGame] = useState(null);
     const [error, setError] = useState(null);
+    const gameRef = useRef(null);
 
     useEffect(() => {
         async function fetchGame() {
             try {
                 const data = await apiFetch(`/games/${id}`);
                 setGame(data);
+                gameRef.current = data;
             } catch (err) {
                 setError(err.message);
             }
@@ -37,6 +39,16 @@ export default function GamePage() {
 
         return () => clearInterval(intervalId);
     }, [id]);
+
+    // auto-leave waiting game when navigating away without using the Leave button
+    useEffect(() => {
+        return () => {
+            const g = gameRef.current;
+            if (g?.status === "waiting" && user?._id) {
+                apiFetch(`/games/${g._id}/players/${user._id}`, { method: "DELETE" }).catch(() => {});
+            }
+        };
+    }, [user?._id]);
 
     async function handleLeaveGame() {
         if (!game) return;
@@ -90,7 +102,7 @@ export default function GamePage() {
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
                             {/* Game board - Web Components wired in GameBoard.jsx */}
-                            <GameBoard isPlayer={isPlayer} gameId={id} onStateUpdate={(state) => setGame(prev => prev ? { ...prev, status: state.status, result: state.result, players: state.players } : prev)} />
+                            <GameBoard isPlayer={isPlayer} gameId={id} onStateUpdate={(state) => setGame(prev => prev ? { ...prev, status: state.status, result: state.result } : prev)} />
 
                             {game.status === "waiting" && (
                                 <div className={styles.overlay}>

@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
+import { TIMEOUT_RETRY_MS } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -15,6 +16,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     const [serverState, setServerState] = useState(null);
     // holds are tracked locally - server does not persist them between clicks
     const [heldDice, setHeldDice] = useState(new Set());
+    const roundRef = useRef(null);
     const [betAmount, setBetAmount] = useState(1);
     const [actionError, setActionError] = useState(null);
     const [secondsLeft, setSecondsLeft] = useState(null);
@@ -36,7 +38,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     // connect to Socket.IO, join the game room and listen for state updates
     useEffect(() => {
         if (!gameId) return;
-        const socket = io(SOCKET_URL, { withCredentials: true, transports: ["websocket"] });
+        const socket = io(SOCKET_URL, { withCredentials: true });
 
         socket.on("connect", () => {
             socket.emit("join-room", { gid: gameId });
@@ -45,9 +47,12 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
         // server sends a personalised state: current player sees their own hidden rolls,
         // other players' hidden rolls are stripped out
         socket.on("game-state", (state) => {
-            setServerState(state);
             // clear held dice when the server pushes a new round
-            setHeldDice(new Set());
+            if (roundRef.current !== state.currentRound) {
+                roundRef.current = state.currentRound;
+                setHeldDice(new Set());
+            }
+            setServerState(state);
             setActionError(null);
             onStateUpdateRef.current?.(state);
         });
@@ -109,7 +114,12 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
             setSecondsLeft(remaining);
             if (remaining === 0 && isMyTurn && !timeoutCalled) {
                 timeoutCalled = true;
-                apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {});
+                apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(err => {
+                    // retry once if server clock is slightly behind the client
+                    if (err.message?.includes("not expired")) {
+                        setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {}), TIMEOUT_RETRY_MS);
+                    }
+                });
             }
         }
 

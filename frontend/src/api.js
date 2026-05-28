@@ -35,9 +35,10 @@ export async function apiFetch(endpoint, options = {}) {
         resp = await fetch(API_URL + endpoint, { ...options, headers, credentials: "include" });
     }
 
-    const result = await resp.json(); // parse JSON response once
+    if (resp.status === 204) return null;
+    const result = await resp.json();
     if (!resp.ok) {
-        throw new Error(result?.error || result?.msg || result?.errors?.[0]?.msg || "An error occurred"); // throw new error with backend message
+        throw new Error(result?.error || result?.msg || result?.errors?.[0]?.msg || "An error occurred");
     }
     return result;
 }
