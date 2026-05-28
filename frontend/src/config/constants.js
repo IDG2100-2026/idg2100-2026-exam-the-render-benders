@@ -11,6 +11,10 @@ export const RULES_NO_STRAIGHTS = "no-straights";
 export const DEFAULT_ELO = 1000;
 export const MAX_ELO = 3000;
 
+// Polling intervals
+export const LOBBY_POLL_MS = 10000;
+export const TIMEOUT_RETRY_MS = 800;
+
 // User
 export const MIN_AGE = 18;
 export const MAX_AGE = 100;
