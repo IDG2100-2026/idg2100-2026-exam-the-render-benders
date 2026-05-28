@@ -18,6 +18,21 @@ import {
     startTurnTimer
 } from "../utils/gameHelpers.js";
 import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
+import { ROUND_END_DELAY_MS } from "../config/constants.js";
+
+async function emitPersonalizedState(gid, game) {
+    const io = getIO();
+    if (!io) return;
+    const sockets = await io.in(gid.toString()).fetchSockets();
+    for (const s of sockets) {
+        s.emit("game-state", sanitizeGameForViewer(game, s.user?.id));
+    }
+}
+
+// notifies all lobby viewers that the waiting game list has changed
+function emitLobbyUpdate() {
+    getIO()?.emit("lobby-update");
+}
 
 // Returns all games from the database, supports pagination and advanced filtering
 // mine=true returns only the requesting user's own active games (waiting/ongoing)
@@ -151,14 +166,29 @@ export async function joinGame(gid, playerId, requestingUser = null) {
             timeoutCount: 0
         };
         await updated.save();
+        getIO()?.to(gid.toString()).emit("game-state", sanitizeGameForViewer(updated, null));
+        emitLobbyUpdate();
     }
 
     return updated;
 }
 
 // Creates a new game, saves it to the database
+// Also deducts the buy-in from each initial player and creates their stack entry,
+// because the creator bypasses joinGame and would otherwise have no playerStacks entry
 export async function createGame(data) {
-    return await Game.create(data);
+    const buyIn = data.buyIn ?? 1;
+    const playerStacks = (data.players || []).map(playerId => ({ user: playerId, stack: buyIn }));
+
+    for (const playerId of data.players || []) {
+        if (buyIn > 0) {
+            await User.findByIdAndUpdate(playerId, { $inc: { points: -buyIn } });
+        }
+    }
+
+    const game = await Game.create({ ...data, playerStacks });
+    emitLobbyUpdate();
+    return game;
 }
 
 // Removes a player from a game.
@@ -178,8 +208,10 @@ export async function leaveGame(gid, playerId) {
         const updated = await Game.findById(gid);
         if (updated.players.length === 0) {
             await Game.findByIdAndDelete(gid);
+            emitLobbyUpdate();
             return { deleted: true };
         }
+        emitLobbyUpdate();
         return updated;
     }
 
@@ -272,9 +304,36 @@ export async function updateGame(gid, data) {
     // notifying all players in the room that the game has ended
     if (!oldGame.isAnonymous && oldGame.status !== "finished" && game.status === "finished") {
         getIO()?.to(gid.toString()).emit("game-end", { winner: game.result?.winner });
+        // fetch with populated winner so clients see the username immediately
+        const populated = await Game.findById(gid).populate("result.winner", "username");
+        if (populated) await emitPersonalizedState(gid, populated);
     }
 
     return game;
+}
+
+// Called after round-ended: starts the next round or finishes the game after a short delay
+// so players have time to see the revealed dice before the board resets
+async function advanceAfterRound(gid, completedRound) {
+    await new Promise(resolve => setTimeout(resolve, ROUND_END_DELAY_MS));
+
+    const game = await Game.findById(gid);
+    // guard: another process may have already advanced or finished the game
+    if (!game || game.phase !== "round-ended" || game.currentRound !== completedRound) return;
+
+    if (completedRound >= game.variant.rounds) {
+        // all rounds done - finish the game (updateGame handles ELO, winner, etc.)
+        await updateGame(gid, { status: "finished" });
+    } else {
+        // start the next round
+        game.currentRound += 1;
+        game.phase = "rolling";
+        game.foldedUsers = [];
+        game.bettingState = { currentBet: 0, contributions: [], actedUsers: [], lastAggressor: null };
+        startTurnTimer(game, game.players[0]);
+        await game.save();
+        await emitPersonalizedState(gid, game);
+    }
 }
 
 function enterBettingPhase(game, activePlayers) {
@@ -349,6 +408,7 @@ export async function rollForPlayer(gid, playerId) {
     }
 
     await game.save();
+    await emitPersonalizedState(gid, game);
 
     if (everyoneRolled) {
         // notify all players in the room that the betting round has started
@@ -484,10 +544,13 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     }
 
     await game.save();
+    await emitPersonalizedState(gid, game);
 
     if (game.phase === "round-ended") {
         // notify all players in the room that the round has ended
         getIO()?.to(gid.toString()).emit("round-end", { round: game.currentRound });
+        // advance to next round or finish after a delay so players can see revealed dice
+        advanceAfterRound(gid, game.currentRound);
     }
 
     return game;
@@ -622,7 +685,12 @@ export async function handleTimeout(gid) {
         round: game.currentRound
     });
 
-    getIO()?.to(gid.toString()).emit("game-state", sanitizeGameForViewer(game, null));
+    await emitPersonalizedState(gid, game);
+
+    if (game.phase === "round-ended") {
+        advanceAfterRound(gid, game.currentRound);
+    }
+
     return game;
 }
 

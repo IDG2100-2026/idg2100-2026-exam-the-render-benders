@@ -117,3 +117,10 @@ export const REFRESH_COOKIE_OPTIONS = {
     sameSite: "lax",
     maxAge: JWT_REFRESH_MAX_AGE_MS
 };
+
+// Rate limiter
+export const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+export const RATE_LIMIT_MAX = 1000;
+
+// Delay in ms before advancing to the next round after round-ended
+export const ROUND_END_DELAY_MS = 3000;
