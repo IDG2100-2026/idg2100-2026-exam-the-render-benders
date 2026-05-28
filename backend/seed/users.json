@@ -112,7 +112,7 @@
         "isBanned": true
     },
     {
-        "username": "admin_poker",
+        "username": "admin",
         "pwd": "Adminpass1!",
         "email": "admin@pokerdice.com",
         "dateOfBirth": "1994-09-01",

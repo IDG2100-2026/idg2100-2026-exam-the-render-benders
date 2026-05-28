@@ -139,6 +139,7 @@ Useful reference code in `projects/`:
 - [x] Add betting controls and turn/phase display
 - [x] Restore state on reload with `GET /games/:gid/state`, then subscribe to WS room
 - [x] Countdown timer in game board - calls `POST /games/:gid/timeout` when it hits zero
+- [x] Homepage lobby updates in real time via Socket.IO lobby-update event (polling kept as fallback)
 - [ ] Add sound effects gated by `sound` appearance preference
 
 ---

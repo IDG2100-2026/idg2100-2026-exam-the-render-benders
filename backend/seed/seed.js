@@ -242,6 +242,6 @@ try {
 
 await disconnectDB();
 console.log("\nSeeding complete.");
-console.log("  Admin login:  admin_poker / Adminpass1!");
+console.log("  Admin login:  admin / Adminpass1!");
 console.log("  User logins:  carlos88 / Password123!  |  lucas_diez / Password123!  |  elena_r / Password123!");
 console.log("  Banned user:  banned_user / Password123!");

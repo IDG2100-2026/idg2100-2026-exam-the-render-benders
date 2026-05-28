@@ -3,6 +3,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit";
 import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
+import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from "./config/constants.js";
 import { setUserType } from "./middleware/auth.middleware.js";
 import { setupCommentSockets } from "./socket/comment.socket.js"; 
 import { initializeGameSocket } from "./socket/game.socket.js";
@@ -25,12 +26,12 @@ await connectDB();
 // Creates an Express app
 const app = express();
 
-// Rate Limiter - max 100 requests per IP per 15 minutes 
+// Rate limiter - max RATE_LIMIT_MAX requests per IP per RATE_LIMIT_WINDOW_MS (15 minutes)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 500,
+  windowMs: RATE_LIMIT_WINDOW_MS,
+  limit: RATE_LIMIT_MAX,
   standardHeaders: "draft-8",
-  message: { error: "Too many requests, please try again later." } // return JSON
+  message: { error: "Too many requests, please try again later." }
 });
 
 // Allow requests from frontend (CORS)
