@@ -68,8 +68,13 @@ async function logout(req, res) {
 
 async function verifyEmail(req, res) {
     try {
-        const result = await authService.verifyEmail(req.body);
-        res.status(200).json(result);
+        const result = await authService.verifyEmail(req.body, req);
+
+        res.cookie("accessToken", result.accessToken, ACCESS_COOKIE_OPTIONS);
+        res.status(200).json({
+            user: result.user,
+            message: result.message
+        });
     } catch (err) {
         res.status(400).json({ error: err.message });
     }

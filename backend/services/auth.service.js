@@ -127,7 +127,7 @@ async function register(data, req){
     };
 }
 
-async function verifyEmail({ userId, code }) {
+async function verifyEmail({ userId, code }, req) {
     if(!userId || !code) {
         throw new Error("Missing userId or verification code");
     }
@@ -158,6 +158,7 @@ async function verifyEmail({ userId, code }) {
 
     return {
         user: safeUser(user),
+        accessToken: createAccessToken(user, req),
         message: "Email verified successfully"
     };
 }
