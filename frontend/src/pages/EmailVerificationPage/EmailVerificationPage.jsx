@@ -4,7 +4,7 @@ import { apiFetch } from "@/api";
 import styles from "./EmailVerificationPage.module.css";
 
 export default function EmailVerificationPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, login } = useAuth();
     const [code, setCode] = useState("");
     const [verified, setVerified] = useState(false);
     // single message state - only one message can show at a time
@@ -42,11 +42,14 @@ export default function EmailVerificationPage() {
         e.preventDefault();
         setMessage(null);
         try {
-            await apiFetch("/auth/verify-email", {
+            const result = await apiFetch("/auth/verify-email", {
                 method: "POST",
                 // sends user._id so backend can find the matching verification code
                 body: JSON.stringify({ userId: user?._id, code })
             });
+            if (result.user) {
+                login(result.user);
+            }
             setVerified(true);
         } catch (err) {
             setMessage({ text: err.message, type: "error" });
