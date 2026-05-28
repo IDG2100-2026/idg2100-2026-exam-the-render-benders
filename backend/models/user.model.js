@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema({
                 type: Date,
                 default: Date.now
             },
+            rotatedAt: {
+                type: Date,
+                default: null
+            },
             userAgent: {
                 type: String,
                 default: null

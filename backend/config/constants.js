@@ -100,6 +100,7 @@ export const WEEKLY_POINT_INTERVAL = 7 * 24 * 60 * 60 * 1000; // 7d
 // JWT / Cookie age
 export const JWT_ACCESS_MAX_AGE_MS = 15 * 60 * 1000; // 15m
 export const JWT_REFRESH_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7d
+export const JWT_REFRESH_ROTATION_GRACE_MS = 5 * 1000; // 5s
 export const JWT_ACCESS_EXPIRES_IN_SECONDS = JWT_ACCESS_MAX_AGE_MS / 1000;
 export const JWT_REFRESH_EXPIRES_IN_SECONDS = JWT_REFRESH_MAX_AGE_MS / 1000;
 

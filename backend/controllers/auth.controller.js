@@ -40,7 +40,9 @@ async function refresh(req, res) {
         const result = await authService.refresh(req.cookies.refreshToken, req);
 
         res.cookie("accessToken", result.accessToken, ACCESS_COOKIE_OPTIONS);
-        res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
+        if (result.refreshToken) {
+            res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
+        }
 
         res.status(200).json(result.user);
     } catch (err) {

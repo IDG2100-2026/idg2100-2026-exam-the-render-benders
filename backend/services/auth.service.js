@@ -6,6 +6,7 @@ import {
     JWT_ACCESS_EXPIRES_IN_SECONDS,
     JWT_REFRESH_EXPIRES_IN_SECONDS,
     JWT_REFRESH_MAX_AGE_MS,
+    JWT_REFRESH_ROTATION_GRACE_MS,
     EMAIL_VERIFICATION_EXPIRES_MS,
     WEEKLY_POINTS_GAINED,
     WEEKLY_POINT_INTERVAL
@@ -39,7 +40,10 @@ function createAccessToken(user, req) {
 // Used to create a long-lived JWT
 function createRefreshToken(user) {
     return jwt.sign(
-        { id: user._id.toString() },
+        {
+            id: user._id.toString(),
+            jti: crypto.randomUUID()
+        },
         JWT_REFRESH_SECRET,
         { expiresIn: JWT_REFRESH_EXPIRES_IN_SECONDS }
     );
@@ -189,6 +193,7 @@ async function refresh(refreshToken, req) {
         throw new Error("Invalid refresh token");
     }
 
+    const now = new Date();
     const refreshTokenHash = hashToken(refreshToken);
     const user = await User.findOne({
         _id: payload.id,
@@ -202,8 +207,10 @@ async function refresh(refreshToken, req) {
     const session = user.sessions.find(
         (item) => item.refreshTokenHash === refreshTokenHash
     );
+    const rotationGraceExpired = session?.rotatedAt &&
+        session.rotatedAt.getTime() + JWT_REFRESH_ROTATION_GRACE_MS <= now.getTime();
 
-    if (!session || session.expiresAt <= new Date()) {
+    if (!session || session.expiresAt <= now || rotationGraceExpired) {
         user.sessions = user.sessions.filter(
             (item) => item.refreshTokenHash !== refreshTokenHash
         );
@@ -211,22 +218,53 @@ async function refresh(refreshToken, req) {
         throw new Error("Refresh session expired");
     }
 
-    // Update refresh token. Remove old session and create a new one
-    user.sessions = user.sessions.filter(
-        (item) => item.refreshTokenHash !== refreshTokenHash
-    );
-
     const newAccessToken = createAccessToken(user, req);
     const newRefreshToken = createRefreshToken(user);
-
-    user.sessions.push({
+    const newSession = {
         refreshTokenHash: hashToken(newRefreshToken),
-        expiresAt: new Date(Date.now() + JWT_REFRESH_MAX_AGE_MS),
+        expiresAt: new Date(now.getTime() + JWT_REFRESH_MAX_AGE_MS),
         userAgent: req.headers["user-agent"] || null,
         ipAddress: req.ip || null
-    });
+    };
 
-    await user.save();
+    await User.updateOne(
+        {
+            _id: user._id,
+            sessions: {
+                $elemMatch: {
+                    refreshTokenHash,
+                    expiresAt: { $gt: now }
+                }
+            }
+        },
+        { $push: { sessions: newSession } }
+    );
+
+    await User.updateOne(
+        {
+            _id: user._id,
+            "sessions.refreshTokenHash": refreshTokenHash,
+            "sessions.rotatedAt": null
+        },
+        {
+            $set: { "sessions.$.rotatedAt": now }
+        }
+    );
+
+    const graceCutoff = new Date(now.getTime() - JWT_REFRESH_ROTATION_GRACE_MS);
+    await User.updateOne(
+        { _id: user._id },
+        {
+            $pull: {
+                sessions: {
+                    $or: [
+                        { expiresAt: { $lte: now } },
+                        { rotatedAt: { $lte: graceCutoff } }
+                    ]
+                }
+            }
+        }
+    );
 
     return {
         user: safeUser(user),
