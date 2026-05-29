@@ -61,8 +61,16 @@ export async function createComment(req, res) {
 // Updates a Comment by ID (cid) and return the updated Comment as JSON
 export async function updateComment(req, res) {
     try {
+        const existingComment = await commentService.getComment(req.params.cid);
+        if (!existingComment) return res.status(404).json({ error: "Comment not found" });
+        
+        const authorId = existingComment.author._id || existingComment.author;
+        const isOwner = authorId.toString() === req.user?.id;
+        const isAdmin = req.user?.type === "admin";
+
+        if (!isOwner && !isAdmin) return res.status(403).json({ error: "You can only edit your own comments" });
+
         const comment = await commentService.updateComment(req.params.cid, req.body);
-        if (!comment) return res.status(404).json({ error: "Comment not found" });
 
         broadcastToCommentRoom(comment, {
             type: "comment:updated",
