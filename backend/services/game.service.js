@@ -446,7 +446,7 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     await game.save();
     await emitPersonalizedState(gid, game);
 
-    if (everyoneRolled) {
+    if (everyoneFinished) {
         // notify all players in the room that the betting round has started
         getIO()?.to(gid.toString()).emit("round-start", { round: game.currentRound });
     }
