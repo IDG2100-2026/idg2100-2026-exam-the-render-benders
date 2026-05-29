@@ -56,7 +56,7 @@ export const MIN_POT_VALUE = 0;
 export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
 
 // Gameplay phases
-export const GAME_PHASES = ["waiting", "rolling", "betting", "revealing", "round-ended", "finished"];
+export const GAME_PHASES = ["waiting", "rolling", "betting", "round-ended", "finished"];
 
 // Bet actions
 export const BET_ACTIONS = ["bet", "match", "raise", "fold", "check", "timeout"];

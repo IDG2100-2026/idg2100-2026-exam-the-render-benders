@@ -4,7 +4,7 @@ import { DICE_COUNT, DICE_FACES } from "../config/constants.js";
 
 // Helper for public roll phases
 export function rollsArePublic(game) {
-    return ["revealing", "round-ended", "finished"].includes(game.phase) || game.status === "finished";
+    return ["round-ended", "finished"].includes(game.phase) || game.status === "finished";
 }
 
 // Roll 1

@@ -96,6 +96,7 @@ export function initializeGameSocket(httpServer) {
 
         // player places a bet
         socket.on("bet", async ({ gid, amount }) => {
+            if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
                 const game = await gameService.placeBet(gid, socket.user.id,{ action: "bet", amount});
                 if (!game) return socket.emit("error", { message: "Game not found" });
@@ -108,6 +109,7 @@ export function initializeGameSocket(httpServer) {
 
         // player matches the current bet
         socket.on("match", async ({ gid }) => {
+            if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "match" });
                 if (!game) return socket.emit("error", { message: "Game not found" });
@@ -119,6 +121,7 @@ export function initializeGameSocket(httpServer) {
 
         // player raises the bet
         socket.on("raise", async ({ gid, amount }) => {
+            if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "raise", amount });
                 if (!game) return socket.emit("error", { message: "Game not found" });
@@ -130,6 +133,7 @@ export function initializeGameSocket(httpServer) {
 
         // player folds
         socket.on("fold", async ({ gid }) => {
+            if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "fold" });
                 if (!game) return socket.emit("error", { message: "Game not found" });
@@ -141,6 +145,7 @@ export function initializeGameSocket(httpServer) {
 
         // player leaves the game before it has started
         socket.on("leave-before-start", async ({ gid }) => {
+            if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
                 const result = await gameService.leaveGame(gid, socket.user.id);
                 if (!result) return socket.emit("error", { message: "Game not found" });
@@ -179,7 +184,7 @@ export function initializeGameSocket(httpServer) {
 // requestingUserId is used to hide other players' private dice
 function buildGameState(game, requestingUserId) {
     // checking if rolls should be visible to everyone (revealing/round-ended/finished)
-    const rollsPublic = ["revealing", "round-ended", "finished"].includes(game.phase) || game.status === "finished";
+    const rollsPublic = ["round-ended", "finished"].includes(game.phase) || game.status === "finished";
 
     return {
         _id: game._id,
@@ -189,6 +194,7 @@ function buildGameState(game, requestingUserId) {
         players: game.players, 
         currentTurn: game.currentTurn ?? null,
         pot: game.pot,
+        buyIn: game.buyIn,
         playerStacks: game.playerStacks,
         bettingState: game.bettingState ?? null,
         foldedUsers: game.foldedUsers ?? [],

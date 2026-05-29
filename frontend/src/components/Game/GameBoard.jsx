@@ -134,7 +134,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     async function handleRoll() {
         setActionError(null);
         try {
-            await apiFetch(`/games/${gameId}/roll`, { method: "POST" });
+            const state = await apiFetch(`/games/${gameId}/roll`, { method: "POST" });
+            setServerState(state);
+            onStateUpdateRef.current?.(state);
         } catch (err) {
             setActionError(err.message);
         }
@@ -143,10 +145,12 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     async function handleBet(action) {
         setActionError(null);
         try {
-            await apiFetch(`/games/${gameId}/bets`, {
+            const state = await apiFetch(`/games/${gameId}/bets`, {
                 method: "POST",
                 body: JSON.stringify({ action, amount: betAmount })
             });
+            setServerState(state);
+            onStateUpdateRef.current?.(state);
         } catch (err) {
             setActionError(err.message);
         }
@@ -187,6 +191,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
                         <input
                             type="number"
                             min={1}
+                            max={serverState?.buyIn}
                             value={betAmount}
                             onChange={e => setBetAmount(Number(e.target.value))}
                         />

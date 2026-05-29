@@ -118,6 +118,14 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     const game = await Game.findById(gid);
     if (!game) return null;
 
+    const startingStack = game.buyIn * game.variant.rounds;
+
+    if (game.players.some(player => idsEqual(player, playerId))) {
+        return await Game.findById(gid)
+            .populate("players", "username elo elo10s elo30s elo90s profileImage")
+            .populate("result.winner", "username");
+    }
+
     // Anonymous users can only join games that explicitly allow them
     if (requestingUser?.type === "anonymous" && !game.allowAnonymous) {
         throw new Error("This game does not allow anonymous players");
@@ -138,20 +146,21 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     if (!user) throw new Error("User not found");
 
     // reject if the user doesn't have enough points for the buy-in 
-    if (user.points < game.buyIn) {
+    if (user.points < startingStack) {
         throw new Error("You do not have enough points to join this game");
     }
 
     // deducting the buy-in from the user's points and adding it as their in-game stack
-    await User.findByIdAndUpdate(playerId, { $inc: { points: -game.buyIn } });
+    await User.findByIdAndUpdate(playerId, { $inc: { points: -startingStack } });
     await Game.findByIdAndUpdate(gid, {
         $addToSet: { players: playerId },
-        $push: { playerStacks: { user: playerId, stack: game.buyIn } }
+        $push: { playerStacks: { user: playerId, stack: startingStack } }
     });
 
     const updated = await Game
         .findById(gid)
-        .populate("players", "username elo elo10s elo30s elo90s profileImage");
+        .populate("players", "username elo elo10s elo30s elo90s profileImage")
+        .populate("result.winner", "username");
 
     // auto-start when the required number of players have joined 
     if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
@@ -166,7 +175,10 @@ export async function joinGame(gid, playerId, requestingUser = null) {
             timeoutCount: 0
         };
         await updated.save();
-        getIO()?.to(gid.toString()).emit("game-state", sanitizeGameForViewer(updated, null));
+    }
+
+    if (updated) {
+        await emitPersonalizedState(gid, updated);
         emitLobbyUpdate();
     }
 
@@ -178,11 +190,12 @@ export async function joinGame(gid, playerId, requestingUser = null) {
 // because the creator bypasses joinGame and would otherwise have no playerStacks entry
 export async function createGame(data) {
     const buyIn = data.buyIn ?? 1;
-    const playerStacks = (data.players || []).map(playerId => ({ user: playerId, stack: buyIn }));
+    const startingStack = buyIn * data.variant.rounds;
+    const playerStacks = (data.players || []).map(playerId => ({ user: playerId, stack: startingStack }));
 
     for (const playerId of data.players || []) {
-        if (buyIn > 0) {
-            await User.findByIdAndUpdate(playerId, { $inc: { points: -buyIn } });
+        if (startingStack > 0) {
+            await User.findByIdAndUpdate(playerId, { $inc: { points: -startingStack } });
         }
     }
 
@@ -205,13 +218,17 @@ export async function leaveGame(gid, playerId) {
 
     if (game.status === "waiting") {
         await Game.findByIdAndUpdate(gid, { $pull: { players: playerId } });
-        const updated = await Game.findById(gid);
+        const updated = await Game.findById(gid)
+            .populate("players", "username elo elo10s elo30s elo90s profileImage")
+            .populate("result.winner", "username");
         if (updated.players.length === 0) {
             await Game.findByIdAndDelete(gid);
             emitLobbyUpdate();
+            getIO()?.to(gid.toString()).emit("game-deleted", { gid });
             return { deleted: true };
         }
         emitLobbyUpdate();
+        await emitPersonalizedState(gid, updated);
         return updated;
     }
 
@@ -444,6 +461,7 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     const contribution = getContribution(game, playerId);
     const currentBet = game.bettingState.currentBet;
     const amountNeededToMatch = currentBet - contribution.amount;
+    const roundBetCap = game.buyIn;
 
     if (action === "fold") {
         if(!game.foldedUsers.some(id => idsEqual(id, playerId))) {
@@ -463,7 +481,10 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             throw new Error("Cannot bet because a bet already exists; use raise or match");
         }
         if (amount <= 0) {
-            throw new Error("Bet amount must be a number greater than 0");
+            throw new Error(`Bet amount must be a number greater than 0`);
+        }
+        if (amount > roundBetCap) {
+            throw new Error(`Bet cannot be higher than ${roundBetCap} points per round`);
         }
         if (stackEntry.stack < amount) {
             throw new Error("Not enough points in stack");
@@ -499,9 +520,13 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             }
             pushBetLog(game, playerId, "match", amountNeededToMatch);
         }
+        // Probs delete this since raise is removed in the frontend
     } else if (action === "raise") {
         if (amount <= amountNeededToMatch) {
             throw new Error("Raise must be greater than the amount needed to match");
+        }
+        if (contribution.amount + amount > roundBetCap) {
+            throw new Error(`Total bet cannot be higher than ${roundBetCap} points per round`);
         }
         if (stackEntry.stack < amount) {
             throw new Error("Not enough points in stack");
