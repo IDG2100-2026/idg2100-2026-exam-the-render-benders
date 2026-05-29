@@ -19,6 +19,7 @@ export function setUserType(req, res, next) {
             username: payload.username,
             type: payload.type,
             isAdmin: payload.isAdmin,
+            isGuest: payload.isGuest,
             emailVerified: payload.emailVerified,
             ipAddress: payload.ipAddress
         };
@@ -83,6 +84,9 @@ export async function requireNotBanned(req, res, next) {
 
 // Blocking users who have not verified their email from joining games and tournaments
 export function requireEmailVerified(req, res, next) {
+    if (req.user?.isGuest) {
+        return next();
+    }
     if (!req.user.emailVerified) {
         return res.status(403).json({ error: "You must verify your email before joining games" });
     } 

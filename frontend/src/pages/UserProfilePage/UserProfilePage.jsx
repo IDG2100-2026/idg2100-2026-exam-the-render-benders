@@ -123,7 +123,7 @@ export default function UserProfilePage() {
                             {(isOwnProfile || isAdmin) && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
                             <span className={styles.metaItem}><MdCalendarToday /> Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
                         </div>
-                        {isOwnProfile && !profile.emailVerified && (
+                        {isOwnProfile && !profile.isGuest && !profile.emailVerified && (
                             <Link to="/verify-email" className={styles.verifyBanner}>
                                 <MdWarning /> Verify your email
                             </Link>

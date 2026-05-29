@@ -29,6 +29,7 @@ function createAccessToken(user, req) {
             username: user.username,
             type: user.isAdmin ? "admin" : "user",
             isAdmin: user.isAdmin,
+            isGuest: user.isGuest,
             emailVerified: user.emailVerified,
             ipAddress: req.ip || null
         },
