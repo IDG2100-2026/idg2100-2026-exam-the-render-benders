@@ -25,6 +25,14 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     const phase = serverState?.phase;
     const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
 
+    // how many rolls the current player has used this round (from server state)
+    const myRoundResult = serverState?.results?.find(result =>
+        result.player?.toString() === user?._id &&
+        result.round === serverState?.currentRound
+    );
+    const rollsUsed = myRoundResult?.rollCount ?? 0;
+    const rollsLeft = 3 - rollsUsed;
+
     useEffect(() => { onStateUpdateRef.current = onStateUpdate; }, [onStateUpdate]);
 
     // fetch initial state via REST so the board shows immediately on reload
@@ -32,7 +40,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
         if (!gameId) return;
         apiFetch(`/games/${gameId}/state`)
             .then(data => setServerState(data))
-            .catch(() => {});
+            .catch(() => { });
     }, [gameId]);
 
     // connect to Socket.IO, join the game room and listen for state updates
@@ -117,7 +125,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
                 apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(err => {
                     // retry once if server clock is slightly behind the client
                     if (err.message?.includes("not expired")) {
-                        setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {}), TIMEOUT_RETRY_MS);
+                        setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_RETRY_MS);
                     }
                 });
             }
@@ -134,9 +142,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     async function handleRoll() {
         setActionError(null);
         try {
-            const state = await apiFetch(`/games/${gameId}/roll`, { method: "POST" });
-            setServerState(state);
-            onStateUpdateRef.current?.(state);
+            await apiFetch(`/games/${gameId}/roll`, {
+                method: "POST",
+                body: JSON.stringify({ heldIndexes: [...heldDice] })
+            });
         } catch (err) {
             setActionError(err.message);
         }
@@ -175,14 +184,20 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
 
             {actionError && <p className={styles.error}>{actionError}</p>}
 
-            {isPlayer && isMyTurn && phase === "rolling" && (
-                <button className={styles.rollBtn} onClick={handleRoll}>Roll Dice</button>
+            {isPlayer && isMyTurn && phase === "rolling" && rollsLeft > 0 && (
+                <button className={styles.rollBtn} onClick={handleRoll}>
+                    {rollsUsed === 0 ? "Roll Dice" : `Reroll (${rollsLeft} left)`}
+                </button>
             )}
 
             {isPlayer && isMyTurn && phase === "betting" && (
                 <div className={styles.betControls}>
                     <button onClick={() => handleBet("fold")}>Fold</button>
-                    <button onClick={() => handleBet("match")}>Match</button>
+                    {serverState?.bettingState?.currentBet === 0 ? (
+                        <button onClick={() => handleBet("check")}>Check</button>
+                    ) : (
+                        <button onClick={() => handleBet("match")}>Match</button>
+                    )}
                     <div className={styles.betInput}>
                         <input
                             type="number"
@@ -191,8 +206,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
                             value={betAmount}
                             onChange={e => setBetAmount(Number(e.target.value))}
                         />
-                        <button onClick={() => handleBet("bet")}>Bet</button>
-                        <button onClick={() => handleBet("raise")}>Raise</button>
+                        <button onClick={() => handleBet(
+                            serverState?.bettingState?.currentBet === 0 ? "bet" : "raise"
+                        )}>Bet</button>
                     </div>
                 </div>
             )}

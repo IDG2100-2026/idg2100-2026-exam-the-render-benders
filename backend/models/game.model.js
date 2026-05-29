@@ -172,6 +172,9 @@ const gameSchema = new mongoose.Schema({
         // Which dice the player is holding between rerolls
         holds: [{ type: Boolean }],
 
+        // How many times this player has rolled this round (max 3: 1 auto + 2 rerolls)
+        rollCount: { type: Number, default: 0 },
+
         bets: [{
             user: {
                 type: mongoose.Schema.Types.ObjectId,

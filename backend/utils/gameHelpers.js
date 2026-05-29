@@ -8,7 +8,7 @@ export function rollsArePublic(game) {
 }
 
 // Roll 1
-function rollDie() {
+export function rollDie() {
     const index = Math.floor(Math.random() * DICE_FACES.length);
     return DICE_FACES[index];
 }
