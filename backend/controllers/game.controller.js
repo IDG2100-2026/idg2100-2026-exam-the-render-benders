@@ -52,7 +52,7 @@ export async function getGameState(req, res) {
     try {
         const game = await gameService.getGame(req.params.gid);
         if (!game) return res.status(404).json({ error: "Game not found" });
-        res.status(200).json(game);
+        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

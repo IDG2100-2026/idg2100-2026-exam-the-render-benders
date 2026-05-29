@@ -90,7 +90,7 @@ export const validateBet = [
 
     body("amount")
         .optional()
-        .isInt({ min: 0 })
+        .isInt({ min: 1 })
         .toInt()
         .withMessage("Amount must be a positive integer")
 ];
