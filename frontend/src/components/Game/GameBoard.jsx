@@ -25,6 +25,14 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     const phase = serverState?.phase;
     const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
 
+    // how many rolls the current player has used this round (from server state)
+    const myRoundResult = serverState?.results?.find(result =>
+        result.player?.toString() === user?._id &&
+        result.round === serverState?.currentRound
+    );
+    const rollsUsed = myRoundResult?.rollCount ?? 0;
+    const rollsLeft = 3 - rollsUsed;
+
     useEffect(() => { onStateUpdateRef.current = onStateUpdate; }, [onStateUpdate]);
 
     // fetch initial state via REST so the board shows immediately on reload
@@ -134,9 +142,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     async function handleRoll() {
         setActionError(null);
         try {
-            const state = await apiFetch(`/games/${gameId}/roll`, { method: "POST" });
-            setServerState(state);
-            onStateUpdateRef.current?.(state);
+            await apiFetch(`/games/${gameId}/roll`, {
+                method: "POST",
+                body: JSON.stringify({ heldIndexes: [...heldDice] })
+            });
         } catch (err) {
             setActionError(err.message);
         }
@@ -175,8 +184,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
 
             {actionError && <p className={styles.error}>{actionError}</p>}
 
-            {isPlayer && isMyTurn && phase === "rolling" && (
-                <button className={styles.rollBtn} onClick={handleRoll}>Roll Dice</button>
+            {isPlayer && isMyTurn && phase === "rolling" && rollsLeft > 0 && (
+                <button className={styles.rollBtn} onClick={handleRoll}>
+                    {rollsUsed === 0 ? "Roll Dice" : `Reroll (${rollsLeft} left)`}
+                </button>
             )}
 
             {isPlayer && isMyTurn && phase === "betting" && (

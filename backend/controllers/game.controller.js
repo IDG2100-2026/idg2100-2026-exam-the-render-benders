@@ -117,7 +117,7 @@ export async function updateGame(req, res) {
 
 export async function rollForPlayer(req, res) {
     try {
-        const game = await gameService.rollForPlayer(req.params.gid, req.user.id);
+        const game = await gameService.rollForPlayer(req.params.gid, req.user.id, req.body.heldIndexes ?? []);
         if (!game) return res.status(404).json({ error: "Game not found" });
 
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));

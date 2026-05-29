@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { getIO } from "../socket/game.socket.js";
 import {
     rollDice,
+    rollDie,
     idsEqual,
     getActivePlayerIds,
     moveToNextActivePlayer,
@@ -366,7 +367,7 @@ function enterBettingPhase(game, activePlayers) {
     startTurnTimer(game, activePlayers[0]);
 }
 
-export async function rollForPlayer(gid, playerId) {
+export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     const game = await Game.findById(gid);
     if (!game) return null;
 
@@ -389,40 +390,58 @@ export async function rollForPlayer(gid, playerId) {
     // Temp fix for logic duplicate roll prevention
     const round = game.currentRound || 1;
 
-    const alreadyRolledThisRound = game.results.some(result =>
+    const existingResult = game.results.find(result =>
         result.player?.toString() === playerId.toString() &&
         result.round === round
     );
 
-    if (alreadyRolledThisRound) {
-        throw new Error("You have already rolled this turn");
+    // max 3 rolls per turn: 1 automatic + 2 rerolls
+    if (existingResult && existingResult.rollCount >= 3) {
+        throw new Error("You have used all your rolls this turn");
     }
 
-    const rolls = rollDice();
-
-    game.results.push({
-        player: playerId,
-        round,
-        hiddenRolls: rolls,
-        revealedRolls: [],
-        rolls,
-        holds: [false, false, false, false, false],
-        timestamps: {
-            startedAt: new Date()
-        }
-    });
+    if (existingResult) {
+        // reroll - keep held dice, re-roll the rest
+        existingResult.hiddenRolls = existingResult.hiddenRolls.map((val, i) =>
+            heldIndexes.includes(i) ? val : rollDie()
+        );
+        existingResult.holds = existingResult.hiddenRolls.map((_, i) => heldIndexes.includes(i));
+        existingResult.rollCount += 1;
+    } else {
+        // first roll - generate all 5 dice automatically
+        const rolls = rollDice();
+        game.results.push({
+            player: playerId,
+            round,
+            hiddenRolls: rolls,
+            revealedRolls: [],
+            rolls,
+            holds: [false, false, false, false, false],
+            rollCount: 1,
+            timestamps: { startedAt: new Date() }
+        });
+    }
 
     const activePlayers = getActivePlayerIds(game);
 
-    const everyoneRolled = activePlayers.every(activePlayerId =>
-        game.results.some(result => idsEqual(result.player, activePlayerId) && result.round === round)
+    // find the updated result to check rollCount after the roll above
+    const currentResult = game.results.find(r =>
+        r.player?.toString() === playerId.toString() && r.round === round
     );
 
-    if (everyoneRolled) {
+    // move to betting only when all active players have used all 3 rolls
+    const everyoneFinished = activePlayers.every(activePlayerId => {
+        const r = game.results.find(res => idsEqual(res.player, activePlayerId) && res.round === round);
+        return r && r.rollCount >= 3;
+    });
+
+    if (everyoneFinished) {
         enterBettingPhase(game, activePlayers);
-    } else {
+    } else if (currentResult.rollCount >= 3) {
+        // used all 3 rolls, move to next player's turn
         moveToNextActivePlayer(game);
     }
+    // if rolls remain, stay on current player so they can reroll
 
     await game.save();
     await emitPersonalizedState(gid, game);
