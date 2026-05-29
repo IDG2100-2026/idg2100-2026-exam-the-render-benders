@@ -194,6 +194,7 @@ function buildGameState(game, requestingUserId) {
         players: game.players, 
         currentTurn: game.currentTurn ?? null,
         pot: game.pot,
+        buyIn: game.buyIn,
         playerStacks: game.playerStacks,
         bettingState: game.bettingState ?? null,
         foldedUsers: game.foldedUsers ?? [],
