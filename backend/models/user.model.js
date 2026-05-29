@@ -42,7 +42,6 @@ const userSchema = new mongoose.Schema({
         required: function () { return !this.isGuest; },
         trim: true,
         lowercase: true,
-        sparse: true,
         match: [/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, "{VALUE} is not a valid email address"]
     },
     emailVerified: {
@@ -148,6 +147,18 @@ const userSchema = new mongoose.Schema({
         lobbyCount: { type: Number, default: DEFAULT_LOBBY_COUNT }
     }
 }, { timestamps: true });
+
+// Emails must be unique, but only documents with real string emails are included
+// Guests without email are ignored
+userSchema.index(
+    { email: 1 },
+    {
+        unique: true,
+        partialFilterExpression: {
+            email: { $type: "string" }
+        }
+    }
+);
 
 // Create and export the User model based on the schema
 export const User = mongoose.model("User", userSchema);
