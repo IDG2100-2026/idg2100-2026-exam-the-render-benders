@@ -71,6 +71,9 @@ export const DICE_FACES = ["7", "8", "J", "Q", "K", "A"];
 // Max dice
 export const DICE_COUNT = 5;
 
+// Max rolls per turn: 1 automatic + 2 optional rerolls
+export const MAX_ROLLS_PER_TURN = 3;
+
 // Round
 export const DEFAULT_ROUND = 1;
 export const MIN_ROUND = 1;

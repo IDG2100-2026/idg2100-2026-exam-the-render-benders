@@ -15,6 +15,9 @@ export const MAX_ELO = 3000;
 export const LOBBY_POLL_MS = 10000;
 export const TIMEOUT_RETRY_MS = 800;
 
+// Max rolls per turn: 1 automatic + 2 optional rerolls
+export const MAX_ROLLS_PER_TURN = 3;
+
 // User
 export const MIN_AGE = 18;
 export const MAX_AGE = 100;

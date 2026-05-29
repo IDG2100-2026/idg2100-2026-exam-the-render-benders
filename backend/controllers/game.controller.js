@@ -124,7 +124,7 @@ export async function rollForPlayer(req, res) {
     } catch(err) {
         const status = err.message.includes("not a player") ? 403
         : err.message.includes("not your turn") ? 403
-        : err.message.includes("already rolled") ? 400
+        : err.message.includes("used all your rolls") ? 400
         : err.message.includes("not currently rolling") ? 400
         : 500;
 
@@ -165,7 +165,7 @@ export async function handleTimeout(req, res) {
             : err.message.includes("cannot time out") ? 400
             : 500;
 
-        res.status(status).json(({ error: err.message }));
+        res.status(status).json({ error: err.message });
     }
 }
 

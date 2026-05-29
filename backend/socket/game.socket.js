@@ -203,16 +203,17 @@ function buildGameState(game, requestingUserId) {
         results: (game.results ?? []).map(round => ({
             player: round.player,
             round: round.round,
+            rollCount: round.rollCount,
             holds: round.holds,
             bets: round.bets,
-            outcome: round.outcome, 
+            outcome: round.outcome,
             timestamps: round.timestamps,
             // showing the revealed rolls to everyone, only showing hidden rolls to the owning player
             revealedRolls: round.revealedRolls,
             hiddenRolls: rollsPublic || round.player?.toString() === requestingUserId
-                ? round.hiddenRolls 
+                ? round.hiddenRolls
                 : []
-        })), 
+        })),
         result: game.result ?? null
     };
 }

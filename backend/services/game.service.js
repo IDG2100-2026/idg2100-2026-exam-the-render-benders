@@ -19,7 +19,7 @@ import {
     startTurnTimer
 } from "../utils/gameHelpers.js";
 import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
-import { ROUND_END_DELAY_MS } from "../config/constants.js";
+import { ROUND_END_DELAY_MS, MAX_ROLLS_PER_TURN } from "../config/constants.js";
 
 async function emitPersonalizedState(gid, game) {
     const io = getIO();
@@ -395,8 +395,8 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
         result.round === round
     );
 
-    // max 3 rolls per turn: 1 automatic + 2 rerolls
-    if (existingResult && existingResult.rollCount >= 3) {
+    // max rolls per turn: 1 automatic + 2 rerolls
+    if (existingResult && existingResult.rollCount >= MAX_ROLLS_PER_TURN) {
         throw new Error("You have used all your rolls this turn");
     }
 
@@ -429,15 +429,15 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
         r.player?.toString() === playerId.toString() && r.round === round
     );
 
-    // move to betting only when all active players have used all 3 rolls
+    // move to betting only when all active players have used all their rolls
     const everyoneFinished = activePlayers.every(activePlayerId => {
         const r = game.results.find(res => idsEqual(res.player, activePlayerId) && res.round === round);
-        return r && r.rollCount >= 3;
+        return r && r.rollCount >= MAX_ROLLS_PER_TURN;
     });
 
     if (everyoneFinished) {
         enterBettingPhase(game, activePlayers);
-    } else if (currentResult.rollCount >= 3) {
+    } else if (currentResult.rollCount >= MAX_ROLLS_PER_TURN) {
         // used all 3 rolls, move to next player's turn
         moveToNextActivePlayer(game);
     }
@@ -489,7 +489,7 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
         pushBetLog(game, playerId, "fold", 0);
     } else if (action === "check") {
         if (currentBet > 0) {
-            throw new Error("Cannot check when there is an active bet, use match, raise, or fold");
+            throw new Error("Cannot check when there is an active bet, use match or fold");
         }
         if (!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
             game.bettingState.actedUsers.push(playerId);
@@ -539,7 +539,7 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             }
             pushBetLog(game, playerId, "match", amountNeededToMatch);
         }
-        // Probs delete this since raise is removed in the frontend
+        // raise is sent by the frontend Bet button when currentBet > 0
     } else if (action === "raise") {
         if (amount <= amountNeededToMatch) {
             throw new Error("Raise must be greater than the amount needed to match");
@@ -645,6 +645,7 @@ export async function handleTimeout(gid) {
                 revealedRolls: [],
                 rolls,
                 holds: [false, false, false, false, false],
+                rollCount: MAX_ROLLS_PER_TURN,
                 bets: [{
                     user: timedOutPlayerId,
                     action: "timeout",
