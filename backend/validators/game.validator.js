@@ -85,8 +85,8 @@ export function handleValidationErrors(req, res, next) {
 
 export const validateBet = [
     body("action")
-        .isIn(["bet", "match", "raise", "fold"])
-        .withMessage("Action must be bet, match, raise or fold"),
+        .isIn(["bet", "match", "raise", "fold", "check"])
+        .withMessage("Action must be bet, match, raise, fold or check"),
 
     body("amount")
         .optional()

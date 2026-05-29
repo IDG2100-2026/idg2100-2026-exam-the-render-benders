@@ -59,7 +59,7 @@ export const GAME_STATUSES = ["waiting", "ongoing", "finished"];
 export const GAME_PHASES = ["waiting", "rolling", "betting", "revealing", "round-ended", "finished"];
 
 // Bet actions
-export const BET_ACTIONS = ["bet", "match", "raise", "fold", "timeout"];
+export const BET_ACTIONS = ["bet", "match", "raise", "fold", "check", "timeout"];
 
 // Default / Minimum Bet value
 export const DEFAULT_BET = 0;

@@ -450,6 +450,14 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             game.foldedUsers.push(playerId);
         }
         pushBetLog(game, playerId, "fold", 0);
+    } else if (action === "check") {
+        if (currentBet > 0) {
+            throw new Error("Cannot check when there is an active bet, use match, raise, or fold");
+        }
+        if (!game.bettingState.actedUsers.some(id => idsEqual(id, playerId))) {
+            game.bettingState.actedUsers.push(playerId);
+        }
+        pushBetLog(game, playerId, "check", 0);
     } else if (action === "bet") {
         if (currentBet > 0) {
             throw new Error("Cannot bet because a bet already exists; use raise or match");
