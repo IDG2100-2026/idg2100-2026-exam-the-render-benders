@@ -156,7 +156,7 @@ export default function Comments({ gameId, tournamentId }) {
                         placeholder="Write a comment..."
                         maxLength={MAX_COMMENT_LENGTH}
                     />
-                    <button type="submit">Post</button>
+                    <button type="submit" disabled={!newComment.trim()} >Post</button>
                 </form>
             ) : (
                 <div className={styles.loginHint}>
