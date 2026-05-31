@@ -17,6 +17,7 @@ import AppearanceProvider from "@/providers/AppearanceProvider";
 import NotFoundPage from "@/pages/NotFoundPage/NotFoundPage";
 import EmailVerificationPage from "@/pages/EmailVerificationPage/EmailVerificationPage";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import TournamentListPage from "@/pages/TournamentListPage/TournamentListPage";
 import "./App.css";
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/tournaments" element={<TournamentListPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/create-game" element={<CreateGamePage />} />
