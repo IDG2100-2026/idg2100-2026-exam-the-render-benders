@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { TIMEOUT_RETRY_MS, MAX_ROLLS_PER_TURN } from "@/config/constants";
+import { TIMEOUT_RETRY_MS } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -31,7 +31,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
         result.round === serverState?.currentRound
     );
     const rollsUsed = myRoundResult?.rollCount ?? 0;
-    const rollsLeft = MAX_ROLLS_PER_TURN - rollsUsed;
 
     useEffect(() => { onStateUpdateRef.current = onStateUpdate; }, [onStateUpdate]);
 
@@ -187,9 +186,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
 
             {actionError && <p className={styles.error}>{actionError}</p>}
 
-            {isPlayer && isMyTurn && phase === "rolling" && rollsLeft > 0 && (
+            {isPlayer && isMyTurn && phase === "rolling" && (
                 <button className={styles.rollBtn} onClick={handleRoll}>
-                    {rollsUsed === 0 ? "Roll Dice" : `Reroll (${rollsLeft} left)`}
+                    {rollsUsed === 0 ? "Roll Dice" : "Reroll"}
                 </button>
             )}
 
