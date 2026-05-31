@@ -4,6 +4,28 @@ import { hashPwd } from "../utils/hash.js";
 import { MIN_AGE, MAX_AGE, DEFAULT_ELO } from "../config/constants.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
+function isOwnerOrAdmin(user, viewer) {
+    if (!viewer?.id) return false;
+    return viewer.type === "admin" || user._id.toString() === viewer.id;
+}
+
+function sanitizeProfile(user, viewer) {
+    const userObject = typeof user.toObject === "function" ? user.toObject() : user;
+    const {
+        pwd,
+        sessions,
+        email,
+        dateOfBirth,
+        ...safeUser
+    } = userObject;
+
+    if (isOwnerOrAdmin(userObject, viewer)) {
+        safeUser.email = email;
+    }
+
+    return safeUser;
+}
+
 // Returns all users from the database, supports pagination and search by username
 export async function getAllUsers({ skip = 0, limit = 20, search } = {}) {
     const filter = search ? { username: { $regex: escapeRegex(search), $options: "i" } } : {};
@@ -11,15 +33,16 @@ export async function getAllUsers({ skip = 0, limit = 20, search } = {}) {
 }
 
 // Get a single user by their username, includes their 10 most recent games and stats
-export async function getUser(username) {
-    const user = await User.findOne({ username });
+export async function getUser(username, viewer = null) {
+    const user = await User.findOne({ username }).populate("trophies");
     if (!user) return null;
 
     // Fetch recent games and populate player usernames
     const recentGames = await Game.find({ players: user._id })
-        .sort({ _id: -1 })
+        .sort({ updatedAt: -1 })
         .limit(10)
-        .populate("players", "username");
+        .populate("players", "username profileImage elo elo10s elo30s elo90s")
+        .populate("result.winner", "username");
 
     // Calculate stats for the last month (30 days)
     const thirtyDaysAgo = new Date();
@@ -37,15 +60,17 @@ export async function getUser(username) {
     let monthlyWins = 0;
     let monthlyLosses = 0;
 
-    monthlyGames.forEach(game => {
+    for (const game of monthlyGames) {
+        const winnerId = game.result?.winner?.toString();
+
         // Compare the winner's ID with this specific user's ID to see if they won or lost
-        if (game.result?.winner?.toString() === user._id.toString()) {
+        if (winnerId === user._id.toString()) {
             monthlyWins++;
-        } else if (game.result?.winner) {
-            // If there's a winner but it's not our user, it counts as a loss
+        // If there's a winner but it's not our user, it counts as a loss
+        } else if (winnerId) {
             monthlyLosses++;
         }
-    });
+    }
 
     // Calculate ELO change over the last 7 days using eloHistory
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -53,13 +78,55 @@ export async function getUser(username) {
     // Difference between current ELO and the oldest recorded ELO within the last week
     const eloChangeLastWeek = weekHistory.length > 0 ? user.elo - weekHistory[0].elo : 0;
 
-    const { pwd, ...safeUser } = user.toObject(); // pwd is excluded from the spread intentionally
     return {
-        ...safeUser,
+        ...sanitizeProfile(user, viewer),
+        points: user.points,
+        stats: {
+            elo: user.elo,
+            elo10s: user.elo10s,
+            elo30s: user.elo30s,
+            elo90s: user.elo90s,
+            gamesPlayed: user.gamesPlayed,
+            wins: user.wins,
+            losses: Math.max(0, user.gamesPlayed - user.wins),
+            monthlyWins,
+            monthlyLosses,
+            eloChangeLastWeek
+        },
         recentGames,
         eloChangeLastWeek,
         monthlyWins,
         monthlyLosses
+    };
+}
+
+export async function getUserGames(username, { skip = 0, limit = 10, status } = {}) {
+    const user = await User.findOne({ username }).select("_id username");
+    if (!user) return null;
+
+    const filter = { players: user._id };
+
+    if (status) {
+        filter.status = status;
+    }
+
+    const [games, total] = await Promise.all([
+        Game.find(filter)
+            .sort({ updatedAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate("players", "username profileImage elo elo10s elo30s elo90s")
+            .populate("result.winner", "username"),
+        
+        Game.countDocuments(filter)
+    ]);
+
+    return {
+        games,
+        total,
+        skip,
+        limit,
+        hasMore: skip + games.length < total
     };
 }
 
@@ -147,5 +214,6 @@ export default {
     getLeaderboard,
     loginUser,
     updatePreferences,
-    getUserTrophies
+    getUserTrophies,
+    getUserGames
 };
