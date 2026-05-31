@@ -10,7 +10,8 @@ const userRouter = express.Router();
 // Assigning handlers to routes
 // Gets all users
 userRouter.get("/users", userController.getAllUsers);
-
+// Gets a single users games
+userRouter.get("/users/:username/games", userController.getUserGames);
 // Gets a single user by username
 userRouter.get("/users/:username", userController.getUser);
 
