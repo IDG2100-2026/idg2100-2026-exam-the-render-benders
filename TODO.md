@@ -192,10 +192,10 @@ Useful reference code in `projects/`:
 ## Priority 6 - Profile, Stats, And User Game History
 
 ### Part 6A - Backend Profile Data `[Sebbegang]`
-- [ ] Add points to profile response
-- [ ] Profile stats: Elo for 10s/30s/90s, total games, last-month wins/losses
-- [ ] Paginated recent/all games endpoint per user
-- [ ] Email only returned to owner or admin
+- [x] Add points to profile response
+- [x] Profile stats: Elo for 10s/30s/90s, total games, last-month wins/losses
+- [x] Paginated recent/all games endpoint per user
+- [x] Email only returned to owner or admin
 
 ### Part 6B - Frontend Profile UI `[Tobbelobb]`
 - [x] ELO labels fixed: Blitz 10s / Rapid 30s / Classic 90s with correct field names
