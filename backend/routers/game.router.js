@@ -1,7 +1,7 @@
 import express from "express";
 import gameController from "../controllers/game.controller.js";
 import commentController from "../controllers/comment.controller.js";
-import { validateCreateGame, validateUpdateGame, validateJoinGame, handleValidationErrors, validateBet } from "../validators/game.validator.js";
+import { validateCreateGame, validateUpdateGame, validateJoinGame, handleValidationErrors, validateBet, validateRoll } from "../validators/game.validator.js";
 import { requireUser, requireNotBanned, requireEmailVerified } from "../middleware/auth.middleware.js";
 
 // Game router, handles all /games endpoints
@@ -39,7 +39,7 @@ gameRouter.post("/games/:gid/bets", requireUser, requireNotBanned, requireEmailV
 gameRouter.post("/games/:gid/timeout", requireUser, gameController.handleTimeout);
 
 // POST /games/:gid/roll - backend generates dice for the logged in player
-gameRouter.post("/games/:gid/roll", requireUser, gameController.rollForPlayer);
+gameRouter.post("/games/:gid/roll", requireUser, validateRoll, handleValidationErrors, gameController.rollForPlayer);
 
 // Gets all comments for a specific game
 gameRouter.get("/games/:gid/comments", commentController.getCommentsByGame);
