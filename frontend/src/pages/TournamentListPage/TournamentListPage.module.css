@@ -1,0 +1,106 @@
+.page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+}
+
+.searchInput {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    flex: 1;
+    min-width: 180px;
+}
+
+.sortGroup {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.sortBtn, .sortActive {
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.sortActive {
+    background: var(--accent, #4f46e5);
+    color: #fff;
+    border-color: transparent;
+}
+
+.section {
+    margin-bottom: 2rem;
+}
+
+.section h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+}
+
+.card:hover {
+    background: var(--surface-hover, rgba(0,0,0,0.04));
+}
+
+.cardTitle {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.cardMeta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    opacity: 0.7;
+}
+
+.status {
+    text-transform: capitalize;
+}
+
+.cardDate {
+    font-size: 0.8rem;
+    opacity: 0.5;
+}
+
+.error {
+    color: red;
+    margin-bottom: 1rem;
+}
+
+.empty {
+    opacity: 0.6;
+}
