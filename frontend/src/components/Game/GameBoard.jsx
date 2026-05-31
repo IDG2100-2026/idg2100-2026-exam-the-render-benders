@@ -60,6 +60,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
                 roundRef.current = state.currentRound;
                 setHeldDice(new Set());
             }
+            if (state.phase === "betting") {
+                setBetAmount(1);
+            }
             setServerState(state);
             setActionError(null);
             onStateUpdateRef.current?.(state);
@@ -204,7 +207,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
                             min={1}
                             max={serverState?.buyIn}
                             value={betAmount}
-                            onChange={e => setBetAmount(Number(e.target.value))}
+                            onChange={e => setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(e.target.value))))}
                         />
                         <button onClick={() => handleBet(
                             serverState?.bettingState?.currentBet === 0 ? "bet" : "raise"
