@@ -9,7 +9,7 @@ import styles from "./GameBoard.module.css";
 // Socket.IO lives on the backend root, not under /api/v1
 const SOCKET_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
 
-export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
+export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDeleted }) {
     const boardRef = useRef(null);
     const onStateUpdateRef = useRef(onStateUpdate);
     const { user } = useAuth();
@@ -53,6 +53,8 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
 
         // server sends a personalised state: current player sees their own hidden rolls,
         // other players' hidden rolls are stripped out
+        socket.on("game-deleted", () => onGameDeleted?.());
+
         socket.on("game-state", (state) => {
             // clear held dice when the server pushes a new round
             if (roundRef.current !== state.currentRound) {
