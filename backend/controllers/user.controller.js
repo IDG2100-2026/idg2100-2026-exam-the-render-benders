@@ -16,9 +16,30 @@ export async function getAllUsers(req, res) {
 // Get a user from DB and return the user as JSON
 export async function getUser(req, res) {
     try {
-        const user = await userService.getUser(req.params.username);
+        const user = await userService.getUser(req.params.username, req.user);
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+// Get user games
+export async function getUserGames(req, res) {
+    try {
+        const skip = parseInt(req.query.skip) || 0;
+        const limit = parseInt(req.query.limit) || 10;
+        const status = req.query.status || undefined;
+
+        const result = await userService.getUserGames(req.params.username, {
+            skip,
+            limit,
+            status
+        });
+
+        if (!result) return res.status(404).json({ error: "User not found" });
+
+        res.status(200).json(result);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -112,5 +133,6 @@ export default {
     getLeaderboard,
     loginUser,
     updatePreferences,
-    getUserTrophies
+    getUserTrophies,
+    getUserGames
 };
