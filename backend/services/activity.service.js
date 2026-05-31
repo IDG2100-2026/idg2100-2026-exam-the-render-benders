@@ -4,20 +4,29 @@ import { Game } from "../models/game.model.js";
 export async function getActivity() {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    const [ongoingGames, waitingGames, recentGames, activeGames] = await Promise.all([
-        // Exclude anonymous games from all activity stats
-        Game.countDocuments({ status: "ongoing", isAnonymous: { $ne: true } }),
-        Game.countDocuments({ status: "waiting", isAnonymous: { $ne: true } }),
-        Game.find({ isAnonymous: { $ne: true } }).sort({ _id: -1 }).limit(10),
-        // Find non-anonymous games created in the last week to count distinct active players
-        Game.find({ createdAt: { $gte: oneWeekAgo }, isAnonymous: { $ne: true } }, { players: 1 })
+    const nonAnonymousGameFilter = { isAnonymous: { $ne: true }};
+
+    const [ongoingGames, waitingGames, availableGamesNow, gamesPlayedLastWeek, activePlayerIds, recentGames] = await Promise.all([
+        Game.countDocuments({ ...nonAnonymousGameFilter, status: "ongoing" }),
+        Game.countDocuments({ ...nonAnonymousGameFilter, status: "waiting" }),
+        Game.countDocuments({ ...nonAnonymousGameFilter, status: "waiting", $expr: { $lt: [{ $size: "$players" }, "$numPlayers"] }}),
+        Game.countDocuments({ ...nonAnonymousGameFilter, status: "finished", updatedAt: { $gte: oneWeekAgo }}),
+        
+        Game.distinct("players", { ...nonAnonymousGameFilter, updatedAt: { $gte: oneWeekAgo }, status: { $in: ["ongoing", "finished"] }}),
+
+        Game.find(nonAnonymousGameFilter).sort({ updatedAt: -1 }).limit(10)
     ]);
 
-    // Count unique players who have played a game this week
-    const activePlayerIds = new Set(activeGames.flatMap(g => g.players.map(p => p.toString())));
-    const activeUsersThisWeek = activePlayerIds.size;
-
-    return { ongoingGames, waitingGames, activeUsersThisWeek, recentGames };
+    return {
+        activePlayers: activePlayerIds.length,
+        gamesPlayedLastWeek,
+        availableGamesNow,
+        // Keeping old field names (So frontend don't break)
+        ongoingGames,
+        waitingGames,
+        activeUsersThisWeek: activePlayerIds.length,
+        recentGames
+    };
 }
 
 export default { getActivity };

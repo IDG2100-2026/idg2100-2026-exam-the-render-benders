@@ -11,6 +11,16 @@ export async function getAllTournaments({ skip = 0, limit = 20, filter = {} } = 
         .limit(limit);
 }
 
+// Returns a small homepage-friendly list of upcoming tournaments
+export async function getUpcomingTournaments(limit = 5) {
+    return await Tournament.find({ status: "upcoming" })
+        .populate("players", "username elo")
+        .populate("gameCategory", "name numOfRounds")
+        .populate("trophy", "title image")
+        .sort({ startDate: 1, createdAt: -1 })
+        .limit(limit);
+}
+
 // Gets a single Tournament by the id with full population
 export async function getTournament(tid) {
     return await Tournament.findById(tid)
@@ -147,5 +157,6 @@ export default {
     leaveTournament,
     getTournamentStandings,
     deleteTournament,
-    startTournament
+    startTournament,
+    getUpcomingTournaments
 };
