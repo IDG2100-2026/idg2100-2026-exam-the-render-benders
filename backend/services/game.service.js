@@ -234,8 +234,32 @@ export async function leaveGame(gid, playerId) {
     }
 
     // ongoing - forfeit to the other player
-    const opponent = game.players.find(p => p.toString() !== playerId.toString());
-    return await updateGame(gid, { status: "finished", result: { winner: opponent } });
+    const remainingPlayers = game.players.filter(p => !idsEqual(p, playerId));
+
+    if (remainingPlayers.length === 0) {
+        return await updateGame(gid, {
+            status: "finished",
+            result: { scores: [] }
+        });
+    }
+
+    const forfeitScores = game.players.map(player => ({
+        player,
+        score: remainingPlayers.some(remainingPlayer => idsEqual(remainingPlayer, player)) ? 1 : 0
+    }));
+
+    const result = {
+        scores: forfeitScores
+    };
+
+    if (remainingPlayers.length === 1) {
+        result.winner = remainingPlayers[0];
+    }
+
+    return await updateGame(gid, {
+        status: "finished",
+        result
+    });
 }
 
 // Updates a game by ID (gid), then returns the updated document
@@ -255,11 +279,12 @@ export async function updateGame(gid, data) {
         }
 
         const oldGameWithStacks = oldGame;
-
-        updateData.result.scores = oldGameWithStacks.playerStacks.map(entry => ({
-            player: entry.user,
-            score: entry.stack
-        }));
+        if (!updateData.result.scores) {
+            updateData.result.scores = oldGameWithStacks.playerStacks.map(entry => ({
+                player: entry.user,
+                score: entry.stack
+            }));
+        }
 
         if(!updateData.result.winner && updateData.result.scores.length > 0) {
             const topScore = Math.max(...updateData.result.scores.map(score => score.score));
@@ -581,6 +606,12 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             game.results.push({
                 player: activePlayers[0],
                 round: game.currentRound,
+                hiddenRolls: [],
+                revealedRolls: [],
+                rolls: [],
+                holds: [false, false, false, false, false],
+                rollCount: 0,
+                bets: [],
                 outcome: activePlayers[0],
                 timestamps: {
                     startedAt: new Date(),
