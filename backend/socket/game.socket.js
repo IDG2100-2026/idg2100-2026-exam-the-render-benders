@@ -78,22 +78,6 @@ export function initializeGameSocket(httpServer) {
             }
         });
 
-        // player holds their dice
-        socket.on("hold-dice", async ({ gid, heldDiceIndexes }) => {
-            try {
-                const game = await Game.findById(gid);
-                if (!game) return socket.emit("error", { message: "Game not found" });
-
-                // sending personalized state to each socket in the room, hiding other players' dice
-                const sockets = await io.in(gid).fetchSockets();
-                for (const s of sockets) {
-                    s.emit("game-state", buildGameState(game, s.user?.id));
-                }
-            } catch (error) {
-                socket.emit("error", { message: error.message });
-            }
-        });
-
         // player places a bet
         socket.on("bet", async ({ gid, amount }) => {
             if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
