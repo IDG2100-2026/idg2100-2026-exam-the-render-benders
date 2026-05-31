@@ -144,10 +144,13 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate }) {
     async function handleRoll() {
         setActionError(null);
         try {
-            await apiFetch(`/games/${gameId}/roll`, {
+            const state = await apiFetch(`/games/${gameId}/roll`, {
                 method: "POST",
                 body: JSON.stringify({ heldIndexes: [...heldDice] })
             });
+
+            setServerState(state);
+            onStateUpdateRef.current?.(state);
         } catch (err) {
             setActionError(err.message);
         }

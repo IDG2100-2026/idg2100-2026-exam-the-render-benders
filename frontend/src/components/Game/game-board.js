@@ -23,13 +23,20 @@ class GameBoard extends HTMLElement {
 
     connectedCallback() {
         // catch die clicks from any of the 5 dice with one listener
-        this.shadowRoot.addEventListener("die-click", (event) => {
+        this.shadowRoot.addEventListener("click", (event) => {
             // spectators can see the dice but cannot interact with them
             if (this.hasAttribute("spectator")) return;
-            const index = Number(event.target.getAttribute("index"));
+
+            const die = event.target.closest?.("game-die");
+            if (!die) return;
+
+            const index = Number(die.getAttribute("index"));
+            if (!Number.isInteger(index)) return;
+
             this.dispatchEvent(
                 new CustomEvent("hold-die", { detail: { index }, bubbles: true })
             );
+
         });
         this.render();
     }
