@@ -232,6 +232,13 @@ export default function UserProfilePage() {
                             <span className={styles.statLab}>This Month</span>
                         </div>
                     </div>
+                    <div className={styles.statCard}>
+                        <MdTrendingUp />
+                        <div className={styles.statInfo}>
+                            <span className={styles.statVal}>{profile.points ?? 0}</span>
+                            <span className={styles.statLab}>Points</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
