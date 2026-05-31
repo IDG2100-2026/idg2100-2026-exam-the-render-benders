@@ -90,11 +90,11 @@ function Section({ title, tournaments }) {
                         to={`/tournaments/${t._id}`}
                         className={styles.card}
                     >
-                        <div className={styles.cardTitle}>{t.title}</div>
+                        <div className={styles.cardTitle}>{t.name}</div>
                         <div className={styles.cardMeta}>
                             <span>{t.tournamentType}</span>
                             <span>{t.players?.length ?? 0} players</span>
-                            <span>{t.rounds?.length ?? 0} rounds</span>
+                            <span>{t.rounds?.length ?? 0} {t.rounds?.length === 1 ? "round" : "rounds"}</span>
                             <span className={styles.status}>{t.status}</span>
                         </div>
                         {t.startDate && (
