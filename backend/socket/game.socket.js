@@ -85,7 +85,7 @@ export function initializeGameSocket(httpServer) {
                 const game = await gameService.placeBet(gid, socket.user.id,{ action: "bet", amount});
                 if (!game) return socket.emit("error", { message: "Game not found" });
                 // emitting the updated state to everyone in the room
-                io.to(gid).emit("game-state", buildGameState(game, null));
+                await emitPersonalizedState(io, gid, game);
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -97,7 +97,7 @@ export function initializeGameSocket(httpServer) {
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "match" });
                 if (!game) return socket.emit("error", { message: "Game not found" });
-                io.to(gid).emit("game-state", buildGameState(game, null));
+                await emitPersonalizedState(io, gid, game);
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -109,7 +109,7 @@ export function initializeGameSocket(httpServer) {
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "raise", amount });
                 if (!game) return socket.emit("error", { message: "Game not found" });
-                io.to(gid).emit("game-state", buildGameState(game, null));
+                await emitPersonalizedState(io, gid, game);
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -121,7 +121,7 @@ export function initializeGameSocket(httpServer) {
             try {
                 const game = await gameService.placeBet(gid, socket.user.id, { action: "fold" });
                 if (!game) return socket.emit("error", { message: "Game not found" });
-                io.to(gid).emit("game-state", buildGameState(game, null));
+                await emitPersonalizedState(io, gid, game);
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -131,17 +131,16 @@ export function initializeGameSocket(httpServer) {
         socket.on("leave-before-start", async ({ gid }) => {
             if (!socket.user?.id) return socket.emit("error", { message: "Authentication required" });
             try {
-                const result = await gameService.leaveGame(gid, socket.user.id);
-                if (!result) return socket.emit("error", { message: "Game not found" });
+                const game = await gameService.leaveGame(gid, socket.user.id);
+                if (!game) return socket.emit("error", { message: "Game not found" });
 
                 // removing the socket from the room
                 socket.leave(gid);
 
                 // if the last player left, the game is deleted & notifying the room
-                if (result.deleted) return io.to(gid).emit("game-deleted", { gid });
+                if (game.deleted) return io.to(gid).emit("game-deleted", { gid });
 
-                // notifying remaining players in the room
-                io.to(gid).emit("game-state", buildGameState(result, null)); 
+                await emitPersonalizedState(io, gid, game);
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -201,3 +200,12 @@ function buildGameState(game, requestingUserId) {
         result: game.result ?? null
     };
 }
+
+
+async function emitPersonalizedState(io, gid, game) {
+    const sockets = await io.in(gid).fetchSockets();
+    for (const s of sockets) {
+        s.emit("game-state", buildGameState(game, s.user?.id));
+    }
+}
+
