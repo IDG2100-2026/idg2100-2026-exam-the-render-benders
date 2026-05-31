@@ -94,3 +94,20 @@ export const validateBet = [
         .toInt()
         .withMessage("Amount must be a positive integer")
 ];
+
+export const validateRoll = [
+    body("heldIndexes")
+        .optional()
+        .isArray({ max: 5 })
+        .withMessage("heldIndexes must be an array with up to 5 indexes")
+        .bail()
+        .custom((heldIndexes) => {
+            const allValidIndexes = heldIndexes.every(index =>
+                Number.isInteger(index) && index >= 0 && index <= 4
+            );
+
+            const hasNoDuplicates = new Set(heldIndexes).size === heldIndexes.length;
+            return allValidIndexes && hasNoDuplicates;
+        })
+        .withMessage("heldIndexes must contain unique integers from 0 to 4")
+];
