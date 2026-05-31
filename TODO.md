@@ -225,7 +225,7 @@ Useful reference code in `projects/`:
 - [x] Lobby preview and top games working
 
 ### Part 7C - UX/Responsive Polish `[Johchacho]`
-- [ ] Responsive layout across all pages
+- [x] Responsive layout across all pages (navbar breakpoint + About label fixed; other pages mostly fine but may need polish)
 - [x] Loading/error/empty states consistently
 - [ ] Stats understandable for anonymous users
 

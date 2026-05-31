@@ -46,7 +46,7 @@ export default function Header() {
                         </li>
                         <li>
                             <NavLink to="/about-spanish-dice">
-                                <FaBookOpen /> About Spanish Dice
+                                <FaBookOpen /> About
                             </NavLink>
                         </li>
                     </ul>
