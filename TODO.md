@@ -215,8 +215,8 @@ Useful reference code in `projects/`:
 ## Priority 7 - Homepage And Platform Activity
 
 ### Part 7A - Backend Activity Data `[Sebbegang]`
-- [ ] Expand `GET /activity`: active players, games played last week, available games now
-- [ ] Homepage-friendly endpoint for 5 upcoming tournaments
+- [x] Expand `GET /activity`: active players, games played last week, available games now
+- [x] Homepage-friendly endpoint for 5 upcoming tournaments
 
 ### Part 7B - Homepage Components `[Tobbelobb]`
 - [ ] Platform activity component
