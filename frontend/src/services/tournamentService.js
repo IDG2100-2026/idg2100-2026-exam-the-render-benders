@@ -42,7 +42,7 @@ export async function startTournament(tid) {
 
 // get upcoming tournaments for the homepage overview
 export async function getUpcomingTournaments(limit = 5) {
-    return await apiFetch(`/tournaments?status=upcoming&limit=${limit}`);
+    return await apiFetch(`/tournaments/upcoming?limit=${limit}`);
 }
 
 // get comments for a specific tournament
