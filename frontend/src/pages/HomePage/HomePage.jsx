@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router";
 import LobbySection from "./components/LobbySection/LobbySection";
 import TopGames from "./components/TopGames/TopGames";
+import PlatformActivity from "@/components/PlatformActivity/PlatformActivity";
+import TournamentPreview from "@/components/TournamentPreview/TournamentPreview";
 import styles from "./HomePage.module.css";
 
 export default function HomePage() {
@@ -18,6 +20,8 @@ export default function HomePage() {
                 </button>
             </section>
             <LobbySection />
+            <PlatformActivity />
+            <TournamentPreview />
             <TopGames />
         </div>
     );
