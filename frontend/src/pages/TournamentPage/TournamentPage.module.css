@@ -1,0 +1,89 @@
+.page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.status {
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    text-transform: capitalize;
+}
+
+.description {
+    margin: 1rem 0;
+    opacity: 0.8;
+}
+
+.meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.metaItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.metaLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.5;
+}
+
+.winner {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    background: var(--surface-hover, rgba(0,0,0,0.04));
+}
+
+.section {
+    margin-top: 2rem;
+}
+
+.section h2 {
+    margin-bottom: 0.75rem;
+}
+
+.playerList {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.playerList li {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.error {
+    color: red;
+}
+
+.msg {
+    opacity: 0.6;
+}
