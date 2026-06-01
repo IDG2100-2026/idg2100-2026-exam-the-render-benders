@@ -97,7 +97,7 @@ export default function GamePage() {
                         </div>
                     </div>
 
-                    <PlayersSection game={game} />
+                    <PlayersSection game={game} boardColor={preferences.boardColor} />
 
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>

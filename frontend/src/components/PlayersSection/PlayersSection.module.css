@@ -1,88 +1,74 @@
 .playersSection {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(var(--player-count, 2), minmax(0, 1fr));
+    align-items: stretch;
     padding: 1rem;
     background-color: var(--bg);
     border: 1px solid var(--border);
     border-radius: 12px;
-    gap: 1rem;
+    gap: 0.75rem;
 }
 
 .playerItem {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
-    flex: 1;
+    justify-content: center;
+    gap: 0.45rem;
     min-width: 0;
+    padding: 0.65rem 0.4rem;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+    text-align: center;
+}
+
+.currentUser {
+    background: var(--board-color, rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--accent);
+}
+
+.pNumber {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--text-h);
 }
 
 .pAvatar {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 2px solid var(--accent);
     object-fit: cover;
     background-color: var(--bg-secondary);
 }
 
-.pInfo {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-}
-
-.pLabel {
-    font-size: 0.6rem;
-    text-transform: uppercase;
-    font-weight: 800;
-    opacity: 0.5;
-    letter-spacing: 0.5px;
-}
-
-.pName {
-    font-size: 0.9rem;
-    font-weight: 800;
-    color: var(--text-h);
-    text-decoration: none !important;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
 
 .pElo {
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--accent);
-}
-
-.vsDivider {
-    font-weight: 900;
-    font-size: 0.8rem;
-    opacity: 0.2;
-    padding: 0 0.5rem;
+    white-space: nowrap;
 }
 
 .waitingSlot {
+    min-height: 64px;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 0.25rem;
     color: var(--text);
-    opacity: 0.3;
-    font-style: italic;
-    font-size: 0.85rem;
+    opacity: 0.35;
+    font-size: 0.7rem;
+    font-weight: 700;
 }
 
 .waitingIcon {
     font-size: 1.25rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .playersSection {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    .vsDivider {
-        display: none;
+        grid-template-columns: 1fr;
     }
 }

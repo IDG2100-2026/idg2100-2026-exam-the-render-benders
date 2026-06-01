@@ -1,57 +1,49 @@
-import { Link } from "react-router";
 import { MdPeople } from "react-icons/md";
-import { useAuth } from "@/contexts/AuthContext";
 import { getAssetUrl } from "@/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { DEFAULT_ELO } from "@/config/constants";
 import styles from "./PlayersSection.module.css";
 
-export default function PlayersSection({ game }) {
+export default function PlayersSection({ game, boardColor }) {
     const { user } = useAuth();
-    const host = game.players[0];
-    const opponent = game.players[1];
+    const maxPlayers = game.variant?.numPlayers ?? game.numPlayers ?? Math.max(game.players.length, 2);
+    const playerSlots = Array.from({ length: maxPlayers }, (_, index) => game.players[index] ?? null);
 
     return (
-        <div className={styles.playersSection}>
-            <div className={styles.playerItem}>
-                <img
-                    src={getAssetUrl(host?.profileImage)}
-                    alt=""
-                    className={styles.pAvatar}
-                />
-                <div className={styles.pInfo}>
-                    <span className={styles.pLabel}>Host</span>
-                    <Link to={`/users/${host?.username}`} className={styles.pName}>
-                        {host?.username} {user?.username === host?.username && "(You)"}
-                    </Link>
-                    <span className={styles.pElo}>{host?.elo || DEFAULT_ELO} ELO</span>
-                </div>
-            </div>
+        <div
+            className={styles.playersSection}
+            style={{ "--player-count": maxPlayers, "--board-color": boardColor }}
+        >
+            {playerSlots.map((player, index) => {
+                const isCurrentUser = player?._id === user?._id || player?.username === user?.username;
 
-            <div className={styles.vsDivider}>VS</div>
+                return (
+                    <div
+                        className={`${styles.playerItem} ${isCurrentUser ? styles.currentUser : ""}`}
+                        key={player?._id ?? `empty-${index}`}
+                    >
+                        <span className={styles.pNumber}>{index + 1}</span>
 
-            <div className={styles.playerItem}>
-                {opponent ? (
-                    <>
-                        <img
-                            src={getAssetUrl(opponent.profileImage)}
-                            alt=""
-                            className={styles.pAvatar}
-                        />
-                        <div className={styles.pInfo}>
-                            <span className={styles.pLabel}>Opponent</span>
-                            <Link to={`/users/${opponent.username}`} className={styles.pName}>
-                                {opponent.username}
-                            </Link>
-                            <span className={styles.pElo}>{opponent.elo || DEFAULT_ELO} ELO</span>
-                        </div>
-                    </>
-                ) : (
-                    <div className={styles.waitingSlot}>
-                        <MdPeople className={styles.waitingIcon} />
-                        <span>Waiting...</span>
+                        {player ? (
+                            <>
+                                <img
+                                    src={getAssetUrl(player.profileImage)}
+                                    alt=""
+                                    className={styles.pAvatar}
+                                />
+                                <span className={styles.pElo}>
+                                    {player.elo || DEFAULT_ELO} ELO
+                                </span>
+                            </>
+                        ) : (
+                            <div className={styles.waitingSlot}>
+                                <MdPeople className={styles.waitingIcon} />
+                                <span>Waiting</span>
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                );
+            })}
         </div>
     );
 }
