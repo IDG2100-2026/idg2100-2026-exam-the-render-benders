@@ -83,6 +83,14 @@ export default function TournamentPage() {
                 </div>
             )}
 
+            {tournament.trophy && (
+                <div className={styles.trophy}>
+                    <h2>Trophy</h2>
+                    <img src={tournament.trophy.image} alt={tournament.trophy.title} />
+                    <span>{tournament.trophy.title}</span>
+                </div>
+            )}
+
             <section className={styles.section}>
                 <h2>Players</h2>
                 {tournament.players?.length === 0 ? (
