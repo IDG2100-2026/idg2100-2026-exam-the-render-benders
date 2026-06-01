@@ -61,6 +61,38 @@
     transform: translateY(0);
 }
 
+.heroButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.heroButtons .heroButton {
+    margin-top: 0;
+}
+
+.heroButtonSecondary {
+    padding: 0.75rem 2rem;
+    background-color: transparent;
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.heroButtonSecondary:hover {
+    background-color: var(--accent-bg);
+    transform: translateY(-2px);
+}
+
+.heroButtonSecondary:active {
+    transform: translateY(0);
+}
+
 @media (max-width: 600px) {
     .page {
         justify-content: flex-start; /* Don't center vertically on small screens */

@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 import { getPlatformActivity } from "@/services/activityService";
+import { useAuth } from "@/contexts/AuthContext";
 import styles from "./PlatformActivity.module.css";
 
 export default function PlatformActivity() {
     const [activity, setActivity] = useState(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         getPlatformActivity()
@@ -36,6 +38,7 @@ export default function PlatformActivity() {
                     <span className={styles.label}>Available Games Now</span>
                 </div>
             </div>
+            {!user && <p className={styles.signInHint}>Sign in to see your personal stats</p>}
         </div>
     );
 }

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router";
+import { useAuth } from "@/contexts/AuthContext";
 import LobbySection from "./components/LobbySection/LobbySection";
 import TopGames from "./components/TopGames/TopGames";
 import PlatformActivity from "@/components/PlatformActivity/PlatformActivity";
@@ -7,6 +8,7 @@ import styles from "./HomePage.module.css";
 
 export default function HomePage() {
     const navigate = useNavigate(); // used to navigate to /create-game when the button is clicked
+    const { user } = useAuth();
 
     return (
         <div className={styles.page}>
@@ -15,9 +17,20 @@ export default function HomePage() {
                 <h1>Welcome</h1>
 
                 <p>Challenge players from around the world. Pick your variant, set your rules, and roll the dice.</p>
-                <button className={styles.heroButton} onClick={() => navigate("/create-game")}>
-                    Create Game
-                </button>
+                {user ? (
+                    <button className={styles.heroButton} onClick={() => navigate("/create-game")}>
+                        Create Game
+                    </button>
+                ) : (
+                    <div className={styles.heroButtons}>
+                        <button className={styles.heroButton} onClick={() => navigate("/login")}>
+                            Login
+                        </button>
+                        <button className={styles.heroButtonSecondary} onClick={() => navigate("/register")}>
+                            Register
+                        </button>
+                    </div>
+                )}
             </section>
             <LobbySection />
             <PlatformActivity />
