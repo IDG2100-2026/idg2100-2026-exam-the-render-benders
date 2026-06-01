@@ -3,11 +3,8 @@ import { Game } from "../models/game.model.js";
 import { hashPwd } from "../utils/hash.js";
 import { MIN_AGE, MAX_AGE, DEFAULT_ELO } from "../config/constants.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
-
-function isOwnerOrAdmin(user, viewer) {
-    if (!viewer?.id) return false;
-    return viewer.type === "admin" || user._id.toString() === viewer.id;
-}
+import { getAge } from "../utils/dateHelpers.js";
+import { isOwnerOrAdmin } from "../utils/authHelpers.js";
 
 function sanitizeProfile(user, viewer) {
     const userObject = typeof user.toObject === "function" ? user.toObject() : user;
@@ -19,7 +16,7 @@ function sanitizeProfile(user, viewer) {
         ...safeUser
     } = userObject;
 
-    if (isOwnerOrAdmin(userObject, viewer)) {
+    if (isOwnerOrAdmin(userObject._id, viewer)) {
         safeUser.email = email;
     }
 
@@ -133,13 +130,7 @@ export async function getUserGames(username, { skip = 0, limit = 10, status } = 
 // Creates a new user and saves it to the database, hashes the password before saving
 // Throws an error if the user is under 18 years old
 export async function createUser(data) {
-    const dob = new Date(data.dateOfBirth);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth(); // check if birthday has passed this year
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-        age--;
-    }
+    const age = getAge(data.dateOfBirth);
     if (age < MIN_AGE) throw new Error("You must be at least 18 years old to register");
     if (age > MAX_AGE) throw new Error(`Age cannot exceed ${MAX_AGE} years`);
     const hashedData = { ...data, pwd: hashPwd(data.pwd) };

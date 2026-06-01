@@ -1,6 +1,7 @@
 import authService from "../services/auth.service.js";
 
 import { ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "../config/constants.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 async function register(req, res) {
     try {
@@ -13,7 +14,7 @@ async function register(req, res) {
             message: result.message
         });
     } catch (err) {
-        res.status(400).json({ error: err.message});
+        sendError(res, err, 400);
     }
 }
 
@@ -30,7 +31,7 @@ async function login(req, res) {
 
         res.status(200).json(result.user);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        sendError(res, err, 400);
     }
 }
 
@@ -48,7 +49,7 @@ async function refresh(req, res) {
     } catch (err) {
         res.clearCookie("accessToken", ACCESS_COOKIE_OPTIONS);
         res.clearCookie("refreshToken", REFRESH_COOKIE_OPTIONS);
-        res.status(401).json({ error: err.message });
+        sendError(res, err, 401);
     }
 }
 
@@ -62,7 +63,7 @@ async function logout(req, res) {
 
         res.status(204).send();
     } catch(err) {
-        res.status(400).json({ error: err.message });
+        sendError(res, err, 400);
     }
 }
 
@@ -76,7 +77,7 @@ async function verifyEmail(req, res) {
             message: result.message
         });
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        sendError(res, err, 400);
     }
 }
 
@@ -85,7 +86,7 @@ async function resendVerification(req, res) {
         const result = await authService.resendVerification(req.body.email);
         res.status(200).json(result);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        sendError(res, err, 400);
     }
 }
 

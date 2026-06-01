@@ -1,5 +1,7 @@
 import commentService from "../services/comment.service.js";
 import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTournamentRoom } from "../socket/comment.socket.js";
+import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
+import { isOwnerOrAdmin } from "../utils/authHelpers.js";
 
 // Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
@@ -10,7 +12,7 @@ export async function getAllComments(req, res) {
         const comments = await commentService.getAllComments({ skip, limit, search });
         res.status(200).json(comments);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -21,7 +23,7 @@ export async function getComment(req, res) {
         if (!comment) return res.status(404).json({ error: "Comment not found" });
         res.status(200).json(comment);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -53,8 +55,11 @@ export async function createComment(req, res) {
 
         res.status(201).json(comment);
     } catch (err) {
-        const status = err.message.includes("Banned") ? 403 : err.message.includes("not found") ? 404 : 500;
-        res.status(status).json({ error: err.message });
+        const status = statusFromMessage(err.message, [
+            { text: "Banned", status: 403 },
+            { text: "not found", status: 404 }
+        ]);
+        sendError(res, err, status);
     }
 }
 
@@ -65,10 +70,8 @@ export async function updateComment(req, res) {
         if (!existingComment) return res.status(404).json({ error: "Comment not found" });
         
         const authorId = existingComment.author._id || existingComment.author;
-        const isOwner = authorId.toString() === req.user?.id;
-        const isAdmin = req.user?.type === "admin";
 
-        if (!isOwner && !isAdmin) return res.status(403).json({ error: "You can only edit your own comments" });
+        if (!isOwnerOrAdmin(authorId, req.user)) return res.status(403).json({ error: "You can only edit your own comments" });
 
         const comment = await commentService.updateComment(req.params.cid, req.body);
 
@@ -79,7 +82,7 @@ export async function updateComment(req, res) {
 
         res.status(200).json(comment);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 // Deletes a Comment by ID (cid) - user can delete their own, admin can delete any
@@ -88,9 +91,7 @@ export async function deleteComment(req, res) {
         const comment = await commentService.getComment(req.params.cid);
         if (!comment) return res.status(404).json({ error: "Comment not found" });
         const authorId = comment.author._id || comment.author;
-        const isOwner = authorId.toString() === req.user?.id;
-        const isAdmin = req.user?.type === "admin";
-        if (!isOwner && !isAdmin) return res.status(403).json({ error: "You can only delete your own comments" });
+        if (!isOwnerOrAdmin(authorId, req.user)) return res.status(403).json({ error: "You can only delete your own comments" });
         await commentService.deleteComment(req.params.cid);
 
         broadcastToCommentRoom(comment, {
@@ -102,7 +103,7 @@ export async function deleteComment(req, res) {
 
         res.status(204).send();
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -113,7 +114,7 @@ export async function getCommentsByGame(req, res) {
         if (!comments) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(comments);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -124,7 +125,7 @@ export async function getCommentsByTournament(req, res) {
         if (!comments) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(comments);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 

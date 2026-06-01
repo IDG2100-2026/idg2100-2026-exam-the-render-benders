@@ -3,6 +3,7 @@ import trophyController from "../controllers/trophy.controller.js";
 import { validateCreateTrophy, handleValidationErrors } from "../validators/trophy.validator.js";
 import { requireAdmin } from "../middleware/auth.middleware.js";
 import { uploadTrophy } from "../middleware/upload.middleware.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 const trophyRouter = express.Router();
 
@@ -13,7 +14,7 @@ trophyRouter.delete("/trophies/:tid", requireAdmin, trophyController.deleteTroph
 
 trophyRouter.use((err, req, res, next) => {
     if (err.message === "Only image files are allowed") {
-        return res.status(400).json({ error: err.message });
+        return sendError(res, err, 400);
     }
     next(err);
 });

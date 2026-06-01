@@ -2,6 +2,7 @@ import express from "express";
 import { User } from "../models/user.model.js";
 import authService from "../services/auth.service.js";
 import { ACCESS_COOKIE_OPTIONS, REFRESH_COOKIE_OPTIONS } from "../config/constants.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 const sessionRouter = express.Router();
 
@@ -21,7 +22,7 @@ sessionRouter.post("/sessions/guest", async (req, res) => {
         setAuthCookies(res, result);
         res.status(201).json(result.user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 });
 

@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { Game } from "../models/game.model.js";
 import gameService from "../services/game.service.js";
+import { sanitizeGameForViewer } from "../utils/gameHelpers.js";
 
 const {
     FRONTEND_URL,
@@ -71,8 +72,7 @@ export function initializeGameSocket(httpServer) {
                 socket.join(gid);
 
                 // sending the current game state only to this client 
-                const state = buildGameState(game, socket.user?.id);
-                socket.emit("game-state", state);
+                socket.emit("game-state", sanitizeGameForViewer(game, socket.user?.id));
             } catch (error) {
                 socket.emit("error", { message: error.message });
             }
@@ -163,49 +163,9 @@ export function initializeGameSocket(httpServer) {
     return io;
 }
 
-// building the game state object to send to the clients
-// requestingUserId is used to hide other players' private dice
-function buildGameState(game, requestingUserId) {
-    // checking if rolls should be visible to everyone (revealing/round-ended/finished)
-    const rollsPublic = ["round-ended", "finished"].includes(game.phase) || game.status === "finished";
-
-    return {
-        _id: game._id,
-        status: game.status,
-        phase: game.phase ?? null,
-        currentRound: game.currentRound ?? null,
-        players: game.players, 
-        currentTurn: game.currentTurn ?? null,
-        pot: game.pot,
-        buyIn: game.buyIn,
-        playerStacks: game.playerStacks,
-        bettingState: game.bettingState ?? null,
-        foldedUsers: game.foldedUsers ?? [],
-        timeoutState: game.timeoutState ?? null,
-        // building the results per player, hiding private dice from other players
-        results: (game.results ?? []).map(round => ({
-            player: round.player,
-            round: round.round,
-            rollCount: round.rollCount,
-            holds: round.holds,
-            bets: round.bets,
-            outcome: round.outcome,
-            timestamps: round.timestamps,
-            // showing the revealed rolls to everyone, only showing hidden rolls to the owning player
-            revealedRolls: round.revealedRolls,
-            hiddenRolls: rollsPublic || round.player?.toString() === requestingUserId
-                ? round.hiddenRolls
-                : []
-        })),
-        result: game.result ?? null
-    };
-}
-
-
 async function emitPersonalizedState(io, gid, game) {
     const sockets = await io.in(gid).fetchSockets();
     for (const s of sockets) {
-        s.emit("game-state", buildGameState(game, s.user?.id));
+        s.emit("game-state", sanitizeGameForViewer(game, s.user?.id));
     }
 }
-

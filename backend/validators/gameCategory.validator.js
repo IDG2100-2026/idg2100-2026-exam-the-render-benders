@@ -1,5 +1,6 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { GAME_TIME_CONTROLS } from "../config/constants.js";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 export const validateCreateGameCategory = [
     body("name")
@@ -36,11 +37,3 @@ export const validateUpdateGameCategory = [
         .isIn(GAME_TIME_CONTROLS)
         .withMessage(`timePerRound must be one of ${GAME_TIME_CONTROLS.join(", ")}`)
 ];
-
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}
