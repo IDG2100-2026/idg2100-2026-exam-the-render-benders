@@ -1,5 +1,39 @@
 import { DICE_COUNT, DICE_FACES } from "../config/constants.js";
 
+export function sanitizeGameForViewer(game, viewerId){
+    if (!game) return null;
+
+    const safeGame = typeof game.toObject === "function"
+        ? game.toObject()
+        : game;
+
+    const publicRolls = rollsArePublic(safeGame);
+
+    safeGame.results = (safeGame.results || []).map((result) => {
+        const resultPlayerId = result.player?._id || result.player;
+        const isOwner = idsEqual(resultPlayerId, viewerId);
+
+        return {
+            ...result,
+
+            // Only the owning player can see their private dice
+            hiddenRolls: isOwner ? result.hiddenRolls : [],
+
+            // Everyone can see revealed rolls once reveal/end has happened
+            revealedRolls: publicRolls ? result.revealedRolls: [],
+
+            // Keep old `rolls` field safe too, because it currently dupes hiddenRolls
+            rolls: isOwner
+                ? result.rolls
+                : publicRolls
+                    ? result.revealedRolls
+                    : []
+        };
+    });
+
+    return safeGame;
+}
+
 //---- DICE/ROLL HELPERS ----//
 
 // Helper for public roll phases
