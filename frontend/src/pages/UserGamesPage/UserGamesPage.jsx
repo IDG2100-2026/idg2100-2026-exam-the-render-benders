@@ -15,12 +15,7 @@ export default function UserGamesPage() {
     useEffect(() => {
         async function fetchUserGames() {
             try {
-                // Fetch games where this user is a player
-                const allGames = await apiFetch(`/games?limit=100`);
-                // Client-side filtering for simplicity
-                const userGames = allGames.filter(game => 
-                    game.players.some(p => p.username === username)
-                );
+                const userGames = await apiFetch(`/users/${username}/games`);
                 setGames(userGames);
             } catch (err) {
                 setError(err.message);
