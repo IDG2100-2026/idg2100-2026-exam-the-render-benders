@@ -196,6 +196,9 @@ export async function createGame(data) {
 
     for (const playerId of data.players || []) {
         if (startingStack > 0) {
+            const user = await User.findById(playerId);
+            if (!user) throw new Error("User not found");
+            if (user.points < startingStack) throw new Error("You don't not have enough points to create this game");
             await User.findByIdAndUpdate(playerId, { $inc: { points: -startingStack } });
         }
     }
@@ -240,7 +243,7 @@ export async function leaveGame(gid, playerId) {
     // Otherwise updateGame returns it to their account when the game finishes
     const forfeiterStack = getPlayerStack(game, playerId);
     if (forfeiterStack) {
-        forfeiterStack.stack === 0;
+        forfeiterStack.stack = 0;
     }
     // Any unresolved pot should go the remanining player
     if (game.pot > 0 && remainingPlayers.length > 0) {
