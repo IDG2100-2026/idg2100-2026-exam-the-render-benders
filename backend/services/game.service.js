@@ -4,6 +4,7 @@ import { getIO } from "../socket/game.socket.js";
 import {
     rollDice,
     rollDie,
+    rollDie,
     idsEqual,
     getActivePlayerIds,
     moveToNextActivePlayer,
@@ -393,6 +394,7 @@ function enterBettingPhase(game, activePlayers) {
 }
 
 export async function rollForPlayer(gid, playerId, heldIndexes = []) {
+export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     const game = await Game.findById(gid);
     if (!game) return null;
 
@@ -461,11 +463,13 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     });
 
     if (everyoneFinished) {
+    if (everyoneFinished) {
         enterBettingPhase(game, activePlayers);
     } else if (currentResult.rollCount >= MAX_ROLLS_PER_TURN) {
         // used all 3 rolls, move to next player's turn
         moveToNextActivePlayer(game);
     }
+    // if rolls remain, stay on current player so they can reroll
     // if rolls remain, stay on current player so they can reroll
 
     await game.save();

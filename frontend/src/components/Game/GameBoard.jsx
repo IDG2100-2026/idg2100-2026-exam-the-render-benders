@@ -150,7 +150,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                 method: "POST",
                 body: JSON.stringify({ heldIndexes: [...heldDice] })
             });
-
             setServerState(state);
             onStateUpdateRef.current?.(state);
         } catch (err) {
