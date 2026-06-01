@@ -227,7 +227,7 @@ Useful reference code in `projects/`:
 ### Part 7C - UX/Responsive Polish `[Johchacho]`
 - [x] Responsive layout across all pages (navbar breakpoint + About label fixed; other pages mostly fine but may need polish)
 - [x] Loading/error/empty states consistently
-- [ ] Stats understandable for anonymous users
+- [x] Stats understandable for anonymous users
 
 ---
 
@@ -327,7 +327,7 @@ Safest to simplify:
 
 ## Deferred / Post-Defense
 
-- [ ] Restructure frontend components out of page folders and into `frontend/src/components/` (Tobias's suggestion - not worth the risk before the defense)
+- [x] Restructure frontend components out of page folders and into `frontend/src/components/`
 
 ---
 

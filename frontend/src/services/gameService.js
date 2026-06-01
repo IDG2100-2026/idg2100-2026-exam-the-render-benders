@@ -1,4 +1,4 @@
-import { apiFetch } from "@/api.js";
+import { apiFetch } from "@/api";
 
 // get all games, optional filters passed as object (e.g. { status: "waiting", limit: 20 })
 export async function getAllGames(filters = {}) {

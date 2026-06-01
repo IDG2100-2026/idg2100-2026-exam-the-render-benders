@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import { getAllTournaments } from "@/services/tournamentService.js";
+import { getAllTournaments } from "@/services/tournamentService";
 import { formatDate } from "@/utils/formatDate";
 import styles from "./TournamentListPage.module.css";
 

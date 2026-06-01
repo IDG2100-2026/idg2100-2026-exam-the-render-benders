@@ -3,11 +3,11 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
 import { MAX_ELO, RULES_STRAIGHTS, GAME_ROUND_COUNTS, GAME_TIME_CONTROLS, GAME_PLAYER_COUNTS, GAME_BUY_INS } from "@/config/constants";
-import RoundsSelector from "./components/RoundsSelector/RoundsSelector";
-import RulesSelector from "./components/RulesSelector/RulesSelector";
-import TimeControlSelector from "./components/TimeControlSelector/TimeControlSelector";
-import NumPlayerSelector from "./components/NumPlayerSelector/NumPlayerSelector";
-import BuyInSelector from "./components/BuyInSelector/BuyInSelector";
+import RoundsSelector from "@/components/RoundsSelector/RoundsSelector";
+import RulesSelector from "@/components/RulesSelector/RulesSelector";
+import TimeControlSelector from "@/components/TimeControlSelector/TimeControlSelector";
+import NumPlayerSelector from "@/components/NumPlayerSelector/NumPlayerSelector";
+import BuyInSelector from "@/components/BuyInSelector/BuyInSelector";
 import styles from "./CreateGamePage.module.css";
 
 export default function CreateGamePage() {

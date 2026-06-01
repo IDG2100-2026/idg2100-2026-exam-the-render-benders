@@ -1,4 +1,4 @@
-import { apiFetch } from "@/api.js";
+import { apiFetch } from "@/api";
 
 // get all tournaments, optional filters (e.g. { status: "upcoming" })
 export async function getAllTournaments(filters = {}) {

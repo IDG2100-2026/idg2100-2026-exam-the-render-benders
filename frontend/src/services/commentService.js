@@ -1,4 +1,4 @@
-import { apiFetch } from "@/api.js";
+import { apiFetch } from "@/api";
 
 // get all comments for a specific game
 export async function getGameComments(gid) {

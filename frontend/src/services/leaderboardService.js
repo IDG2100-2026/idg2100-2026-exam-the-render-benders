@@ -1,4 +1,4 @@
-import { apiFetch } from "@/api.js";
+import { apiFetch } from "@/api";
 
 // get leaderboard sorted by elo (default)
 export async function getLeaderboard() {
