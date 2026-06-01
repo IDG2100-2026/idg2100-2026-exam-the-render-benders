@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS } from "@/config/constants";
+import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -184,17 +184,26 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         if (!turnExpiresAt) return;
 
         let timeoutCalled = false;
+        let fallbackTimer = null;
+
         function tick() {
             const remaining = Math.max(0, Math.floor((new Date(turnExpiresAt) - Date.now()) / 1000));
             setSecondsLeft(remaining);
-            if (remaining === 0 && isMyTurn && !timeoutCalled) {
+            if (remaining === 0 && !timeoutCalled) {
                 timeoutCalled = true;
-                apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(err => {
-                    // retry once if server clock is slightly behind the client
-                    if (err.message?.includes("not expired")) {
-                        setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_RETRY_MS);
-                    }
-                });
+                if (isMyTurn) {
+                    apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(err => {
+                        // retry once if server clock is slightly behind the client
+                        if (err.message?.includes("not expired")) {
+                            setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_RETRY_MS);
+                        }
+                    });
+                } else if (isPlayer) {
+                    // fallback: if the current player's client isn't responding, try after a delay
+                    fallbackTimer = setTimeout(() => {
+                        apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { });
+                    }, TIMEOUT_FALLBACK_MS);
+                }
             }
         }
 
@@ -202,9 +211,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         const id = setInterval(tick, 1000);
         return () => {
             clearInterval(id);
+            clearTimeout(fallbackTimer);
             setSecondsLeft(null);
         };
-    }, [turnExpiresAt, isMyTurn, gameId]);
+    }, [turnExpiresAt, isMyTurn, isPlayer, gameId]);
 
     async function handleRoll() {
         setActionError(null);
