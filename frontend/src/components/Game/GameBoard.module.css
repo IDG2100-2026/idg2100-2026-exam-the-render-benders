@@ -115,3 +115,11 @@
     color: var(--danger-text);
     margin: 0;
 }
+
+.stacks {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
