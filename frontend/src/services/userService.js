@@ -1,4 +1,4 @@
-import { apiFetch, API_URL } from "@/api.js";
+import { apiFetch, API_URL } from "@/api";
 
 // get a single user by their username, includes recent games and stats
 export async function getUser(username) {

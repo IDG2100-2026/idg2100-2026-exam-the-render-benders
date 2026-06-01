@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
-import LobbySection from "./components/LobbySection/LobbySection";
-import TopGames from "./components/TopGames/TopGames";
+import LobbySection from "@/components/LobbySection/LobbySection";
+import TopGames from "@/components/TopGames/TopGames";
 import PlatformActivity from "@/components/PlatformActivity/PlatformActivity";
 import TournamentPreview from "@/components/TournamentPreview/TournamentPreview";
 import styles from "./HomePage.module.css";

@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
 import { MdDelete } from "react-icons/md";
-import { useAuth } from "@/contexts/AuthContext.jsx";
+import { useAuth } from "@/contexts/AuthContext";
 import {
     getGameComments,
     getTournamentComments,
     postGameComment,
     postTournamentComment,
     deleteComment
-} from "@/services/commentService.js";
-import { MAX_COMMENT_LENGTH } from "@/config/constants.js";
+} from "@/services/commentService";
+import { MAX_COMMENT_LENGTH } from "@/config/constants";
 import styles from "./Comments.module.css";
 
 const WS_BASE_URL = import.meta.env.VITE_WS_URL;

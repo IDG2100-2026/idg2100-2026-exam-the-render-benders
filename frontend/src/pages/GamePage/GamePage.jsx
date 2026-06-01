@@ -5,9 +5,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { apiFetch } from "@/api";
 import { RULES_STRAIGHTS } from "@/config/constants";
-import Comments from "@/components/Comments/Comments.jsx";
+import Comments from "@/components/Comments/Comments";
 import GameBoard from "@/components/Game/GameBoard";
-import PlayersSection from "./components/PlayersSection";
+import PlayersSection from "@/components/PlayersSection/PlayersSection";
 import styles from "./GamePage.module.css";
 
 export default function GamePage() {
