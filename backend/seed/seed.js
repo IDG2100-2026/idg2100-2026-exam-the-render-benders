@@ -234,6 +234,20 @@ try {
         ]
     });
 
+    // Third upcoming tournament for sort demo
+    const upcomingRapid = await Tournament.create({
+        name: "Rapid Blitz Cup",
+        description: "High speed rounds, no mercy.",
+        startDate: new Date(Date.now() + 86400000 * 10),
+        tournamentType: "knockout",
+        variant: { rounds: 3, rules: "no-straights", timeControl: 10 },
+        status: "upcoming",
+        players: [lucas._id, mariasol._id],
+        minParticipants: 2,
+        maxParticipants: 4
+    });
+
+
     console.log(`  upcoming knockout: ${upcomingKnockout._id}`);
     console.log(`  upcoming arena:    ${upcomingArena._id}`);
 } catch (err) {
