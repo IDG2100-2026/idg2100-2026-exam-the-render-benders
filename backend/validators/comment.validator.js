@@ -1,5 +1,6 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { MAX_COMMENT_LENGTH } from "../config/constants.js";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 export const validateCreateComment = [
     body("body")
@@ -39,12 +40,3 @@ export const validateUpdateComment = [
         .notEmpty()
         .withMessage("Comment body must be a non-empty string")
 ];
-
-// Checks if any validation errors were found and returns 400 if so, otherwise passes to the next handler
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}

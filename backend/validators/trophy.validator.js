@@ -1,4 +1,5 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 export const validateCreateTrophy = [
     body("title")
@@ -9,11 +10,3 @@ export const validateCreateTrophy = [
         .isMongoId()
         .withMessage("tournament must be a valid tournament ID")
 ];
-
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}

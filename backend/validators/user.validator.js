@@ -1,5 +1,6 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH, MIN_PWD_LENGTH, MAX_PWD_LENGTH, MIN_AGE, MAX_AGE, MAX_BIO_LENGTH } from "../config/constants.js";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 // Small allowlist of common TLDs - blocks made-up ones like .kuksti
 const VALID_TLDS = new Set([
@@ -66,12 +67,3 @@ export const validateUpdateUser = [
         .isLength({ max: MAX_BIO_LENGTH })
         .withMessage(`About me cannot exceed ${MAX_BIO_LENGTH} characters`)
 ];
-
-// Checks if any validation errors were found and returns 400 if so, otherwise passes to the next handler
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}
