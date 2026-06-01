@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router";
 import { MdLayers, MdAccessTime, MdArrowForward, MdHistory, MdArrowBack } from "react-icons/md";
 import { apiFetch } from "@/api";
 import { RULES_STRAIGHTS } from "@/config/constants";
+import { formatDate } from "@/utils/formatDate";
 import styles from "./UserGamesPage.module.css";
 
 export default function UserGamesPage() {
@@ -83,7 +84,7 @@ export default function UserGamesPage() {
 
                                 <div className={styles.rightInfo}>
                                     <span className={styles.dateText}>
-                                        {new Date(game.createdAt).toLocaleDateString()}
+                                        {formatDate(game.createdAt)}
                                     </span>
                                     <MdArrowForward className={styles.arrowIcon} />
                                 </div>

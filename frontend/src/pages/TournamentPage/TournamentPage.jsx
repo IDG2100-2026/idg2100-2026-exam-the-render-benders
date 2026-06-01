@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { getTournament } from "@/services/tournamentService";
+import { formatDate } from "@/utils/formatDate";
 import styles from "./TournamentPage.module.css";
 
 export default function TournamentPage() {
@@ -51,7 +52,7 @@ export default function TournamentPage() {
                 {tournament.startDate && (
                     <div className={styles.metaItem}>
                         <span className={styles.metaLabel}>Start date</span>
-                        <span>{new Date(tournament.startDate).toLocaleDateString()}</span>
+                        <span>{formatDate(tournament.startDate)}</span>
                     </div>
                 )}
                 <div className={styles.metaItem}>

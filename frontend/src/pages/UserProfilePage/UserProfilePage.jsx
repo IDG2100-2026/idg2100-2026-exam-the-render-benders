@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router";
 import { MdEmojiEvents, MdSportsEsports, MdTimeline, MdArrowForward, MdEmail, MdCalendarToday, MdHistory, MdPieChart, MdTrendingUp, MdWarning } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch, getAssetUrl } from "@/api";
+import { formatDate } from "@/utils/formatDate";
 import { DEFAULT_ELO, MAX_BIO_LENGTH } from "@/config/constants";
 import styles from "./UserProfilePage.module.css";
 
@@ -121,7 +122,7 @@ export default function UserProfilePage() {
                         </div>
                         <div className={styles.metaRow}>
                             {(isOwnProfile || isAdmin) && <span className={styles.metaItem}><MdEmail /> {profile.email}</span>}
-                            <span className={styles.metaItem}><MdCalendarToday /> Joined {new Date(profile.createdAt).toLocaleDateString()}</span>
+                            <span className={styles.metaItem}><MdCalendarToday /> Joined {formatDate(profile.createdAt)}</span>
                         </div>
                         {isOwnProfile && !profile.isGuest && !profile.emailVerified && (
                             <Link to="/verify-email" className={styles.verifyBanner}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { getAllTournaments } from "@/services/tournamentService.js";
+import { formatDate } from "@/utils/formatDate";
 import styles from "./TournamentListPage.module.css";
 
 export default function TournamentListPage() {
@@ -99,7 +100,7 @@ function Section({ title, tournaments }) {
                         </div>
                         {t.startDate && (
                             <div className={styles.cardDate}>
-                                {new Date(t.startDate).toLocaleDateString()}
+                                {formatDate(t.startDate)}
                             </div>
                         )}
                     </Link>

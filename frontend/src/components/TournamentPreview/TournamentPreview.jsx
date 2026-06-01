@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { getUpcomingTournaments } from "@/services/tournamentService";
+import { formatDate } from "@/utils/formatDate";
 import styles from "./TournamentPreview.module.css";
 
 export default function TournamentPreview() {
@@ -33,7 +34,7 @@ export default function TournamentPreview() {
                         </span>
                         {t.startDate && (
                             <span className={styles.date}>
-                                {new Date(t.startDate).toLocaleDateString()}
+                                {formatDate(t.startDate)}
                             </span>
                         )}
                     </Link>
