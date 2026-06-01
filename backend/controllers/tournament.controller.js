@@ -18,6 +18,17 @@ export async function getAllTournaments(req, res) {
     }
 }
 
+// Get 5 upcoming tournaments for homepage previews
+export async function getUpcomingTournaments(req, res) {
+    try {
+        const limit = parseInt(req.query.limit) || 5;
+        const tournaments = await tournamentService.getUpcomingTournaments(limit);
+        res.status(200).json(tournaments);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
 // Get a Tournament from DB and return the Tournament as JSON
 export async function getTournament(req, res) {
     try {
@@ -110,5 +121,6 @@ export default {
     leaveTournament,
     getTournamentStandings,
     deleteTournament,
-    startTournament
+    startTournament,
+    getUpcomingTournaments
 };

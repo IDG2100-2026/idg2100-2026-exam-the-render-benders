@@ -12,6 +12,9 @@ const tournamentRouter = express.Router();
 // Gets all Tournaments
 tournamentRouter.get("/tournaments", tournamentController.getAllTournaments);
 
+// Gets 5 upcoming tournaments for the homepage
+tournamentRouter.get("/tournaments/upcoming", tournamentController.getUpcomingTournaments);
+
 // Gets a single Tournament by ID
 tournamentRouter.get("/tournaments/:tid", tournamentController.getTournament);
 

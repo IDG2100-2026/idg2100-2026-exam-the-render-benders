@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { apiFetch } from "@/api";
+import { getPlatformActivity } from "@/services/activityService";
 import styles from "./PlatformActivity.module.css";
 
 export default function PlatformActivity() {
     const [activity, setActivity] = useState(null);
 
     useEffect(() => {
-        apiFetch("/activity")
+        getPlatformActivity()
             .then(data => setActivity(data))
             .catch(() => {});
     }, []);
@@ -18,16 +18,22 @@ export default function PlatformActivity() {
             <h2>Platform Activity</h2>
             <div className={styles.stats}>
                 <div className={styles.stat}>
-                    <span className={styles.value}>{activity.ongoingGames}</span>
-                    <span className={styles.label}>Games Live</span>
+                    {/* <span className={styles.value}>{activity.ongoingGames}</span> */}
+                    {/* <span className={styles.label}>Games Live</span> */}
+                    <span className={styles.value}>{activity.activePlayers}</span>
+                    <span className={styles.label}>Active Players</span>
                 </div>
                 <div className={styles.stat}>
-                    <span className={styles.value}>{activity.waitingGames}</span>
-                    <span className={styles.label}>Waiting for Players</span>
+                    {/* <span className={styles.value}>{activity.waitingGames}</span> */}
+                    {/* <span className={styles.label}>Waiting for Players</span> */}
+                    <span className={styles.value}>{activity.gamesPlayedLastWeek}</span>
+                    <span className={styles.label}>Games Played Last Week</span>
                 </div>
                 <div className={styles.stat}>
-                    <span className={styles.value}>{activity.activeUsersThisWeek}</span>
-                    <span className={styles.label}>Active Players This Week</span>
+                    {/* <span className={styles.value}>{activity.activeUsersThisWeek}</span> */}
+                    {/* <span className={styles.label}>Active Players This Week</span> */}
+                    <span className={styles.value}>{activity.availableGamesNow}</span>
+                    <span className={styles.label}>Available Games Now</span>
                 </div>
             </div>
         </div>
