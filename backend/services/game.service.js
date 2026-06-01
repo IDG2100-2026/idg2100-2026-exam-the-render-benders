@@ -10,13 +10,13 @@ import {
     getPlayerStack,
     getContribution,
     pushBetLog,
-    rollsArePublic,
     splitPot,
     bettingRoundIsComplete,
     getCurrentRoundResult,
     resolveRound,
     turnHasExpired,
-    startTurnTimer
+    startTurnTimer,
+    sanitizeGameForViewer
 } from "../utils/gameHelpers.js";
 import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
 import { ROUND_END_DELAY_MS, MAX_ROLLS_PER_TURN } from "../config/constants.js";
@@ -776,40 +776,6 @@ export async function handleTimeout(gid) {
     }
 
     return game;
-}
-
-export function sanitizeGameForViewer(game, viewerId) {
-    if (!game) return null;
-
-    const safeGame = typeof game.toObject === "function"
-        ? game.toObject()
-        : game;
-
-    const publicRolls = rollsArePublic(safeGame);
-
-    safeGame.results = (safeGame.results || []).map((result) => {
-        const resultPlayerId = result.player?._id || result.player;
-        const isOwner = idsEqual(resultPlayerId, viewerId);
-
-        return {
-            ...result,
-
-            // Only the owning player can see their private dice
-            hiddenRolls: isOwner ? result.hiddenRolls : [],
-
-            // Everyone can see revealed rolls once reveal/end has happened
-            revealedRolls: publicRolls ? result.revealedRolls: [],
-
-            // Keep old `rolls` field safe too, because it currently dupes hiddenRolls
-            rolls: isOwner
-                ? result.rolls
-                : publicRolls
-                    ? result.revealedRolls
-                    : []
-        };
-    });
-
-    return safeGame;
 }
 
 export default {
