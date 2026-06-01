@@ -155,6 +155,12 @@ export default function Comments({ gameId, tournamentId }) {
                         onChange={e => setNewComment(e.target.value)}
                         placeholder="Write a comment..."
                         maxLength={MAX_COMMENT_LENGTH}
+                        onKeyDown={event => {
+                            if (event.key === "Enter" && !event.shiftKey) {
+                                event.preventDefault();
+                                if (newComment.trim()) handleSubmit(event);
+                            }
+                        }}
                     />
                     <button type="submit" disabled={!newComment.trim()} >Post</button>
                 </form>
