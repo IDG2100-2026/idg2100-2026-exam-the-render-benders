@@ -435,7 +435,11 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     if (game.currentTurn?.toString() !== playerId.toString()) {
         throw new Error("It is not your turn");
     }
-    
+
+    if (turnHasExpired(game)) {
+        throw new Error("Your turn has expired");
+    }
+
     // Temp fix for logic duplicate roll prevention
     const round = game.currentRound || 1;
 
@@ -521,6 +525,10 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
 
     if (!idsEqual(game.currentTurn, playerId)) {
         throw new Error("It is not your turn");
+    }
+
+    if (turnHasExpired(game)) {
+        throw new Error("Your turn has expired");
     }
 
     const stackEntry = getPlayerStack(game, playerId);
