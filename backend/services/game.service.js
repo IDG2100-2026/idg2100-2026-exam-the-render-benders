@@ -21,12 +21,21 @@ import {
 import { calculatePairwiseEloUpdates, getEloField } from "../utils/elo.js";
 import { ROUND_END_DELAY_MS, MAX_ROLLS_PER_TURN } from "../config/constants.js";
 
+async function getPopulatedGameState(gid) {
+    return await Game.findById(gid)
+        .populate("players", "username")
+        .populate("result.winner", "username");
+}
+
 async function emitPersonalizedState(gid, game) {
     const io = getIO();
     if (!io) return;
+
+    const populatedGames = await getPopulatedGameState(gid) || game;
     const sockets = await io.in(gid.toString()).fetchSockets();
+
     for (const s of sockets) {
-        s.emit("game-state", sanitizeGameForViewer(game, s.user?.id));
+        s.emit("game-state", sanitizeGameForViewer(populatedGames, s.user?.id));
     }
 }
 

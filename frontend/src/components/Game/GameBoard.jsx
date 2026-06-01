@@ -2,12 +2,74 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { TIMEOUT_RETRY_MS } from "@/config/constants";
+import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
 // Socket.IO lives on the backend root, not under /api/v1
 const SOCKET_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
+
+function getId(value) {
+    return value?._id?.toString?.() ?? value?.toString?.();
+}
+
+function getPlayerName(game, playerId) {
+    const id = getId(playerId);
+    const player = game?.players?.find(player => getId(player) === id);
+    return player?.username ?? "Player";
+}
+
+function getFaceValue(face) {
+    return FACE_VALUES.indexOf(face);
+}
+
+function evaluateHand(rolls = [], rules = "straights-allowed") {
+    const counts = rolls.reduce((acc, face) => {
+        acc[face] = (acc[face] || 0) + 1;
+        return acc;
+    }, {});
+
+    const groups = Object.entries(counts)
+        .map(([face, count]) => ({ face, count, value: getFaceValue(face) }))
+        .sort((a, b) => b.count - a.count || b.value - a.value);
+
+    const pattern = groups.map(group => group.count).sort((a, b) => b - a);
+    const values = rolls.map(getFaceValue).sort((a, b) => a- b);
+    const uniqueValues = [...new Set(values)];
+    const isStraight = rules === "straights-allowed" && uniqueValues.length === rolls.length &&
+        uniqueValues.every((value, index) => index === 0 || value === uniqueValues[index - 1] + 1);
+
+    if (pattern[0] === 5) return HAND_NAMES[8];
+    if (pattern[0] === 4) return HAND_NAMES[7];
+    if (pattern[0] === 3 && pattern[1] === 2) return HAND_NAMES[6];
+    if (isStraight) return HAND_NAMES[5];
+    if (pattern[0] === 3) return HAND_NAMES[4];
+    if (pattern[0] === 2 && pattern[1] === 2) return HAND_NAMES[3];
+    if (pattern[0] === 2) return HAND_NAMES[2];
+
+    return HAND_NAMES[1];
+}
+
+function getRoundSummary(game) {
+    if (!game || !["round-ended", "finished"].includes(game.phase)) return null;
+
+    const roundResults = game.results?.filter(result => result.round === game.currentRound) ?? [];
+    const revealedHands = roundResults.filter(result => result.revealedRolls?.length > 0);
+    const winners = roundResults.filter(result => result.outcome);
+
+    if (winners.length === 0) return null;
+
+    const pointsWon = roundResults.reduce((sum, result) => {
+        const bets = result.bets ?? [];
+        return sum + bets.reduce((betSum, bet) => betSum + Math.max(0, bet.amount ?? 0), 0);
+    }, 0);
+
+    return {
+        winners,
+        revealedHands,
+        pointsWon: Math.floor(pointsWon / winners.length)
+    };
+}
 
 export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDeleted }) {
     const boardRef = useRef(null);
@@ -24,6 +86,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
     const isMyTurn = serverState?.currentTurn?.toString() === user?._id;
     const phase = serverState?.phase;
     const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
+    const roundSummary = getRoundSummary(serverState);
 
     // how many rolls the current player has used this round (from server state)
     const myRoundResult = serverState?.results?.find(result =>
@@ -201,7 +264,36 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                     })}
                 </div>
             )}
-
+            {roundSummary && (
+            <div className={styles.roundResult}>
+                <strong>
+                    {roundSummary.winners
+                        .map(result => getPlayerName(serverState, result.outcome))
+                        .join(" and ")} won!
+                </strong>
+                <span>{roundSummary.pointsWon} points gained</span>
+                    
+                {roundSummary.revealedHands.length > 0 && (
+                    <div className={styles.hands}>
+                        {roundSummary.revealedHands.map(result => {
+                            const playerId = getId(result.player);
+                            const isWinner = roundSummary.winners.some(winner => getId(winner.outcome) === playerId);
+                        
+                            return (
+                                <div
+                                    key={`${playerId}-${result.round}`}
+                                    className={`${styles.handRow} ${isWinner ? styles.winningHand : ""}`}
+                                >
+                                    <span>{getPlayerName(serverState, result.player)}</span>
+                                    <span>{evaluateHand(result.revealedRolls, serverState.variant?.rules)}</span>
+                                    <span>{result.revealedRolls.join(" ")}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+            )}
             <game-board ref={boardRef} />
 
             {actionError && <p className={styles.error}>{actionError}</p>}

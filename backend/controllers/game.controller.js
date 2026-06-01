@@ -125,7 +125,8 @@ export async function rollForPlayer(req, res) {
         const game = await gameService.rollForPlayer(req.params.gid, req.user.id, req.body.heldIndexes ?? []);
         if (!game) return res.status(404).json({ error: "Game not found" });
 
-        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+        const populatedGame = await gameService.getGame(req.params.gid);
+        res.status(200).json(gameService.sanitizeGameForViewer(populatedGame, req.user?.id));
     } catch(err) {
         const status = statusFromMessage(err.message, [
             { text: "not a player", status: 403 },
@@ -144,7 +145,8 @@ export async function placeBet(req, res) {
 
         if (!game) return res.status(404).json({ error: "Game not found" });
 
-        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+        const populatedGame = await gameService.getGame(req.params.gid);
+        res.status(200).json(gameService.sanitizeGameForViewer(populatedGame, req.user?.id));
     } catch (err) {
         const status = statusFromMessage(err.message, [
             { text: "not a player", status: 403 },
@@ -164,7 +166,8 @@ export async function handleTimeout(req, res) {
         const game = await gameService.handleTimeout(req.params.gid);
         if (!game) return res.status(404).json({ error: "Game not found" });
 
-        res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
+        const populatedGame = await gameService.getGame(req.params.gid);
+        res.status(200).json(gameService.sanitizeGameForViewer(populatedGame, req.user?.id));
     } catch(err) {
         const status = statusFromMessage(err.message, [
             { text: "not expired", status: 400 },

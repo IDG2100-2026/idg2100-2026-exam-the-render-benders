@@ -23,3 +23,16 @@ export const MIN_AGE = 18;
 export const MAX_AGE = 100;
 export const MAX_BIO_LENGTH = 500;
 export const MAX_COMMENT_LENGTH = 1000;
+
+export const HAND_NAMES = {
+    8: "Five of a kind",
+    7: "Four of a kind",
+    6: "Full house",
+    5: "Straight",
+    4: "Three of a kind",
+    3: "Two pair",
+    2: "Pair",
+    1: "High card"
+};
+
+export const FACE_VALUES = ["7", "8", "J", "Q", "K", "A"];

@@ -64,7 +64,9 @@ export function initializeGameSocket(httpServer) {
 
         socket.on("join-room", async ({ gid }) => {
             try {
-                const game = await Game.findById(gid);
+                const game = await Game.findById(gid)
+                    .populate("players", "username")
+                    .populate("result.winner", "username");
                 // if the game does not exist, send an error back to the client
                 if (!game) return socket.emit("error", { message: "Game not found" });
 
