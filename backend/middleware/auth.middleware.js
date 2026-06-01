@@ -1,5 +1,6 @@
 import { User } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
+import { sendError } from "../utils/controllerHelpers.js";
 
 // Reads and verifies the accessToken cookie and sets req.user on every request
 export function setUserType(req, res, next) {
@@ -64,7 +65,7 @@ export async function requireSelfOrAdmin(req, res, next) {
         if (target._id.toString() === req.user.id) return next();
         return res.status(403).json({ error: "You can only update your own profile" });
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        return sendError(res, error);
     }
 }
 
@@ -78,7 +79,7 @@ export async function requireNotBanned(req, res, next) {
         if (user.isBanned) return res.status(403).json({ error: "You are banned from this platform" });
         next();
     } catch (error) {
-        return res.status(500).json({ error: error.message });
+        return sendError(res, error);
     }
 }
 

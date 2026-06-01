@@ -1,5 +1,6 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { MAX_ELO, GAME_PLAYER_COUNTS, GAME_BUY_INS } from "../config/constants.js";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 // Validates the body when creating a new game
 export const validateCreateGame = [
@@ -73,15 +74,6 @@ export const validateJoinGame = [
         .isMongoId()
         .withMessage("Player must be a valid user ID")
 ];
-
-// Checks if any validation errors were found and returns 400 if so, otherwise passes to the next handler
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}
 
 export const validateBet = [
     body("action")

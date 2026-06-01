@@ -1,5 +1,7 @@
-import { body, validationResult } from "express-validator";
+import { body } from "express-validator";
 import { MIN_USERNAME_LENGTH, MAX_USERNAME_LENGTH, MIN_PWD_LENGTH, MAX_PWD_LENGTH, MIN_AGE, MAX_AGE, MAX_BIO_LENGTH } from "../config/constants.js";
+import { getAge } from "../utils/dateHelpers.js";
+export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
 // Small allowlist of common TLDs - blocks made-up ones like .kuksti
 const VALID_TLDS = new Set([
@@ -37,9 +39,7 @@ export const validateCreateUser = [
         .isISO8601()
         .withMessage("Must be a valid date")
         .custom(value => {
-            const dob = new Date(value);
-            const today = new Date();
-            const age = today.getFullYear() - dob.getFullYear() - (today < new Date(today.getFullYear(), dob.getMonth(), dob.getDate()) ? 1 : 0);
+            const age = getAge(value);
             if (age > MAX_AGE) throw new Error(`Age cannot exceed ${MAX_AGE} years`);
             return true;
         })
@@ -66,12 +66,3 @@ export const validateUpdateUser = [
         .isLength({ max: MAX_BIO_LENGTH })
         .withMessage(`About me cannot exceed ${MAX_BIO_LENGTH} characters`)
 ];
-
-// Checks if any validation errors were found and returns 400 if so, otherwise passes to the next handler
-export function handleValidationErrors(req, res, next) {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-}

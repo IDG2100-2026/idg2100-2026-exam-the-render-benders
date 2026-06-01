@@ -1,4 +1,5 @@
 import gameService from "../services/game.service.js";
+import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
 // Get all games from the database and return them as JSON
 export async function getAllGames(req, res) {
@@ -20,7 +21,7 @@ export async function getAllGames(req, res) {
             games.map(game => gameService.sanitizeGameForViewer(game, req.user?.id))
         );
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -32,7 +33,7 @@ export async function getTopGames(req, res) {
             games.map(game => gameService.sanitizeGameForViewer(game, req.user?.id))
         );
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -43,7 +44,7 @@ export async function getGame(req, res) {
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -53,8 +54,8 @@ export async function getGameState(req, res) {
         const game = await gameService.getGame(req.params.gid);
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+    } catch (err) {
+        sendError(res, err);
     }
 } 
 
@@ -66,7 +67,7 @@ export async function createGame(req, res) {
         const game = await gameService.createGame({ ...req.body, isAnonymous });
         res.status(201).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -77,9 +78,11 @@ export async function joinGame(req, res) {
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(201).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
-        const status = err.message.includes("does not allow anonymous") ? 403
-            : err.message.includes("already in an active game") ? 400 : 500;
-        res.status(status).json({ error: err.message });
+        const status = statusFromMessage(err.message, [
+            { text: "does not allow anonymous", status: 403 },
+            { text: "already in an active game", status: 400 }
+        ]);
+        sendError(res, err, status);
     }
 }
 
@@ -98,9 +101,11 @@ export async function leaveGame(req, res) {
         if (result.deleted) return res.status(200).json(result);
         res.status(200).json(gameService.sanitizeGameForViewer(result, req.user?.id));
     } catch (err) {
-        const status = err.message.includes("not in this game") ? 403
-            : err.message.includes("finished") ? 400 : 500;
-        res.status(status).json({ error: err.message });
+        const status = statusFromMessage(err.message, [
+            { text: "not in this game", status: 403 },
+            { text: "finished", status: 400 }
+        ]);
+        sendError(res, err, status);
     }
 }
 
@@ -111,7 +116,7 @@ export async function updateGame(req, res) {
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -122,13 +127,14 @@ export async function rollForPlayer(req, res) {
 
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch(err) {
-        const status = err.message.includes("not a player") ? 403
-        : err.message.includes("not your turn") ? 403
-        : err.message.includes("used all your rolls") ? 400
-        : err.message.includes("not currently rolling") ? 400
-        : 500;
+        const status = statusFromMessage(err.message, [
+            { text: "not a player", status: 403 },
+            { text: "not your turn", status: 403 },
+            { text: "used all your rolls", status: 400 },
+            { text: "not currently rolling", status: 400 }
+        ]);
 
-        res.status(status).json({ error: err.message });
+        sendError(res, err, status);
     }
 }
 
@@ -140,15 +146,16 @@ export async function placeBet(req, res) {
 
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
-        const status = err.message.includes("not a player") ? 403
-            : err.message.includes("not your turn") ? 403
-            : err.message.includes("already folded") ? 400
-            : err.message.includes("not currently accepting bets") ? 400
-            : err.message.includes("Not enough") ? 400
-            : err.message.includes("Invalid") ? 400
-            : 500;
+        const status = statusFromMessage(err.message, [
+            { text: "not a player", status: 403 },
+            { text: "not your turn", status: 403 },
+            { text: "already folded", status: 400 },
+            { text: "not currently accepting bets", status: 400 },
+            { text: "Not enough", status: 400 },
+            { text: "Invalid", status: 400 }
+        ]);
 
-        res.status(status).json({ error: err.message });
+        sendError(res, err, status);
     }
 }
 
@@ -159,13 +166,14 @@ export async function handleTimeout(req, res) {
 
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch(err) {
-        const status = err.message.includes("not expired") ? 400
-            : err.message.includes("No active turn") ? 400
-            : err.message.includes("Only ongoing") ? 400
-            : err.message.includes("cannot time out") ? 400
-            : 500;
+        const status = statusFromMessage(err.message, [
+            { text: "not expired", status: 400 },
+            { text: "No active turn", status: 400 },
+            { text: "Only ongoing", status: 400 },
+            { text: "cannot time out", status: 400 }
+        ]);
 
-        res.status(status).json({ error: err.message });
+        sendError(res, err, status);
     }
 }
 
