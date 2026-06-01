@@ -84,12 +84,28 @@ export async function requireNotBanned(req, res, next) {
 }
 
 // Blocking users who have not verified their email from joining games and tournaments
-export function requireEmailVerified(req, res, next) {
+export async function requireEmailVerified(req, res, next) {
     if (req.user?.isGuest) {
         return next();
     }
-    if (!req.user.emailVerified) {
+    
+    if (!req.user?.id) {
+        return res.status(401).json({ error: "You must be logged in" });
+    }
+
+    try {
+        const user = await User.findById(req.user.id).select("emailVerified isGuest");
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        if (user.isGuest || user.emailVerified) {
+            return next();
+        }
+
         return res.status(403).json({ error: "You must verify your email before joining games" });
-    } 
-    next();
+    } catch (err) {
+        return sendError(res, err);
+    }
 }

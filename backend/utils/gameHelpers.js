@@ -268,11 +268,15 @@ export function bettingRoundIsComplete(game) {
     if (activePlayers.length <= 1) return true;
 
     return activePlayers.every(playerId => {
-        const contribution = getContribution(game, playerId);
+        const contribution = game.bettingState.contributions.find(entry => idsEqual(entry.user, playerId));
         const hasActed = game.bettingState.actedUsers.some(actedId => idsEqual(actedId, playerId));
         const stackEntry = getPlayerStack(game, playerId);
 
-        return hasActed && (contribution.amount === game.bettingState.currentBet || stackEntry?.stack === 0);
+        const contributedAmount = contribution?.amount ?? 0;
+        const hasMatchedCurrentBet = contributedAmount >= game.bettingState.currentBet;
+        const isAllIn = stackEntry?.stack === 0;
+
+        return hasActed && (hasMatchedCurrentBet || isAllIn);
     });
 }
 

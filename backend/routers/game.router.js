@@ -21,7 +21,7 @@ gameRouter.get("/games/:gid", gameController.getGame);
 gameRouter.get("/games/:gid/state", gameController.getGameState);
 
 // Creates a new game (start matchmaking)
-gameRouter.post("/games", requireUser, validateCreateGame, handleValidationErrors, gameController.createGame);
+gameRouter.post("/games", requireUser, requireNotBanned, requireEmailVerified, validateCreateGame, handleValidationErrors, gameController.createGame);
 
 // Updates a game (saves the result when finished)
 gameRouter.put("/games/:gid", requireUser, validateUpdateGame, handleValidationErrors, gameController.updateGame);
