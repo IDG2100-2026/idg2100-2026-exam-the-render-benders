@@ -13,7 +13,7 @@ import styles from "./GamePage.module.css";
 export default function GamePage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, refreshUser } = useAuth();
     const { preferences } = useAppearance();
     const [game, setGame] = useState(null);
     const [error, setError] = useState(null);
@@ -102,7 +102,15 @@ export default function GamePage() {
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
                             {/* Game board - Web Components wired in GameBoard.jsx */}
-                            <GameBoard isPlayer={isPlayer} gameId={id} onStateUpdate={(state) => setGame(prev => prev ? { ...prev, status: state.status, result: state.result } : prev)} onGameDeleted={() => navigate("/lobby")} />
+                            <GameBoard 
+                                isPlayer={isPlayer} 
+                                gameId={id} 
+                                onStateUpdate={(state) => {
+                                    setGame(prev => prev ? { ...prev, status: state.status, result: state.result } : prev);
+                                    if (state.status === "finished") refreshUser();
+                                }}
+                                onGameDeleted={() => navigate("/lobby")} 
+                            />
 
                             {game.status === "waiting" && (
                                 <div className={styles.overlay}>
