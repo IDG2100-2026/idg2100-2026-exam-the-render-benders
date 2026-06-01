@@ -1,4 +1,5 @@
 import userService from "../services/user.service.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 // Get all users from the database and return them as JSON
 export async function getAllUsers(req, res) {
@@ -9,7 +10,7 @@ export async function getAllUsers(req, res) {
         const users = await userService.getAllUsers({ skip, limit, search });
         res.status(200).json(users);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -20,7 +21,7 @@ export async function getUser(req, res) {
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -41,7 +42,7 @@ export async function getUserGames(req, res) {
 
         res.status(200).json(result);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -51,7 +52,7 @@ export async function createUser(req, res) {
         const user = await userService.createUser(req.body);
         res.status(201).json(user);
     } catch (err) {
-        res.status(400).json({ error: err.message });
+        sendError(res, err, 400);
     }
 }
 
@@ -65,7 +66,7 @@ export async function updateUser(req, res) {
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -76,7 +77,7 @@ export async function banUser(req, res) {
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -87,7 +88,7 @@ export async function getLeaderboard(req, res) {
         const leaderboard = await userService.getLeaderboard(sortBy);
         res.status(200).json(leaderboard);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 
 }
@@ -99,7 +100,7 @@ export async function updatePreferences(req, res) {
         if (!user) return res.status(404).json({ error: "User not found" });
         res.status(200).json(user.preferences);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -110,7 +111,7 @@ export async function loginUser(req, res) {
         if (!user) return res.status(401).json({ msg: "Invalid username or password" });
         res.status(200).json(user);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -120,7 +121,7 @@ export async function getUserTrophies(req, res) {
         if (trophies === null) return res.status(404).json({ error: "User not found" });
         res.status(200).json(trophies);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 

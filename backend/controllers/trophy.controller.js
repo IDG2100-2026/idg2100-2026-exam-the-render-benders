@@ -1,11 +1,12 @@
 import { Trophy } from "../models/trophy.model.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 export async function getAllTrophies(req, res) {
     try {
         const trophies = await Trophy.find().populate("tournament", "name").sort({ createdAt: -1 });
         res.status(200).json(trophies);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -15,7 +16,7 @@ export async function getTrophy(req, res) {
         if (!trophy) return res.status(404).json({ error: "Trophy not found" });
         res.status(200).json(trophy);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -26,7 +27,7 @@ export async function createTrophy(req, res) {
         const trophy = await Trophy.create(data);
         res.status(201).json(trophy);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -36,7 +37,7 @@ export async function deleteTrophy(req, res) {
         if (!trophy) return res.status(404).json({ error: "Trophy not found" });
         res.status(200).json(trophy);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 

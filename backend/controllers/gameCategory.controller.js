@@ -1,11 +1,12 @@
 import { GameCategory } from "../models/gameCategory.model.js";
+import { sendError } from "../utils/controllerHelpers.js";
 
 export async function getAllGameCategories(req, res) {
     try {
         const categories = await GameCategory.find().sort({ createdAt: -1 });
         res.status(200).json(categories);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -15,7 +16,7 @@ export async function getGameCategory(req, res) {
         if (!category) return res.status(404).json({ error: "Game category not found" });
         res.status(200).json(category);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -26,7 +27,7 @@ export async function createGameCategory(req, res) {
         const category = await GameCategory.create(req.body);
         res.status(201).json(category);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -42,7 +43,7 @@ export async function updateGameCategory(req, res) {
         if (!category) return res.status(404).json({ error: "Game category not found" });
         res.status(200).json(category);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -52,7 +53,7 @@ export async function deleteGameCategory(req, res) {
         if (!category) return res.status(404).json({ error: "Game category not found" });
         res.status(200).json(category);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
@@ -64,7 +65,7 @@ export async function getGameCategoryByName(req, res) {
         if (!category) return res.status(404).json({ error: "Game category not found" });
         res.status(200).json(category);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        sendError(res, err);
     }
 }
 
