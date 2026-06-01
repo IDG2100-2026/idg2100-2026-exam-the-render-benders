@@ -57,7 +57,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         socket.on("game-state", (state) => {
             // clear held dice when the server pushes a new round
-            if (roundRef.current !== state.currentRound) {
+            if (roundRef.current !== state.currentRound || ["round-ended", "finished"].includes(state.phase)) {
                 roundRef.current = state.currentRound;
                 setHeldDice(new Set());
             }

@@ -21,6 +21,17 @@ export default function AuthProvider({ children }) {
         setUser(userData);
     }
 
+    async function refreshUser() {
+        const res = await fetch(API_URL + "/auth/refresh", {
+            method: "POST",
+            credentials: "include" 
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data?._id) setUser(data);
+        }
+    }
+
     // Calls backend to clear the JWT cookie, then clears state
     async function logout() {
         await fetch(API_URL + "/auth/logout", { method: "POST", credentials: "include" });
@@ -29,7 +40,7 @@ export default function AuthProvider({ children }) {
 
     return (
         // Passes user, login and logout into the context so any component can access them
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );
