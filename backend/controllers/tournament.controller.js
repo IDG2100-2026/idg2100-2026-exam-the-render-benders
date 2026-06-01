@@ -1,4 +1,5 @@
 import tournamentService from "../services/tournament.service.js";
+import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
 
 // Get all Tournaments from the database and return them as JSON
@@ -86,8 +87,11 @@ export async function leaveTournament(req, res) {
         if (!tournament) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(tournament);
     } catch (err) {
-        const status = err.message.includes("already started") ? 403 : err.message.includes("not in") ? 404 : 500;
-        res.status(status).json({ error: err.message });
+        const status = statusFromMessage(err.message, [
+            { text: "already started", status: 403 },
+            { text: "not in", status: 404}
+        ]);
+        sendError(res, err, status);
     }
 }
 

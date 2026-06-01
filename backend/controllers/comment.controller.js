@@ -1,5 +1,6 @@
 import commentService from "../services/comment.service.js";
 import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTournamentRoom } from "../socket/comment.socket.js";
+import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
 // Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
@@ -53,8 +54,11 @@ export async function createComment(req, res) {
 
         res.status(201).json(comment);
     } catch (err) {
-        const status = err.message.includes("Banned") ? 403 : err.message.includes("not found") ? 404 : 500;
-        res.status(status).json({ error: err.message });
+        const status = statusFromMessage(err.message, [
+            { text: "Banned", status: 403 },
+            { text: "not found", status: 404 }
+        ]);
+        sendError(res, err, status);
     }
 }
 

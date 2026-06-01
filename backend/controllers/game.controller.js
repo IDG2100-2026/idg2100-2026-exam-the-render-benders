@@ -1,4 +1,5 @@
 import gameService from "../services/game.service.js";
+import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
 // Get all games from the database and return them as JSON
 export async function getAllGames(req, res) {
@@ -122,13 +123,14 @@ export async function rollForPlayer(req, res) {
 
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch(err) {
-        const status = err.message.includes("not a player") ? 403
-        : err.message.includes("not your turn") ? 403
-        : err.message.includes("used all your rolls") ? 400
-        : err.message.includes("not currently rolling") ? 400
-        : 500;
+        const status = statusFromMessage(err.message, [
+            { text: "not a player", status: 403 },
+            { text: "not your turn", status: 403 },
+            { text: "used all your rolls", status: 400 },
+            { text: "not currently rolling", status: 400 }
+        ]);
 
-        res.status(status).json({ error: err.message });
+        sendError(res, err, status);
     }
 }
 
