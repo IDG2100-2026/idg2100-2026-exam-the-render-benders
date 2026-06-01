@@ -26,10 +26,10 @@ export default function TournamentListPage() {
     }, []);
 
     const filtered = tournaments
-        .filter(t => search.length < 3 || t.title.toLowerCase().includes(search.toLowerCase()))
+        .filter(t => search.length < 3 || t.name.toLowerCase().includes(search.toLowerCase()))
         .sort((a, b) => {
             if (sortBy === "date") return new Date(a.startDate) - new Date(b.startDate);
-            if (sortBy === "title") return a.title.localeCompare(b.title);
+            if (sortBy === "title") return a.name.localeCompare(b.name);
             if (sortBy === "players") return (b.players?.length ?? 0) - (a.players?.length ?? 0);
             return 0;
         });
