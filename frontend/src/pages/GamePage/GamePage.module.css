@@ -272,6 +272,13 @@
     background: rgba(255,255,255,0.18);
 }
 
+@media (max-width: 900px) {
+    .sidebar {
+        height: auto;
+        min-height: 400px;
+    }
+}
+
 @media (max-width: 600px) {
     .pageLayout {
         justify-content: flex-start;

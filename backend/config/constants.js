@@ -19,7 +19,7 @@ export const MAX_AGE = 100;
 export const MAX_BIO_LENGTH = 500;
 
 // Maximum length for a comment body
-export const MAX_COMMENT_LENGTH = 1000;
+export const MAX_COMMENT_LENGTH = 200;
 
 // Default "buy-in" points for users
 export const DEFAULT_POINTS = 100;
