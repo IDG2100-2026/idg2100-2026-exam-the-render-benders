@@ -63,7 +63,7 @@ export async function updateTournament(req, res) {
 
 export async function joinTournament(req, res) {
     try {
-        const tournament = await tournamentService.joinTournament(req.params.tid, req.body.player);
+        const tournament = await tournamentService.joinTournament(req.params.tid, req.user.id);
         if (!tournament) return res.status(404).json({ error: "Tournament not found" });
         res.status(200).json(tournament);
     } catch (err) {

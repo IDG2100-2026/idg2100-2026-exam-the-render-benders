@@ -207,7 +207,7 @@ export async function createGame(data) {
         if (startingStack > 0) {
             const user = await User.findById(playerId);
             if (!user) throw new Error("User not found");
-            if (user.points < startingStack) throw new Error("You don't not have enough points to create this game");
+            if (user.points < startingStack) throw new Error("You do not have enough points to create this game");
             await User.findByIdAndUpdate(playerId, { $inc: { points: -startingStack } });
         }
     }

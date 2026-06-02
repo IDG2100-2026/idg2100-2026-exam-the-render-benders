@@ -74,7 +74,7 @@ export async function createGame(req, res) {
 // Adds a player to a game and returns the updated game as JSON
 export async function joinGame(req, res) {
     try {
-        const game = await gameService.joinGame(req.params.gid, req.body.player, req.user);
+        const game = await gameService.joinGame(req.params.gid, req.user.id, req.user);
         if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(201).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
