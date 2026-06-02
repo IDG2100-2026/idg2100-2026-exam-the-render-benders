@@ -82,13 +82,20 @@ export default function Header() {
                                 <FaBookOpen /> About Spanish Dice
                             </NavLink>
                         </li>
+                        {user?.isAdmin && (
+                            <li>
+                                <NavLink to="/admin" onClick={() => setOpen(false)}>
+                                    <FaShield /> Admin
+                                </NavLink>
+                            </li>
+                        )}
                         {user ? (
                             <li className={styles.mobileAuthItem}>
                                 <Link to={`/users/${user.username}`} className={styles.mobileUserInfo} onClick={() => setOpen(false)}>
-                                    <img 
-                                        src={getAssetUrl(user.profileImage)} 
-                                        alt={user.username} 
-                                        className={styles.mobileAvatar} 
+                                    <img
+                                        src={getAssetUrl(user.profileImage)}
+                                        alt={user.username}
+                                        className={styles.mobileAvatar}
                                     />
                                     <span className={styles.mobileGreeting}>Hello, {user.username}</span>
                                 </Link>
