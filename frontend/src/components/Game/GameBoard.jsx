@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS, MAX_ROLLS_PER_TURN } from "@/config/constants";
+import { FACE_VALUES, HAND_NAMES, TIMEOUT_FALLBACK_MS, MAX_ROLLS_PER_TURN } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -193,11 +193,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             if (remaining === 0 && !timeoutCalled) {
                 timeoutCalled = true;
                 if (isMyTurn) {
-                    apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(err => {
-                        // retry once if server clock is slightly behind the client
-                        if (err.message?.includes("not expired")) {
-                            setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_RETRY_MS);
-                        }
+                    apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {
+                        // retry once on any failure - covers both clock drift and transient errors
+                        setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_FALLBACK_MS);
                     });
                 } else if (isPlayer) {
                     // fallback: if the current player's client isn't responding, try after a delay
@@ -228,6 +226,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             onStateUpdateRef.current?.(state);
         } catch (err) {
             setActionError(err.message);
+            // if the turn already expired but timeout wasn't called, trigger it now so the game advances
+            if (err.message?.includes("expired")) {
+                apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {});
+            }
         }
     }
 
