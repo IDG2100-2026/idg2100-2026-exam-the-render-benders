@@ -176,8 +176,8 @@ export function getContribution(game, playerId) {
     );
 
     if (!contribution) {
-        contribution = { user: playerId, amount: 0};
-        game.bettingState.contributions.push(contribution);
+        game.bettingState.contributions.push({ user: playerId, amount: 0 });
+        contribution = game.bettingState.contributions[game.bettingState.contributions.length - 1];
     }
 
     return contribution;
