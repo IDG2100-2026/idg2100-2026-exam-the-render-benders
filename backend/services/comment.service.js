@@ -2,10 +2,11 @@ import { Comment } from "../models/comment.model.js";
 import { Game } from "../models/game.model.js";
 import { Tournament } from "../models/tournament.model.js";
 import { User } from "../models/user.model.js";
+import { escapeRegex } from "../utils/escapeRegex.js";
 
 // Returns all the Comments from the DB, supports pagination and search by body text
 export async function getAllComments({ skip = 0, limit = 20, search } = {}) {
-    const filter = search ? { body: { $regex: search, $options: "i" } } : {};
+    const filter = search ? { body: { $regex: escapeRegex(search), $options: "i" } } : {};
 
     return await Comment.find(filter)
         .skip(skip)

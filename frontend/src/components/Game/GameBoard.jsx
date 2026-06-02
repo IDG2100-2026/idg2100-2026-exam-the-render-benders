@@ -7,7 +7,7 @@ import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
 // Socket.IO lives on the backend root, not under /api/v1
-const SOCKET_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
+const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1").replace("/api/v1", "");
 
 function getId(value) {
     return value?._id?.toString?.() ?? value?.toString?.();
