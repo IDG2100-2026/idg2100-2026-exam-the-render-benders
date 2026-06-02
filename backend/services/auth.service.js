@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
+import { sendVerificationEmail } from "./email.service.js";
 import { User } from "../models/user.model.js";
 import { hashPwd } from "../utils/hash.js";
 import {
@@ -93,8 +94,7 @@ async function createEmailVerification(user) {
         expiresAt: new Date(Date.now() + EMAIL_VERIFICATION_EXPIRES_MS)
     });
 
-    // For exam/dev fallback until/if real nodemailer sending is wired
-    console.log(`Email verification code for ${user.email}: ${code}`);
+    await sendVerificationEmail(user, code);
 
     return code;
 }
