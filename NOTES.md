@@ -81,9 +81,9 @@ After implementing the phases, we went through a phase of checking for bugs and 
 
 ### The work done: 
 #### Tobias
-- Socket.IO server: game rooms, cookie-based auth, `buildGameState` / `sanitizeGameForViewer` (hides other players' hidden dice)
+- Socket.IO server: game rooms, cookie-based auth, `sanitizeGameForViewer` (strips other players' hidden dice before each emit so every client only sees their own rolls)
 - All betting socket events (`bet`, `match`, `raise`, `fold`, `check`) with auth guard and per-socket personalised state emit
-- Game economy: buy-in deduction on game creation, points validation, weekly grant endpoint, stack return on finish/forfeit
+- Game economy: buy-in deduction on game creation, points validation, weekly +100 points granted on login after 7 days, stack return on finish/forfeit
 - Reusable `Comments` component with live Socket.IO updates and REST fallback
 - Tournament list page (search, sort, upcoming/ongoing/past sections) and tournament detail page
 - Points balance on profile page
@@ -94,7 +94,7 @@ After implementing the phases, we went through a phase of checking for bugs and 
 - `banUser` service now toggles ban status (enables unban, not just ban)
 - Clear held dice when round ends or game finishes; refresh user points in header after game finishes
 - Trophy display on tournament winner section
-- Bug fixes including bet contributions not persisting between turns (Mongoose subdocument proxy issue), correct tournament name field in search/sort, all-in player blocking betting round
+- Bug fixes
 
 #### Seb
 - **Auth backend:** entire JWT + httpOnly cookie auth system - `auth.service.js`, `auth.router.js`, `auth.controller.js`, `EmailVerification` schema, `POST /auth/login`, `POST /auth/register`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/verify-email`, `POST /auth/resend-verification`; tokens stored as httpOnly cookies; refresh tokens hashed with SHA-256 in MongoDB
@@ -111,7 +111,7 @@ After implementing the phases, we went through a phase of checking for bugs and 
 - Round result feedback: hand name, winner, and points won displayed after each round
 - Frontend: 6 service files (userService, gameService, tournamentService, commentService, leaderboardService, activityService)
 - Backend refactoring: centralised error helpers, shared helpers across services and sockets
-- Bug fixes: E11000 guest email key, double-refresh, game state sync, round betting limits, immediate email verification
+- Bug fixes
 
 #### Johan
 - **Authentication flow:** rewired `apiFetch` with `credentials: "include"`, automatic 401 retry with token refresh (raw `fetch` used for refresh to avoid infinite recursion), `AuthProvider` restores session on mount via `POST /auth/refresh`, login/register pages wired to auth endpoints, `EmailVerificationPage` (auto-send on mount, single message state), verify-email banner on profile, `ProtectedRoute` and `AdminRoute` route guards
@@ -124,8 +124,7 @@ After implementing the phases, we went through a phase of checking for bugs and 
 - Timeout fallback: non-current-player clients call timeout after 1s if current player is unresponsive; backend rejects rolls/bets after turn has expired
 - Seed data refactor: split inline data into `games.json`, `comments.json`, `tournaments.json` with username references; fixed `emailVerified` and points for all seed users
 - Component restructuring: all page sub-components moved to `frontend/src/components/`; `formatDate` utility for Norwegian locale dates (DD.MM.YYYY); favicon as hexagonal dice SVG
-- Bug fixes: #25, #26, #27, #28, #29, #31, #32, #33, #34, #38, #40, #42, #44, #45, #46
-
+- Bug fixes
 
 ## Unfinished parts 
 There were some parts of the application that we did not have time to implement, some of these were: 
