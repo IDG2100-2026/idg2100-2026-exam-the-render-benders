@@ -43,10 +43,15 @@ JWT_ACCESS_SECRET=your_access_secret
 JWT_REFRESH_SECRET=your_refresh_secret
 APP_SALT=your_salt
 FRONTEND_URL=http://localhost:5173
-GMAIL_USER=jofatech02@gmail.com
-GMAIL_APP_PASSWORD=ngbm odrn auix avzc
+GMAIL_USER=your_gmail_address
+GMAIL_APP_PASSWORD=your_16_char_app_password
 ```
 
+4. Create `frontend/.env` with:
+```
+VITE_API_URL=http://localhost:3000/api/v1
+VITE_WS_URL=ws://localhost:3000
+```
 
 ### Seed the database
 ```bash
