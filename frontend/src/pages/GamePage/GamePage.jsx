@@ -78,7 +78,17 @@ export default function GamePage() {
                     <div className={styles.cardHeader}>
                         <div className={styles.titleRow}>
                             <h1>Game #{id.slice(-4)}</h1>
-                            <span className={`${styles.badge} ${styles[game.status]}`}>{game.status}</span>
+                            <div className={styles.titleActions}>
+                                <span className={`${styles.badge} ${styles[game.status]}`}>{game.status}</span>
+                                {!isPlayer && game.status === "ongoing" && (
+                                    <span className={`${styles.badge} ${styles.spectating}`}>Spectating</span>
+                                )}
+                                {canLeave && (
+                                    <button className={styles.leaveBtn} onClick={handleLeaveGame}>
+                                        <MdExitToApp /> {game.status === "ongoing" ? "Forfeit" : "Leave"}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className={styles.variantBadges}>
                             <span className={styles.variantBadge}>
@@ -90,11 +100,6 @@ export default function GamePage() {
                             <span className={styles.variantBadge}>
                                 {game.variant.rules === RULES_STRAIGHTS ? "Straights" : "No straights"}
                             </span>
-                            {canLeave && (
-                                <button className={styles.leaveBtn} onClick={handleLeaveGame}>
-                                    <MdExitToApp /> {game.status === "ongoing" ? "Forfeit" : "Leave"}
-                                </button>
-                            )}
                         </div>
                     </div>
 
@@ -103,15 +108,17 @@ export default function GamePage() {
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
                             {/* Game board - Web Components wired in GameBoard.jsx */}
-                            <GameBoard 
-                                isPlayer={isPlayer} 
-                                gameId={id} 
-                                onStateUpdate={(state) => {
-                                    setGame(prev => prev ? { ...prev, status: state.status, result: state.result } : prev);
-                                    if (state.status === "finished") refreshUser();
-                                }}
-                                onGameDeleted={() => navigate("/lobby")} 
-                            />
+                            {game.status !== "finished" && (
+                                <GameBoard
+                                    isPlayer={isPlayer}
+                                    gameId={id}
+                                    onStateUpdate={(state) => {
+                                        setGame(prev => prev ? { ...prev, status: state.status, result: state.result } : prev);
+                                        if (state.status === "finished") refreshUser();
+                                    }}
+                                    onGameDeleted={() => navigate("/lobby")}
+                                />
+                            )}
 
                             {game.status === "waiting" && (
                                 <div className={styles.overlay}>

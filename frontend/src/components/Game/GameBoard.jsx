@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS } from "@/config/constants";
+import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS, MAX_ROLLS_PER_TURN } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -157,7 +157,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         const dice = (myResult?.hiddenRolls ?? []).map((value, i) => ({
             value,
-            held: heldDice.has(i)
+            held: rollsUsed < MAX_ROLLS_PER_TURN && heldDice.has(i)
         }));
 
         if (dice.length === 0) return;
@@ -166,6 +166,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         if (!isPlayer) return;
 
         function handleHoldDie(event) {
+            if (rollsUsed >= MAX_ROLLS_PER_TURN) return;
             const { index } = event.detail;
             // toggle the held state for the clicked die
             setHeldDice(prev => {
@@ -177,7 +178,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         board.addEventListener("hold-die", handleHoldDie);
         return () => board.removeEventListener("hold-die", handleHoldDie);
-    }, [serverState, heldDice, isPlayer, user]);
+    }, [serverState, heldDice, isPlayer, user, rollsUsed]);
 
     // countdown timer - ticks every second, triggers timeout endpoint when it hits zero
     useEffect(() => {
@@ -337,7 +338,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                                 setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(raw))));
                             }}
                             onBlur={() => {
-                                if (betAmount === "" || Number(betAmount) < 1) setBetAmount(1);
+                                const val = Number(betAmount);
+                                if (betAmount === "" || val < 1) setBetAmount(1);
+                                else if (val > (serverState?.buyIn ?? 1)) setBetAmount(serverState.buyIn);
                             }}
                         />
                         <button onClick={() => handleBet(
