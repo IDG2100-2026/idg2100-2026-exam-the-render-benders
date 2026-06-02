@@ -23,13 +23,6 @@ Including the info on the starter code (whose repository and how used), notes on
 - [x] `Trophy` model + full CRUD with image upload (admin-only write)
 
 
-### (Seb) likely not from the starter project, but done afterwards
-- [x] Tournament: leave, standings, delete, improved join + getAllTournaments
-- [x] `GET /users/:username/trophies`
-- [x] Comment `createComment` checks author is not banned
-- [x] Frontend: 6 service files
-
-
 ## Seeding and launching the app
 
 ### Prerequisites
@@ -39,7 +32,18 @@ Including the info on the starter code (whose repository and how used), notes on
 ### Setup
 1. Clone the repository
 2. Run `npm install` from the root directory
-3. Create `backend/.env.dev` based on the `.env.example` file in the repo
+3. Create `backend/.env.dev` with the following variables:
+```
+NODE_ENV=development
+APP_PORT=3000
+DB_HOSTNAME=localhost
+DB_PORT=27017
+DB_NAME=poker
+JWT_ACCESS_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+APP_SALT=your_salt
+FRONTEND_URL=http://localhost:5173
+```
 
 
 ### Seed the database
@@ -100,7 +104,7 @@ After implementing the phases, we went through a phase of checking for bugs and 
 ## Unfinished parts 
 There were some parts of the application that we did not have time to implement, some of these were: 
 - Tournament functionality
-    - We have the tournament list page and a page for individual tournament. We also have backend functionality for tournaments (join, leave, standings etc.) but the frontend is missing 
+    - We have the tournament list page and a page for individual tournament. We also have some backend functionality for tournaments (join, leave, standings etc.), but there is logic not implemented - brackets for knockout, round matching for arena and the standings/progression UI are all missing.
 
 There were also parts of the task description that we decided to do differently, such as: 
 - Anonymous players can still play the game 
