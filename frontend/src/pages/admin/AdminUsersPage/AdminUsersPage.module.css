@@ -1,0 +1,118 @@
+.page h1 {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 1.5rem;
+    color: var(--text-h);
+}
+
+.search {
+    width: 100%;
+    padding: 0.6rem 0.9rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-secondary);
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+}
+
+.avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.username {
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text);
+    opacity: 0.6;
+    flex-wrap: wrap;
+}
+
+.badge {
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    opacity: 1;
+}
+
+.banned {
+    background-color: var(--danger-bg, #e74c3c1a);
+    border-color: var(--danger-border, #e74c3c66);
+    color: var(--danger-text, #e74c3c);
+}
+
+.banBtn {
+    background-color: var(--danger-bg, #e74c3c1a);
+    border: 1px solid var(--danger-border, #e74c3c66);
+    color: var(--danger-text, #e74c3c);
+    border-radius: 8px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.banBtn:hover {
+    background-color: var(--danger-bg-hover, #e74c3c33);
+}
+
+.unbanBtn {
+    background-color: var(--success-bg, #2ecc711a);
+    border: 1px solid var(--success-border, #2ecc7166);
+    color: var(--success, #2ecc71);
+    border-radius: 8px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.error {
+    color: var(--danger-text, #e74c3c);
+}

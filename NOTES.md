@@ -99,7 +99,6 @@ After implementing the phases, we went through a phase of checking for bugs and 
 
 ## Unfinished parts 
 There were some parts of the application that we did not have time to implement, some of these were: 
-- Admin pages 
 - Tournament functionality
     - We have the tournament list page and a page for individual tournament. We also have backend functionality for tournaments (join, leave, standings etc.) but the frontend is missing 
 
