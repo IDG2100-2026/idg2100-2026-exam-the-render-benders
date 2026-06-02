@@ -23,7 +23,7 @@ export const MAX_ROLLS_PER_TURN = 3;
 export const MIN_AGE = 18;
 export const MAX_AGE = 100;
 export const MAX_BIO_LENGTH = 500;
-export const MAX_COMMENT_LENGTH = 1000;
+export const MAX_COMMENT_LENGTH = 200;
 
 export const HAND_NAMES = {
     8: "Five of a kind",

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { getTournament } from "@/services/tournamentService";
 import { formatDate } from "@/utils/formatDate";
+import Comments from "@/components/Comments/Comments";
 import styles from "./TournamentPage.module.css";
 
 export default function TournamentPage() {
@@ -102,6 +103,11 @@ export default function TournamentPage() {
                         ))}
                     </ul>
                 )}
+            </section>
+
+            <section className={styles.section}>
+                <h2>Comments</h2>
+                <Comments tournamentId={id} />
             </section>
         </div>
     );
