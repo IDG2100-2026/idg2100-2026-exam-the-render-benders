@@ -17,6 +17,7 @@ export default function GamePage() {
     const { preferences } = useAppearance();
     const [game, setGame] = useState(null);
     const [error, setError] = useState(null);
+    const [confirmLeave, setConfirmLeave] = useState(false);
     const gameRef = useRef(null);
 
     useEffect(() => {
@@ -50,12 +51,12 @@ export default function GamePage() {
         };
     }, [user?._id]);
 
-    async function handleLeaveGame() {
-        if (!game) return;
-        const confirmMsg = game.status === "ongoing"
-            ? "Leaving an ongoing game will forfeit the match to your opponent. Continue?"
-            : "Are you sure you want to leave this game?";
-        if (!window.confirm(confirmMsg)) return;
+    function handleLeaveGame() {
+        setConfirmLeave(true);
+    }
+
+    async function handleConfirmLeave() {
+        setConfirmLeave(false);
         try {
             await apiFetch(`/games/${id}/players/${user._id}`, { method: "DELETE" });
             navigate("/lobby");
@@ -120,11 +121,22 @@ export default function GamePage() {
                                 </div>
                             )}
 
-                            {game.status === "finished" && game.result?.winner && (
+                            {game.status === "finished" && (
                                 <div className={styles.overlay}>
                                     <MdEmojiEvents />
-                                    <h2>Winner: {game.result.winner.username}</h2>
+                                    <h2>{game.result?.winner ? `Winner: ${game.result.winner.username}` : "Game over"}</h2>
                                     <p>The game has finished.</p>
+                                </div>
+                            )}
+
+                            {confirmLeave && (
+                                <div className={styles.overlay}>
+                                    <h2>{game.status === "ongoing" ? "Forfeit game?" : "Leave game?"}</h2>
+                                    <p>{game.status === "ongoing" ? "Leaving will forfeit the match to your opponent." : "Are you sure you want to leave?"}</p>
+                                    <div className={styles.confirmActions}>
+                                        <button className={styles.confirmBtn} onClick={handleConfirmLeave}>Confirm</button>
+                                        <button className={styles.cancelBtn} onClick={() => setConfirmLeave(false)}>Cancel</button>
+                                    </div>
                                 </div>
                             )}
                         </div>

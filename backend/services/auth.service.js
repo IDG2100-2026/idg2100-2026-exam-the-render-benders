@@ -118,8 +118,6 @@ async function register(data, req){
         emailVerified: false
     });
 
-    await createEmailVerification(user);
-
     const session = await issueSessionForUser(user, req);
 
     return {

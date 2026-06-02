@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
 import styles from "./EmailVerificationPage.module.css";
 
 export default function EmailVerificationPage() {
+    const navigate = useNavigate();
     const { user, loading, login } = useAuth();
     const [code, setCode] = useState("");
     const [verified, setVerified] = useState(false);
@@ -58,12 +60,19 @@ export default function EmailVerificationPage() {
 
     if (loading || !user) return null;
 
+    useEffect(() => {
+        if (verified) {
+            const timer = setTimeout(() => navigate("/"), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [verified, navigate]);
+
     if (verified) {
         return (
             <div className={styles.page}>
                 <div className={styles.form}>
                     <h1>Email verified!</h1>
-                    <p>Your email has been verified. You can now play!</p>
+                    <p>Your email has been verified. Redirecting you to the homepage...</p>
                 </div>
             </div>
         );

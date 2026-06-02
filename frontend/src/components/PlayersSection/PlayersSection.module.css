@@ -67,6 +67,15 @@
     font-size: 1.25rem;
 }
 
+.pLink {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    text-decoration: none;
+    color: inherit;
+}
+
 @media (max-width: 700px) {
     .playersSection {
         grid-template-columns: 1fr;

@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { MdPeople } from "react-icons/md";
 import { getAssetUrl } from "@/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +26,7 @@ export default function PlayersSection({ game, boardColor }) {
                         <span className={styles.pNumber}>{index + 1}</span>
 
                         {player ? (
-                            <>
+                            <Link to={`/users/${player.username}`} className={styles.pLink}>
                                 <img
                                     src={getAssetUrl(player.profileImage)}
                                     alt=""
@@ -34,7 +35,7 @@ export default function PlayersSection({ game, boardColor }) {
                                 <span className={styles.pElo}>
                                     {player.elo || DEFAULT_ELO} ELO
                                 </span>
-                            </>
+                            </Link>
                         ) : (
                             <div className={styles.waitingSlot}>
                                 <MdPeople className={styles.waitingIcon} />
