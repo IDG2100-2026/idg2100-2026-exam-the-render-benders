@@ -5,8 +5,9 @@ import cookieParser from "cookie-parser";
 import { connectDB, disconnectDB } from "./config/db.js";
 import { RATE_LIMIT_WINDOW_MS, RATE_LIMIT_MAX } from "./config/constants.js";
 import { setUserType } from "./middleware/auth.middleware.js";
-import { setupCommentSockets } from "./socket/comment.socket.js"; 
+import { setupCommentSockets } from "./socket/comment.socket.js";
 import { initializeGameSocket } from "./socket/game.socket.js";
+import { User } from "./models/user.model.js";
 
 // Import Routers
 import userRouter from "./routers/user.router.js";
@@ -20,8 +21,11 @@ import trophyRouter from "./routers/trophy.router.js";
 import gameCategoryRouter from "./routers/gameCategory.router.js";
 import authRouter from "./routers/auth.router.js";
 
-// Connects to MongoDB via Mongoose 
+// Connects to MongoDB via Mongoose
 await connectDB();
+
+// Sync indexes so schema changes (e.g. adding partialFilterExpression) take effect without manual intervention
+await User.syncIndexes();
 
 // Creates an Express app
 const app = express();

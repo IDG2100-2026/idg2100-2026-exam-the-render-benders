@@ -14,7 +14,7 @@ export const MAX_ELO = 3000;
 // Polling intervals
 export const LOBBY_POLL_MS = 10000;
 export const TIMEOUT_RETRY_MS = 800;
-export const TIMEOUT_FALLBACK_MS = 100;
+export const TIMEOUT_FALLBACK_MS = 2000;
 
 // Max rolls per turn: 1 automatic + 2 optional rerolls
 export const MAX_ROLLS_PER_TURN = 3;
