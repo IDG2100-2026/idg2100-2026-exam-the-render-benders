@@ -34,8 +34,8 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/create-game" element={<CreateGamePage />} />
-                <Route path="/games/:id" element={<GamePage />} />
               </Route>
+              <Route path="/games/:id" element={<GamePage />} />
               <Route path="/lobby" element={<LobbyPage />} />
               <Route path="/users/:username" element={<UserProfilePage />} />
               <Route path="/users/:username/games" element={<UserGamesPage />} />

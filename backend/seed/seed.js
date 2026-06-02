@@ -1,6 +1,9 @@
 import { connectDB, disconnectDB } from "../config/db.js";
 import { hashPwd } from "../utils/hash.js";
-import userArray from "./users.json" with { type: "json" };
+import userArray from "./data/users.json" with { type: "json" };
+import gameArray from "./data/games.json" with { type: "json" };
+import commentArray from "./data/comments.json" with { type: "json" };
+import tournamentArray from "./data/tournaments.json" with { type: "json" };
 
 import { User } from "../models/user.model.js";
 import { Game } from "../models/game.model.js";
@@ -28,7 +31,7 @@ try {
     process.exit(1);
 }
 
-// --- USERS ---
+// USERS
 let insertedUsers;
 try {
     const usersWithHashedPwd = userArray.map(u => ({ ...u, pwd: hashPwd(u.pwd) }));
@@ -41,9 +44,10 @@ try {
     process.exit(1);
 }
 
-const [carlos, mariasol, eriklarsen, sofiaberg, lucas, elena, bannedUser, adminPoker] = insertedUsers;
+// Build username, _id lookup for resolving references in other JSON files
+const userMap = Object.fromEntries(insertedUsers.map(u => [u.username, u._id]));
 
-// --- GAME CATEGORIES (18 combinations: 3 rounds x 2 straights x 3 time controls) ---
+// GAME CATEGORIES (18 combinations: 3 rounds x 2 straights x 3 time controls)
 let insertedCategories;
 try {
     const categories = [];
@@ -68,72 +72,23 @@ try {
     process.exit(1);
 }
 
-// Handy references to specific categories
-const cat3rStraights10s = insertedCategories.find(c => c.numOfRounds === 3 && c.straightsAllowed && c.timePerRound === 10);
-const cat5rNoStraights30s = insertedCategories.find(c => c.numOfRounds === 5 && !c.straightsAllowed && c.timePerRound === 30);
-const cat7rStraights10s = insertedCategories.find(c => c.numOfRounds === 7 && c.straightsAllowed && c.timePerRound === 10);
+// Build category name, doc lookup
+const categoryMap = Object.fromEntries(insertedCategories.map(c => [c.name, c]));
 
-// --- GAMES ---
+// GAMES
 let insertedGames;
 try {
-    insertedGames = await Game.insertMany([
-        // Finished games
-        {
-            players: [lucas._id, elena._id],
-            variant: { rounds: 5, rules: "no-straights", timeControl: 30 },
-            status: "finished",
-            result: { winner: lucas._id },
-            createdAt: new Date(Date.now() - 86400000 * 2)
-        },
-        {
-            players: [carlos._id, elena._id],
-            variant: { rounds: 3, rules: "straights-allowed", timeControl: 10 },
-            status: "finished",
-            result: { winner: elena._id },
-            createdAt: new Date(Date.now() - 86400000)
-        },
-        {
-            players: [carlos._id, mariasol._id],
-            variant: { rounds: 3, rules: "straights-allowed", timeControl: 10 },
-            status: "finished",
-            result: { winner: carlos._id }
-        },
-        // Ongoing game
-        {
-            players: [eriklarsen._id, sofiaberg._id],
-            variant: { rounds: 5, rules: "no-straights", timeControl: 10 },
-            status: "ongoing"
-        },
-        // Waiting games (lobby)
-        {
-            players: [lucas._id],
-            variant: { rounds: 7, rules: "straights-allowed", timeControl: 10 },
-            status: "waiting",
-            allowAnonymous: false,
-            desiredElo: 1400
-        },
-        {
-            players: [carlos._id],
-            variant: { rounds: 3, rules: "straights-allowed", timeControl: 10 },
-            status: "waiting",
-            allowAnonymous: true,
-            desiredElo: 1200
-        },
-        {
-            players: [mariasol._id],
-            variant: { rounds: 5, rules: "no-straights", timeControl: 30 },
-            status: "waiting",
-            allowAnonymous: false,
-            desiredElo: 950
-        },
-        {
-            players: [eriklarsen._id],
-            variant: { rounds: 7, rules: "straights-allowed", timeControl: 10 },
-            status: "waiting",
-            allowAnonymous: true,
-            desiredElo: 1100
-        }
-    ]);
+    const games = gameArray.map(g => {
+        const game = {
+            ...g,
+            players: g.players.map(username => userMap[username])
+        };
+        if (g.result?.winner) game.result = { winner: userMap[g.result.winner] };
+        if (g.daysAgo) game.createdAt = new Date(Date.now() - 86400000 * g.daysAgo);
+        delete game.daysAgo;
+        return game;
+    });
+    insertedGames = await Game.insertMany(games);
     console.log(`Games inserted: ${insertedGames.length}`);
 } catch (err) {
     console.error("Could not insert games:", err.message);
@@ -141,115 +96,69 @@ try {
     process.exit(1);
 }
 
-// --- COMMENTS ---
+// COMMENTS
 try {
-    await Comment.insertMany([
-        {
-            body: "What a spectacular match! That last roll was insane.",
-            author: carlos._id,
-            game: insertedGames[0]._id
-        },
-        {
-            body: "I agree, lucas_diez played perfectly.",
-            author: sofiaberg._id,
-            game: insertedGames[0]._id
-        },
-        {
-            body: "Good game elena, you deserved that win.",
-            author: eriklarsen._id,
-            game: insertedGames[1]._id
-        }
-    ]);
-    console.log("Comments inserted: 3");
+    const comments = commentArray.map(c => ({
+        body: c.body,
+        author: userMap[c.author],
+        game: insertedGames[c.gameIndex]._id
+    }));
+    await Comment.insertMany(comments);
+    console.log(`Comments inserted: ${comments.length}`);
 } catch (err) {
     console.error("Could not insert comments:", err.message);
 }
 
 // --- TOURNAMENTS + TROPHIES ---
-// Finished tournament first (needs a trophy)
 try {
-    const finishedTournament = await Tournament.create({
-        name: "Spring Classic 2026",
-        description: "The inaugural Spanish Dice knockout tournament.",
-        startDate: new Date(Date.now() - 86400000 * 7),
-        tournamentType: "knockout",
-        gameCategory: cat3rStraights10s._id,
-        variant: { rounds: 3, rules: "straights-allowed", timeControl: 10 },
-        status: "finished",
-        players: [lucas._id, elena._id, carlos._id, eriklarsen._id],
-        minParticipants: 2,
-        maxParticipants: 8,
-        winner: lucas._id,
-        rounds: [
-            {
-                roundNumber: 1,
-                matches: [insertedGames[0]._id, insertedGames[2]._id]
-            }
-        ]
-    });
+    for (const t of tournamentArray) {
+        const startDate = t.daysAgo
+            ? new Date(Date.now() - 86400000 * t.daysAgo)
+            : new Date(Date.now() + 86400000 * (t.daysFromNow || 0));
 
-    const finishedTrophy = await Trophy.create({
-        title: "Spring Classic 2026 Champion",
-        image: "https://cdn-icons-png.flaticon.com/512/3112/3112946.png",
-        tournament: finishedTournament._id
-    });
+        const tournamentData = {
+            name: t.name,
+            description: t.description,
+            startDate,
+            tournamentType: t.tournamentType,
+            variant: t.variant,
+            status: t.status,
+            players: t.players.map(username => userMap[username]),
+            minParticipants: t.minParticipants,
+            maxParticipants: t.maxParticipants
+        };
 
-    await Tournament.findByIdAndUpdate(finishedTournament._id, { trophy: finishedTrophy._id });
-    await User.findByIdAndUpdate(lucas._id, { $push: { trophies: finishedTrophy._id } });
+        if (t.categoryKey) tournamentData.gameCategory = categoryMap[t.categoryKey]?._id;
+        if (t.winner) tournamentData.winner = userMap[t.winner];
+        if (t.durationMinutes) tournamentData.durationMinutes = t.durationMinutes;
+        if (t.rounds) {
+            tournamentData.rounds = t.rounds.map(r => ({
+                roundNumber: r.roundNumber,
+                matches: r.matchIndices.map(i => insertedGames[i]._id)
+            }));
+        }
+        if (t.arenaScorePlayers) {
+            tournamentData.arenaScores = t.arenaScorePlayers.map(username => ({
+                participant: userMap[username],
+                points: 0
+            }));
+        }
 
-    console.log(`Tournaments inserted: 1 finished (Spring Classic 2026)`);
-    console.log(`Trophies inserted: 1 (${finishedTrophy._id})`);
+        const tournament = await Tournament.create(tournamentData);
 
-    // Upcoming knockout tournament
-    const upcomingKnockout = await Tournament.create({
-        name: "Summer Knockout 2026",
-        description: "Fast-paced knockout - top prize goes to the last player standing.",
-        startDate: new Date(Date.now() + 86400000 * 3),
-        tournamentType: "knockout",
-        gameCategory: cat5rNoStraights30s._id,
-        variant: { rounds: 5, rules: "no-straights", timeControl: 30 },
-        status: "upcoming",
-        players: [carlos._id, mariasol._id, eriklarsen._id],
-        minParticipants: 4,
-        maxParticipants: 8
-    });
-
-    // Upcoming arena tournament
-    const upcomingArena = await Tournament.create({
-        name: "Weekend Arena",
-        description: "Play as many games as you can in 60 minutes. Most wins takes the crown.",
-        startDate: new Date(Date.now() + 86400000 * 5),
-        tournamentType: "arena",
-        gameCategory: cat7rStraights10s._id,
-        variant: { rounds: 7, rules: "straights-allowed", timeControl: 10 },
-        status: "upcoming",
-        players: [lucas._id, elena._id, sofiaberg._id],
-        minParticipants: 2,
-        maxParticipants: 16,
-        durationMinutes: 60,
-        arenaScores: [
-            { participant: lucas._id, points: 0 },
-            { participant: elena._id, points: 0 },
-            { participant: sofiaberg._id, points: 0 }
-        ]
-    });
-
-    // Third upcoming tournament for sort demo
-    const upcomingRapid = await Tournament.create({
-        name: "Rapid Blitz Cup",
-        description: "High speed rounds, no mercy.",
-        startDate: new Date(Date.now() + 86400000 * 10),
-        tournamentType: "knockout",
-        variant: { rounds: 3, rules: "no-straights", timeControl: 10 },
-        status: "upcoming",
-        players: [lucas._id, mariasol._id],
-        minParticipants: 2,
-        maxParticipants: 4
-    });
-
-
-    console.log(`  upcoming knockout: ${upcomingKnockout._id}`);
-    console.log(`  upcoming arena:    ${upcomingArena._id}`);
+        if (t.trophy) {
+            const trophy = await Trophy.create({
+                title: t.trophy.title,
+                image: t.trophy.image,
+                tournament: tournament._id
+            });
+            await Tournament.findByIdAndUpdate(tournament._id, { trophy: trophy._id });
+            await User.findByIdAndUpdate(userMap[t.trophy.awardTo], { $push: { trophies: trophy._id } });
+            console.log(`Tournament inserted: ${t.name} (with trophy)`);
+        } else {
+            console.log(`Tournament inserted: ${t.name}`);
+        }
+    }
 } catch (err) {
     console.error("Could not insert tournaments/trophies:", err.message);
 }

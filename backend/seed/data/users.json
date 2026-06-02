@@ -13,7 +13,8 @@
         "wins": 45,
         "gamesPlayed": 82,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "mariasol",
@@ -29,7 +30,8 @@
         "wins": 28,
         "gamesPlayed": 60,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "eriklarsen",
@@ -45,7 +47,8 @@
         "wins": 34,
         "gamesPlayed": 70,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "sofiaberg",
@@ -61,7 +64,8 @@
         "wins": 12,
         "gamesPlayed": 35,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "lucas_diez",
@@ -93,7 +97,8 @@
         "wins": 85,
         "gamesPlayed": 150,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "banned_user",
@@ -125,6 +130,7 @@
         "wins": 0,
         "gamesPlayed": 0,
         "isAdmin": true,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     }
 ]
