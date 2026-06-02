@@ -12,8 +12,10 @@
         "elo90s": 1350,
         "wins": 45,
         "gamesPlayed": 82,
+        "points": 340,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "mariasol",
@@ -28,8 +30,10 @@
         "elo90s": 920,
         "wins": 28,
         "gamesPlayed": 60,
+        "points": 210,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "eriklarsen",
@@ -44,8 +48,10 @@
         "elo90s": 1080,
         "wins": 34,
         "gamesPlayed": 70,
+        "points": 180,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "sofiaberg",
@@ -60,8 +66,10 @@
         "elo90s": 850,
         "wins": 12,
         "gamesPlayed": 35,
+        "points": 150,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "lucas_diez",
@@ -76,8 +84,10 @@
         "elo90s": 1420,
         "wins": 120,
         "gamesPlayed": 200,
+        "points": 520,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "elena_r",
@@ -92,8 +102,10 @@
         "elo90s": 1300,
         "wins": 85,
         "gamesPlayed": 150,
+        "points": 410,
         "isAdmin": false,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     },
     {
         "username": "banned_user",
@@ -125,6 +137,7 @@
         "wins": 0,
         "gamesPlayed": 0,
         "isAdmin": true,
-        "isBanned": false
+        "isBanned": false,
+        "emailVerified": true
     }
 ]

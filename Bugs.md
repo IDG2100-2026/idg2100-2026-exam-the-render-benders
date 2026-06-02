@@ -1,19 +1,26 @@
 # Bug Tracker
 
-**Open: 6 | Fixed: 22**
+**Open: 1 | Fixed: 27**
 
 ---
 
-## Open (June 2)
+## Open
 
-| #   | Severity   | Reported by | Description                                                                                                                                                                                                                    | Notes                                                                                                                                                              |
-| --- | ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 25  | **High**   | Tobias      | Cannot join games from homepage lobby section or from lobby page join button - completely broken for all users                                                                                                                 | Root cause: `requireEmailVerified` middleware on `POST /games/:gid/players` blocks seed users whose `emailVerified` defaults to `false`. `LobbySection.jsx` also passes no `onJoin` prop to `LobbyCard` - homepage only has card click, no join button. |
-| 26  | **High**   | Johan       | Spectating Top Games on homepage requires login - anonymous users get blocked when clicking into a game                                                                                                                        | Root cause: `/games/:id` route is nested inside `<ProtectedRoute>` in `App.jsx:37`. Fix: move it outside. |
-| 27  | **Medium** | Johan       | Guest users can edit their profile and set a password, turning the account into a regular user without an email. Creating a new guest session then causes `E11000 duplicate key error index: email_1 dup key: { email: null }` | Fix discussed: disable Edit Profile for guest accounts. Seb believes the raw duplicate key error is already fixed; the root cause (guest editing profile) remains. |
-| 28  | **Medium** | Johan       | Game History page (`/users/:username/games`) is broken                                                                                                                                                                         | Likely a frontend routing or data-fetching issue                                                                                                                   |
-| 29  | **Medium** | Johan       | Guest join from lobby: clicking Join on a lobby game as a guest does nothing - only "Play as Guest" button on the game page works                                                                                              | Related to #25 - `requireEmailVerified` checks `req.user?.isGuest` from the JWT payload. If `isGuest` is not included in the token, guest users get blocked the same way. |
-| 30  | **Low**    | Johan       | Something goes wrong with the timer when a game is left and rejoined - error related to time remaining                                                                                                                         | Needs reproduction steps to narrow down                                                                                                                            |
+| #   | Severity | Reported by | Description                                                                               | Notes                                              |
+| --- | -------- | ----------- | ----------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| 30  | **Low**  | Johan       | Something goes wrong with the timer when a game is left and rejoined - error related to time remaining | Needs reproduction steps to narrow down |
+
+---
+
+## Fixed (June 2)
+
+| #   | Severity   | Description                                                                                                                                                                                                                    | What was changed                                                                                                                                                                      |
+| --- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 25  | **High**   | Cannot join games - broken for all users                                                                                                                                                                                       | Added `emailVerified: true` and `points` to seed users in `users.json`; added `numPlayers` and `buyIn` to all seed games; added `playerStacks` resolution in `seed.js`               |
+| 26  | **High**   | Spectating requires login - anonymous users blocked when clicking into a game                                                                                                                                                  | Moved `/games/:id` outside `<ProtectedRoute>` in `App.jsx` - accidentally bundled in with protected routes in commit `c8b6689`                                                       |
+| 27  | **Medium** | Guest users can edit their profile causing `E11000 duplicate key error` on null email when creating a new guest                                                                                                                | Added `!profile.isGuest` guard to Edit Profile button in `UserProfilePage.jsx`                                                                                                        |
+| 28  | **Medium** | Game History page (`/users/:username/games`) shows nothing                                                                                                                                                                     | Backend returns `{ games, total, hasMore }` but frontend set state to the whole object - fixed to destructure `data.games`                                                           |
+| 29  | **Medium** | Guest join from homepage lobby does nothing - no "Play as Guest" button                                                                                                                                                        | Added `handleGuestJoin` to `LobbySection.jsx` and wired `onGuestJoin` prop to `LobbyCard` for `allowAnonymous` games when not logged in                                              |
 
 ---
 

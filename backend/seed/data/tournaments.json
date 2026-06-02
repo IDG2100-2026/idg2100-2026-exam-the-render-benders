@@ -1,0 +1,60 @@
+[
+    {
+        "name": "Spring Classic 2026",
+        "description": "The inaugural Spanish Dice knockout tournament.",
+        "daysAgo": 7,
+        "tournamentType": "knockout",
+        "categoryKey": "3R straights 10s",
+        "variant": { "rounds": 3, "rules": "straights-allowed", "timeControl": 10 },
+        "status": "finished",
+        "players": ["lucas_diez", "elena_r", "carlos88", "eriklarsen"],
+        "minParticipants": 2,
+        "maxParticipants": 8,
+        "winner": "lucas_diez",
+        "rounds": [
+            { "roundNumber": 1, "matchIndices": [0, 2] }
+        ],
+        "trophy": {
+            "title": "Spring Classic 2026 Champion",
+            "image": "https://cdn-icons-png.flaticon.com/512/3112/3112946.png",
+            "awardTo": "lucas_diez"
+        }
+    },
+    {
+        "name": "Summer Knockout 2026",
+        "description": "Fast-paced knockout - top prize goes to the last player standing.",
+        "daysFromNow": 3,
+        "tournamentType": "knockout",
+        "categoryKey": "5R no-straights 30s",
+        "variant": { "rounds": 5, "rules": "no-straights", "timeControl": 30 },
+        "status": "upcoming",
+        "players": ["carlos88", "mariasol", "eriklarsen"],
+        "minParticipants": 4,
+        "maxParticipants": 8
+    },
+    {
+        "name": "Weekend Arena",
+        "description": "Play as many games as you can in 60 minutes. Most wins takes the crown.",
+        "daysFromNow": 5,
+        "tournamentType": "arena",
+        "categoryKey": "7R straights 10s",
+        "variant": { "rounds": 7, "rules": "straights-allowed", "timeControl": 10 },
+        "status": "upcoming",
+        "players": ["lucas_diez", "elena_r", "sofiaberg"],
+        "minParticipants": 2,
+        "maxParticipants": 16,
+        "durationMinutes": 60,
+        "arenaScorePlayers": ["lucas_diez", "elena_r", "sofiaberg"]
+    },
+    {
+        "name": "Rapid Blitz Cup",
+        "description": "High speed rounds, no mercy.",
+        "daysFromNow": 10,
+        "tournamentType": "knockout",
+        "variant": { "rounds": 3, "rules": "no-straights", "timeControl": 10 },
+        "status": "upcoming",
+        "players": ["lucas_diez", "mariasol"],
+        "minParticipants": 2,
+        "maxParticipants": 4
+    }
+]
