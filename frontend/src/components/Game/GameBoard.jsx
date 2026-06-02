@@ -235,7 +235,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         try {
             const state = await apiFetch(`/games/${gameId}/bets`, {
                 method: "POST",
-                body: JSON.stringify({ action, amount: betAmount })
+                body: JSON.stringify({ action, amount: Number(betAmount) || 1 })
             });
             setServerState(state);
             onStateUpdateRef.current?.(state);
@@ -325,12 +325,20 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                         <button onClick={() => handleBet("match")}>Match</button>
                     )}
                     <div className={styles.betInput}>
+                        {/* allow empty string while typing so users can clear and retype (e.g. "10") - clamp on blur */}
                         <input
                             type="number"
                             min={1}
                             max={serverState?.buyIn}
                             value={betAmount}
-                            onChange={e => setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(e.target.value))))}
+                            onChange={e => {
+                                const raw = e.target.value;
+                                if (raw === "") { setBetAmount(""); return; }
+                                setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(raw))));
+                            }}
+                            onBlur={() => {
+                                if (betAmount === "" || Number(betAmount) < 1) setBetAmount(1);
+                            }}
                         />
                         <button onClick={() => handleBet(
                             serverState?.bettingState?.currentBet === 0 ? "bet" : "raise"
