@@ -255,13 +255,14 @@ export async function leaveGame(gid, playerId) {
     // ongoing - forfeit to the other player
     const remainingPlayers = game.players.filter(p => !idsEqual(p, playerId));
 
-    // Forfeiting player loses their remaining in-game stack
-    // Otherwise updateGame returns it to their account when the game finishes
+    // Forfeiting player loses their remaining stack, add it to the pot so
+    // remaining players receive it via splitPot (prevents points disappearing)
     const forfeiterStack = getPlayerStack(game, playerId);
     if (forfeiterStack) {
+        game.pot += forfeiterStack.stack;
         forfeiterStack.stack = 0;
     }
-    // Any unresolved pot should go the remanining player
+    // distribute pot (forfeited stack + any unresolved round bets) to remaining players
     if (game.pot > 0 && remainingPlayers.length > 0) {
         splitPot(game, remainingPlayers);
     }
