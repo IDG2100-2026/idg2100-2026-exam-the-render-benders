@@ -666,6 +666,7 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
         moveToNextActivePlayer(game);
     }
 
+    game.markModified("bettingState");
     await game.save();
     await emitPersonalizedState(gid, game);
 
