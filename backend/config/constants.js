@@ -127,3 +127,6 @@ export const RATE_LIMIT_MAX = 1000;
 
 // Delay in ms before advancing to the next round after round-ended
 export const ROUND_END_DELAY_MS = 3000;
+
+// Milliseconds in one day, used for date calculations in seed data and queries
+export const MS_PER_DAY = 1000 * 60 * 60 * 24;

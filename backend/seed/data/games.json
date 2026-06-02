@@ -2,6 +2,8 @@
     {
         "players": ["lucas_diez", "elena_r"],
         "variant": { "rounds": 5, "rules": "no-straights", "timeControl": 30 },
+        "numPlayers": 2,
+        "buyIn": 10,
         "status": "finished",
         "result": { "winner": "lucas_diez" },
         "daysAgo": 2
@@ -9,6 +11,8 @@
     {
         "players": ["carlos88", "elena_r"],
         "variant": { "rounds": 3, "rules": "straights-allowed", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 1,
         "status": "finished",
         "result": { "winner": "elena_r" },
         "daysAgo": 1
@@ -16,17 +20,23 @@
     {
         "players": ["carlos88", "mariasol"],
         "variant": { "rounds": 3, "rules": "straights-allowed", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 1,
         "status": "finished",
         "result": { "winner": "carlos88" }
     },
     {
         "players": ["eriklarsen", "sofiaberg"],
         "variant": { "rounds": 5, "rules": "no-straights", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 10,
         "status": "ongoing"
     },
     {
         "players": ["lucas_diez"],
         "variant": { "rounds": 7, "rules": "straights-allowed", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 50,
         "status": "waiting",
         "allowAnonymous": false,
         "desiredElo": 1400
@@ -34,6 +44,8 @@
     {
         "players": ["carlos88"],
         "variant": { "rounds": 3, "rules": "straights-allowed", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 1,
         "status": "waiting",
         "allowAnonymous": true,
         "desiredElo": 1200
@@ -41,6 +53,8 @@
     {
         "players": ["mariasol"],
         "variant": { "rounds": 5, "rules": "no-straights", "timeControl": 30 },
+        "numPlayers": 3,
+        "buyIn": 10,
         "status": "waiting",
         "allowAnonymous": false,
         "desiredElo": 950
@@ -48,6 +62,8 @@
     {
         "players": ["eriklarsen"],
         "variant": { "rounds": 7, "rules": "straights-allowed", "timeControl": 10 },
+        "numPlayers": 2,
+        "buyIn": 1,
         "status": "waiting",
         "allowAnonymous": true,
         "desiredElo": 1100

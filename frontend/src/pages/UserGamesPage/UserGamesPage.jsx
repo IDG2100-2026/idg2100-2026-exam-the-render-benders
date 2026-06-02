@@ -15,7 +15,7 @@ export default function UserGamesPage() {
     useEffect(() => {
         async function fetchUserGames() {
             try {
-                const userGames = await apiFetch(`/users/${username}/games`);
+                const { games: userGames } = await apiFetch(`/users/${username}/games`);
                 setGames(userGames);
             } catch (err) {
                 setError(err.message);

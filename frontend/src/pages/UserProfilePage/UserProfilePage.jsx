@@ -134,7 +134,7 @@ export default function UserProfilePage() {
                                 <MdWarning /> This account is banned
                             </span>
                         )}
-                        {isOwnProfile && !isEditing && (
+                        {isOwnProfile && !isEditing && !profile.isGuest && (
                             <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Edit Profile</button>
                         )}
                     </div>

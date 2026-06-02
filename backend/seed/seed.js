@@ -1,5 +1,6 @@
 import { connectDB, disconnectDB } from "../config/db.js";
 import { hashPwd } from "../utils/hash.js";
+import { MS_PER_DAY } from "../config/constants.js";
 import userArray from "./data/users.json" with { type: "json" };
 import gameArray from "./data/games.json" with { type: "json" };
 import commentArray from "./data/comments.json" with { type: "json" };
@@ -79,13 +80,22 @@ const categoryMap = Object.fromEntries(insertedCategories.map(c => [c.name, c]))
 let insertedGames;
 try {
     const games = gameArray.map(g => {
+        const resolvedPlayers = g.players.map(username => userMap[username]);
         const game = {
             ...g,
-            players: g.players.map(username => userMap[username])
+            players: resolvedPlayers
         };
         if (g.result?.winner) game.result = { winner: userMap[g.result.winner] };
-        if (g.daysAgo) game.createdAt = new Date(Date.now() - 86400000 * g.daysAgo);
+        if (g.daysAgo) game.createdAt = new Date(Date.now() - MS_PER_DAY * g.daysAgo);
         delete game.daysAgo;
+        // set playerStacks so each player starts with the correct stack (buyIn * rounds)
+        // the service does this on createGame/joinGame, but seed bypasses the service
+        if (g.status !== "finished") {
+            game.playerStacks = resolvedPlayers.map(userId => ({
+                user: userId,
+                stack: g.buyIn * g.variant.rounds
+            }));
+        }
         return game;
     });
     insertedGames = await Game.insertMany(games);
@@ -109,12 +119,12 @@ try {
     console.error("Could not insert comments:", err.message);
 }
 
-// --- TOURNAMENTS + TROPHIES ---
+// TOURNAMENTS + TROPHIES
 try {
     for (const t of tournamentArray) {
         const startDate = t.daysAgo
-            ? new Date(Date.now() - 86400000 * t.daysAgo)
-            : new Date(Date.now() + 86400000 * (t.daysFromNow || 0));
+            ? new Date(Date.now() - MS_PER_DAY * t.daysAgo)
+            : new Date(Date.now() + MS_PER_DAY * (t.daysFromNow || 0));
 
         const tournamentData = {
             name: t.name,

@@ -8,12 +8,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./LobbySection.module.css";
 
+
 // Socket.IO lives on the backend root, not under /api/v1
 const SOCKET_URL = import.meta.env.VITE_API_URL.replace("/api/v1", "");
 
 export default function LobbySection() {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, login } = useAuth();
     const [games, setGames] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -69,6 +70,21 @@ export default function LobbySection() {
         navigate(`/games/${gameId}`);
     }
 
+    // creates a guest session, joins the game, then navigates - same flow as LobbyPage
+    async function handleGuestJoin(gameId) {
+        try {
+            const guestUser = await apiFetch("/sessions/guest", { method: "POST" });
+            login(guestUser);
+            await apiFetch(`/games/${gameId}/players`, {
+                method: "POST",
+                body: JSON.stringify({ player: guestUser._id })
+            });
+            navigate(`/games/${gameId}`);
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+
     return (
         <div className={styles.container}>
             <h2>Lobby</h2>
@@ -77,7 +93,12 @@ export default function LobbySection() {
             {!loading && games.length === 0 && !error && <p>No games waiting for players.</p>}
             <div className={styles.list}>
                 {games.map((game) => (
-                    <LobbyCard key={game._id} game={game} onCardClick={handleCardClick} />
+                    <LobbyCard
+                        key={game._id}
+                        game={game}
+                        onCardClick={handleCardClick}
+                        onGuestJoin={!user && game.allowAnonymous ? handleGuestJoin : undefined}
+                    />
                 ))}
             </div>
         </div>
