@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link } from "react-router";
-import { FaBars, FaXmark, FaDice, FaList, FaBookOpen, FaHouse } from "react-icons/fa6";
+import { FaBars, FaXmark, FaDice, FaList, FaBookOpen, FaHouse, FaShield } from "react-icons/fa6";
 import { useAuth } from "@/contexts/AuthContext";
 import Greeting from "@/components/Greeting/Greeting";
 import AppearancePanel from "@/components/AppearancePanel/AppearancePanel";
@@ -54,6 +54,11 @@ export default function Header() {
                 <div className={styles.greetingWrapper}>
                     <Greeting />
                 </div>
+                {user?.isAdmin && (
+                    <NavLink to="/admin" className={styles.adminLink}>
+                        <FaShield /> Admin
+                    </NavLink>
+                )}
                 <AppearancePanel />
                 <button className={styles.menuButton} onClick={() => setOpen(p => !p)} aria-label="Toggle menu">
                     {open ? <FaXmark /> : <FaBars />}
@@ -77,13 +82,20 @@ export default function Header() {
                                 <FaBookOpen /> About Spanish Dice
                             </NavLink>
                         </li>
+                        {user?.isAdmin && (
+                            <li>
+                                <NavLink to="/admin" onClick={() => setOpen(false)}>
+                                    <FaShield /> Admin
+                                </NavLink>
+                            </li>
+                        )}
                         {user ? (
                             <li className={styles.mobileAuthItem}>
                                 <Link to={`/users/${user.username}`} className={styles.mobileUserInfo} onClick={() => setOpen(false)}>
-                                    <img 
-                                        src={getAssetUrl(user.profileImage)} 
-                                        alt={user.username} 
-                                        className={styles.mobileAvatar} 
+                                    <img
+                                        src={getAssetUrl(user.profileImage)}
+                                        alt={user.username}
+                                        className={styles.mobileAvatar}
                                     />
                                     <span className={styles.mobileGreeting}>Hello, {user.username}</span>
                                 </Link>
