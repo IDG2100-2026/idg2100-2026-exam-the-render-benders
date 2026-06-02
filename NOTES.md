@@ -105,6 +105,7 @@ After implementing the phases, we went through a phase of checking for bugs and 
 There were some parts of the application that we did not have time to implement, some of these were: 
 - Tournament functionality
     - We have the tournament list page and a page for individual tournament. We also have some backend functionality for tournaments (join, leave, standings etc.), but there is logic not implemented - brackets for knockout, round matching for arena and the standings/progression UI are all missing.
+- Some Admin functionality (make users admin/un-admin users)
 
 There were also parts of the task description that we decided to do differently, such as: 
 - Anonymous players can still play the game 
