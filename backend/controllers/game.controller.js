@@ -110,10 +110,22 @@ export async function leaveGame(req, res) {
 }
 
 // Updates a game by ID (gid) and return the updated game as JSON
+// Only a player in the game or an admin is allowed to update it -
+// without this check any logged-in user could force the game to "finished"
+// and trigger ELO recalculation and stack distribution for other people's games
 export async function updateGame(req, res) {
     try {
+        // fetch first so we can check the players list before applying the update
+        const currentGame = await gameService.getGame(req.params.gid);
+        if (!currentGame) return res.status(404).json({ error: "Game not found" });
+
+        const isAdmin = req.user?.type === "admin";
+        const isPlayer = currentGame.players.some(player => (player._id || player).toString() === req.user?.id);
+        if (!isAdmin && !isPlayer) {
+            return res.status(403).json({ error: "You are not a player in this game" });
+        }
+
         const game = await gameService.updateGame(req.params.gid, req.body);
-        if (!game) return res.status(404).json({ error: "Game not found" });
         res.status(200).json(gameService.sanitizeGameForViewer(game, req.user?.id));
     } catch (err) {
         sendError(res, err);

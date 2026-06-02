@@ -1,7 +1,7 @@
 import { User } from "../models/user.model.js";
 import { Game } from "../models/game.model.js";
 import { hashPwd } from "../utils/hash.js";
-import { MIN_AGE, MAX_AGE, DEFAULT_ELO } from "../config/constants.js";
+import { MIN_AGE, MAX_AGE, DEFAULT_ELO, USER_UPDATABLE_FIELDS } from "../config/constants.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 import { getAge } from "../utils/dateHelpers.js";
 import { isOwnerOrAdmin } from "../utils/authHelpers.js";
@@ -138,11 +138,12 @@ export async function createUser(data) {
 }
 
 // Updates a user by username, returns the updated document
-// Username is read-only and cannot be changed - stripped out if present in the update data
-// If a new password is provided, hash it before saving
+// Only fields in USER_UPDATABLE_FIELDS are allowed - blocks isAdmin, points, isBanned etc.
 export async function updateUser(username, data) {
-    const safeData = { ...data };
-    delete safeData.username;
+    const safeData = {};
+    for (const field of USER_UPDATABLE_FIELDS) {
+        if (field in data) safeData[field] = data[field];
+    }
     if (safeData.pwd) safeData.pwd = hashPwd(safeData.pwd);
     return await User.findOneAndUpdate({ username }, safeData, { returnDocument: "after" });
 }

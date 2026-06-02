@@ -130,3 +130,6 @@ export const ROUND_END_DELAY_MS = 6000;
 
 // Milliseconds in one day, used for date calculations in seed data and queries
 export const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+// Fields a user is allowed to update on their own profile - blocks isAdmin, points, isBanned etc.
+export const USER_UPDATABLE_FIELDS = ["email", "pwd", "aboutMe", "profileImage", "dateOfBirth"];
