@@ -230,7 +230,14 @@ export async function leaveGame(gid, playerId) {
     if (!isInGame) throw new Error("You are not in this game");
 
     if (game.status === "waiting") {
-        await Game.findByIdAndUpdate(gid, { $pull: { players: playerId } });
+        const startingStack = game.buyIn * game.variant.rounds;
+        await Promise.all([
+            // refund the buy-in that was deducted when the player joined
+            User.findByIdAndUpdate(playerId, { $inc: { points: startingStack } }),
+            Game.findByIdAndUpdate(gid, {
+                $pull: { players: playerId, playerStacks: { user: playerId } }
+            })
+        ]);
         const updated = await Game.findById(gid)
             .populate("players", "username elo elo10s elo30s elo90s profileImage")
             .populate("result.winner", "username");

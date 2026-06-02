@@ -24,8 +24,8 @@ userRouter.patch("/users/:username", requireSelfOrAdmin, uploadProfileImage, val
 // Banning a user (admin only)
 userRouter.patch("/users/:username/ban", requireAdmin, userController.banUser);
 
-// Update appearance preferences for a user
-userRouter.patch("/users/:username/preferences", userController.updatePreferences);
+// Update appearance preferences for a user (only that user or admin)
+userRouter.patch("/users/:username/preferences", requireSelfOrAdmin, userController.updatePreferences);
 
 // Get trophies for a user
 userRouter.get("/users/:username/trophies", userController.getUserTrophies);
