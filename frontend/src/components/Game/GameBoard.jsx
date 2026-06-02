@@ -61,7 +61,9 @@ function getRoundSummary(game) {
 
     const pointsWon = roundResults.reduce((sum, result) => {
         const bets = result.bets ?? [];
-        return sum + bets.reduce((betSum, bet) => betSum + Math.max(0, bet.amount ?? 0), 0);
+        return sum + bets
+            .filter(bet => ["bet", "match", "raise"].includes(bet.action))
+            .reduce((betSum, bet) => betSum + Math.max(0, bet.amount ?? 0), 0);
     }, 0);
 
     return {
