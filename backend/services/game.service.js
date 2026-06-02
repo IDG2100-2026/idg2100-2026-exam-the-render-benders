@@ -708,6 +708,7 @@ export async function handleTimeout(gid) {
             idsEqual(result.player, timedOutPlayerId) && result.round === round);
 
         if (!alreadyRolledThisRound) {
+            // player never rolled this round, generate a roll for them and mark it as complete
             const rolls = rollDice();
 
             game.results.push({
@@ -728,17 +729,28 @@ export async function handleTimeout(gid) {
                     startedAt: new Date()
                 }
             });
+        } else {
+            // player timed out mid-reroll, result exists but rollCount is below MAX,
+            // so bump it to MAX so everyoneFinished resolves correctly and the turn
+            // does not cycle back to them
+            const timedOutResult = game.results.find(result =>
+                idsEqual(result.player, timedOutPlayerId) && result.round === round
+            );
+            if (timedOutResult) timedOutResult.rollCount = MAX_ROLLS_PER_TURN;
         }
 
         const activePlayers = getActivePlayerIds(game);
 
-        const everyoneRolled = activePlayers.every(activePlayerId =>
-            game.results.some(result =>
+        // check rollCount >= MAX rather than just "has a result", matches the same
+        // everyoneFinished check in rollForPlayer so both paths agree on when rolling is done
+        const everyoneFinished = activePlayers.every(activePlayerId => {
+            const playerResult = game.results.find(result =>
                 idsEqual(result.player, activePlayerId) && result.round === round
-            )
-        );
+            );
+            return playerResult && playerResult.rollCount >= MAX_ROLLS_PER_TURN;
+        });
 
-        if (everyoneRolled) {
+        if (everyoneFinished) {
             enterBettingPhase(game, activePlayers);
         } else {
             moveToNextActivePlayer(game);

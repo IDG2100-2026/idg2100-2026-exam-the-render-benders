@@ -9,10 +9,13 @@
 .phaseInfo {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.75rem;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .phase {
@@ -81,10 +84,12 @@
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.1);
-    color: white;
+    color: var(--text-h);
     font-weight: 800;
     font-size: 0.85rem;
     text-align: center;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .betInput button {
@@ -92,16 +97,17 @@
     color: var(--bg);
 }
 
+
 .timer {
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.7);
-    margin-left: auto;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .timerLow {
     font-weight: 800;
+    font-size: 1rem;
     color: var(--danger-text);
-    margin-left: auto;
 }
 
 .waiting {
@@ -174,8 +180,9 @@
 
 .economyBar {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     padding: 0.6rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.12);
@@ -188,6 +195,7 @@
     gap: 1rem;
     flex: 1;
     justify-content: space-evenly;
+    flex-wrap: wrap;
 }
 
 .econPlayer {
@@ -216,6 +224,7 @@
     font-weight: 800;
     color: white;
 }
+
 
 
 @media (max-width: 520px) {

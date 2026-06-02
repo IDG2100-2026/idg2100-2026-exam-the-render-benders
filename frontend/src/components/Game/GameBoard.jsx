@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiFetch } from "@/api";
-import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS } from "@/config/constants";
+import { FACE_VALUES, HAND_NAMES, TIMEOUT_RETRY_MS, TIMEOUT_FALLBACK_MS, MAX_ROLLS_PER_TURN } from "@/config/constants";
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
@@ -157,7 +157,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         const dice = (myResult?.hiddenRolls ?? []).map((value, i) => ({
             value,
-            held: heldDice.has(i)
+            held: rollsUsed < MAX_ROLLS_PER_TURN && heldDice.has(i)
         }));
 
         if (dice.length === 0) return;
@@ -166,6 +166,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         if (!isPlayer) return;
 
         function handleHoldDie(event) {
+            if (rollsUsed >= MAX_ROLLS_PER_TURN) return;
             const { index } = event.detail;
             // toggle the held state for the clicked die
             setHeldDice(prev => {
@@ -177,7 +178,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         board.addEventListener("hold-die", handleHoldDie);
         return () => board.removeEventListener("hold-die", handleHoldDie);
-    }, [serverState, heldDice, isPlayer, user]);
+    }, [serverState, heldDice, isPlayer, user, rollsUsed]);
 
     // countdown timer - ticks every second, triggers timeout endpoint when it hits zero
     useEffect(() => {
@@ -235,7 +236,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         try {
             const state = await apiFetch(`/games/${gameId}/bets`, {
                 method: "POST",
-                body: JSON.stringify({ action, amount: betAmount })
+                body: JSON.stringify({ action, amount: Number(betAmount) || 1 })
             });
             setServerState(state);
             onStateUpdateRef.current?.(state);
@@ -325,12 +326,22 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                         <button onClick={() => handleBet("match")}>Match</button>
                     )}
                     <div className={styles.betInput}>
+                        {/* allow empty string while typing so users can clear and retype (e.g. "10") - clamp on blur */}
                         <input
                             type="number"
                             min={1}
                             max={serverState?.buyIn}
                             value={betAmount}
-                            onChange={e => setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(e.target.value))))}
+                            onChange={e => {
+                                const raw = e.target.value;
+                                if (raw === "") { setBetAmount(""); return; }
+                                setBetAmount(Math.max(1, Math.min(serverState?.buyIn ?? 1, Number(raw))));
+                            }}
+                            onBlur={() => {
+                                const val = Number(betAmount);
+                                if (betAmount === "" || val < 1) setBetAmount(1);
+                                else if (val > (serverState?.buyIn ?? 1)) setBetAmount(serverState.buyIn);
+                            }}
                         />
                         <button onClick={() => handleBet(
                             serverState?.bettingState?.currentBet === 0 ? "bet" : "raise"
