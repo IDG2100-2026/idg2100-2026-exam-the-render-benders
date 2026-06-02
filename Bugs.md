@@ -1,6 +1,6 @@
 # Bug Tracker
 
-**Open: 2 | Fixed: 45**
+**Open: 2 | Fixed: 46**
 
 ---
 
@@ -35,6 +35,7 @@
 | 41  | **Low**    | No way to click a player's profile from inside a game - player cards not links                                                   | Wrapped player card content in `<Link to={/users/${player.username}}>` with `pLink` CSS class in `PlayersSection.jsx` (Tobias)                                                                              |
 | 45  | **High**   | Game stuck in rolling phase - timeout mid-reroll left rollCount below MAX; everyoneFinished never resolved; turn cycled back to already-finished players | Added `else` branch in `handleTimeout` setting `timedOutResult.rollCount = MAX_ROLLS_PER_TURN`; replaced `everyoneRolled` with `everyoneFinished` check (Johan) |
 | 46  | **Medium** | Email verification code only appeared in server console - awkward for demo | Created `backend/services/email.service.js` with nodemailer Gmail SMTP; `auth.service.js` now calls `sendVerificationEmail(user, code)`; falls back to `console.log` if env vars missing |
+| 48  | **High**   | Bet contributions not persisted between turns - bets placed in earlier turns were lost, pot calculations broke | `getContribution` in `gameHelpers.js` pushed a plain object then used a local variable reference, not the Mongoose subdocument proxy; rewrote to re-reference the pushed element; added `game.markModified("bettingState")` before save in `game.service.js` (Tobias) |
 | 44  | **Medium** | Bet input `onBlur` only checked lower bound - typing above `buyIn` and blurring sent invalid amount                              | Added upper bound check: `else if (val > buyIn) setBetAmount(buyIn)` in `onBlur` in `GameBoard.jsx` |
 | 40  | **Low**    | Held dice still shown as held after final roll - hold state meaningless when no reroll possible                                  | In `GameBoard.jsx` dice sync effect: `held: rollsUsed < MAX_ROLLS_PER_TURN && heldDice.has(i)`; `handleHoldDie` returns early when `rollsUsed >= MAX_ROLLS_PER_TURN`; added `rollsUsed` to effect deps      |
 | 43  | **Medium** | Comment section not visible on mobile - sidebar collapses to zero height in single-column layout                                 | Added `min-height` and mobile breakpoint fix in `GamePage.module.css`; limited comment length to 200 chars, added max-height scroll to comment list (Tobias) |
