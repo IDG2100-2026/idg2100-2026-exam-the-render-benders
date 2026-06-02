@@ -9,7 +9,7 @@
 .phaseInfo {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     font-size: 0.8rem;
     font-weight: 700;
     color: rgba(255, 255, 255, 0.7);
@@ -77,12 +77,13 @@
 
 .betInput input {
     width: 60px;
-    padding: 0.4rem 0.5rem;
-    border-radius: 6px;
+    padding: 0.5rem 0.5rem;
+    border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.2);
     background: rgba(255,255,255,0.1);
     color: white;
-    font-weight: 700;
+    font-weight: 800;
+    font-size: 0.85rem;
     text-align: center;
 }
 
@@ -170,6 +171,52 @@
     background: rgba(201, 168, 76, 0.22);
     border: 1px solid rgba(201, 168, 76, 0.5);
 }
+
+.economyBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    color: white;
+    gap: 1rem;
+}
+
+.econPlayers {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+    justify-content: space-evenly;
+}
+
+.econPlayer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.econBet {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    color: white;
+}
+
+.econLabel {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    color: white;
+}
+
+.econStack {
+    font-size: 1rem;
+    font-weight: 800;
+    color: white;
+}
+
 
 @media (max-width: 520px) {
     .handRow {

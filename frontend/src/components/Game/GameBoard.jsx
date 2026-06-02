@@ -246,32 +246,34 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
     return (
         <div className={styles.wrapper}>
+            {serverState?.playerStacks?.length > 0 && (
+                <div className={styles.economyBar}>
+                    <div className={styles.econPlayers}>
+                        {serverState.playerStacks.map((entry, i) => (
+                            <div key={entry.user} className={styles.econPlayer}>
+                                <span className={styles.econLabel}>P{i + 1}</span>
+                                <span className={styles.econStack}>{entry.stack}</span>
+                            </div>
+                        ))}
+                    </div>
+                    {phase === "betting" && (
+                        <div className={styles.econBet}>
+                            <span className={styles.econLabel}>Current Bet</span>
+                            <span className={styles.econStack}>{serverState.bettingState?.currentBet ?? 0}</span>
+                        </div>
+                    )}
+                </div>
+            )}
+
             {serverState && (
                 <div className={styles.phaseInfo}>
                     <span>Round {serverState.currentRound}</span>
                     <span className={styles.phase}>{phase}</span>
-                    <span>Pot: {serverState.pot ?? 0}</span>
-                    {phase === "betting" && (
-                        <span>Current bet: {serverState.bettingState?.currentBet ?? 0}</span>
-                    )}
                     {secondsLeft !== null && (
                         <span className={secondsLeft <= 5 ? styles.timerLow : styles.timer}>
                             {secondsLeft}s
                         </span>
                     )}
-                </div>
-            )}
-
-            {serverState?.playerStacks?.length > 0 && (
-                <div className={styles.stacks}>
-                    {serverState.playerStacks.map(entry => {
-                        const player = serverState.players?.find(player => player._id?.toString() === entry.user?.toString());
-                        return (
-                            <span key={entry.user}>
-                                {player?.username ?? "Player"}: {entry.stack} pts
-                            </span>
-                        );
-                    })}
                 </div>
             )}
             {roundSummary && (
