@@ -147,9 +147,11 @@ export async function updateUser(username, data) {
     return await User.findOneAndUpdate({ username }, safeData, { returnDocument: "after" });
 }
 
-// Bans a user by username, sets isBanned to true, returns the updated document
+// Toggles ban status for a user by username, returns the updated document
 export async function banUser(username) {
-    return await User.findOneAndUpdate({ username }, { isBanned: true }, { returnDocument: "after" });
+    const user = await User.findOne({ username });
+    if (!user) return null;
+    return await User.findOneAndUpdate({ username }, { isBanned: !user.isBanned }, { returnDocument: "after" });
 }
 
 // Returns users sorted by the given field (elo, wins, gamesPlayed, winRate), highest first

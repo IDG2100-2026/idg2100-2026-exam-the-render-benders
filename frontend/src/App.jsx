@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import AuthProvider from "@/providers/AuthProvider";
 import Layout from "@/layouts/Layout";
+import AdminLayout from "@/layouts/AdminLayout";
 import HomePage from "@/pages/HomePage/HomePage";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import RegisterPage from "@/pages/RegisterPage/RegisterPage";
@@ -17,8 +18,13 @@ import AppearanceProvider from "@/providers/AppearanceProvider";
 import NotFoundPage from "@/pages/NotFoundPage/NotFoundPage";
 import EmailVerificationPage from "@/pages/EmailVerificationPage/EmailVerificationPage";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import AdminRoute from "@/components/auth/AdminRoute";
 import TournamentListPage from "@/pages/TournamentListPage/TournamentListPage";
 import TournamentPage from "@/pages/TournamentPage/TournamentPage";
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage/AdminDashboardPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage/AdminUsersPage";
+import AdminCommentsPage from "@/pages/admin/AdminCommentsPage/AdminCommentsPage";
+import AdminCreateTournamentPage from "@/pages/admin/AdminCreateTournamentPage/AdminCreateTournamentPage";
 import "./App.css";
 
 function App() {
@@ -45,6 +51,14 @@ function App() {
               <Route path="/about-spanish-dice" element={<AboutSpanishDicePage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/policy" element={<PrivacyPage />} />
+            </Route>
+            <Route element={<AdminRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin" element={<AdminDashboardPage />} />
+                <Route path="/admin/users" element={<AdminUsersPage />} />
+                <Route path="/admin/comments" element={<AdminCommentsPage />} />
+                <Route path="/admin/tournaments/create" element={<AdminCreateTournamentPage />} />
+              </Route>
             </Route>
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

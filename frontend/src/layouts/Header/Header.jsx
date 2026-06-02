@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link } from "react-router";
-import { FaBars, FaXmark, FaDice, FaList, FaBookOpen, FaHouse } from "react-icons/fa6";
+import { FaBars, FaXmark, FaDice, FaList, FaBookOpen, FaHouse, FaShield } from "react-icons/fa6";
 import { useAuth } from "@/contexts/AuthContext";
 import Greeting from "@/components/Greeting/Greeting";
 import AppearancePanel from "@/components/AppearancePanel/AppearancePanel";
@@ -54,6 +54,11 @@ export default function Header() {
                 <div className={styles.greetingWrapper}>
                     <Greeting />
                 </div>
+                {user?.isAdmin && (
+                    <NavLink to="/admin" className={styles.adminLink}>
+                        <FaShield /> Admin
+                    </NavLink>
+                )}
                 <AppearancePanel />
                 <button className={styles.menuButton} onClick={() => setOpen(p => !p)} aria-label="Toggle menu">
                     {open ? <FaXmark /> : <FaBars />}

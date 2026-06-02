@@ -9,6 +9,21 @@
     border-bottom: 1px solid var(--border);
 }
 
+.adminLink {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    text-decoration: none;
+    background-color: var(--accent-bg);
+    border: 1px solid var(--accent-border);
+    white-space: nowrap;
+}
+
 .logo {
     display: flex;
     align-items: center;

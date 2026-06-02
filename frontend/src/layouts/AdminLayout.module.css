@@ -1,0 +1,91 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 2rem;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--accent);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.nav {
+    display: flex;
+    gap: 0.25rem;
+    flex-wrap: wrap;
+}
+
+.nav a {
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.nav a:hover {
+    background-color: var(--bg);
+}
+
+.active {
+    background-color: var(--accent-bg) !important;
+    color: var(--accent) !important;
+}
+
+.homeBtn {
+    padding: 0.35rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.homeBtn:hover {
+    background-color: var(--bg);
+}
+
+.main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (max-width: 700px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+    }
+
+    .headerRight {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .homeBtn {
+        width: 100%;
+        text-align: center;
+    }
+}
