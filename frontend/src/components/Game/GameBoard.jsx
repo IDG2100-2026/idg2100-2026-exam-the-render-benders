@@ -6,7 +6,6 @@ import { FACE_VALUES, HAND_NAMES, TIMEOUT_FALLBACK_MS, MAX_ROLLS_PER_TURN } from
 import "./game-board.js";
 import styles from "./GameBoard.module.css";
 
-// Socket.IO lives on the backend root, not under /api/v1
 const SOCKET_URL = (import.meta.env.VITE_API_URL || "http://localhost:3000/api/v1").replace("/api/v1", "");
 
 function getId(value) {
@@ -78,7 +77,7 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
     const onStateUpdateRef = useRef(onStateUpdate);
     const { user } = useAuth();
     const [serverState, setServerState] = useState(null);
-    // holds are tracked locally - server does not persist them between clicks
+
     const [heldDice, setHeldDice] = useState(new Set());
     const roundRef = useRef(null);
     const [betAmount, setBetAmount] = useState(1);
@@ -90,7 +89,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
     const turnExpiresAt = serverState?.timeoutState?.turnExpiresAt ?? null;
     const roundSummary = getRoundSummary(serverState);
 
-    // how many rolls the current player has used this round (from server state)
     const myRoundResult = serverState?.results?.find(result =>
         result.player?.toString() === user?._id &&
         result.round === serverState?.currentRound
@@ -99,7 +97,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
     useEffect(() => { onStateUpdateRef.current = onStateUpdate; }, [onStateUpdate]);
 
-    // fetch initial state via REST so the board shows immediately on reload
     useEffect(() => {
         if (!gameId) return;
         apiFetch(`/games/${gameId}/state`)
@@ -107,7 +104,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             .catch(() => { });
     }, [gameId]);
 
-    // connect to Socket.IO, join the game room and listen for state updates
     useEffect(() => {
         if (!gameId) return;
         const socket = io(SOCKET_URL, { withCredentials: true });
@@ -116,12 +112,9 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             socket.emit("join-room", { gid: gameId });
         });
 
-        // server sends a personalised state: current player sees their own hidden rolls,
-        // other players' hidden rolls are stripped out
         socket.on("game-deleted", () => onGameDeleted?.());
 
         socket.on("game-state", (state) => {
-            // clear held dice when the server pushes a new round
             if (roundRef.current !== state.currentRound || ["round-ended", "finished"].includes(state.phase)) {
                 roundRef.current = state.currentRound;
                 setHeldDice(new Set());
@@ -137,12 +130,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         return () => socket.disconnect();
     }, [gameId]);
 
-    // sync the web component whenever server state or held dice change
     useEffect(() => {
         const board = boardRef.current;
         if (!board) return;
 
-        // set spectator mode before the early return so non-players always get it
         if (!isPlayer) {
             board.setAttribute("spectator", "");
         } else {
@@ -151,7 +142,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
 
         if (!serverState) return;
 
-        // find this player's result entry for the current round
         const myResult = serverState.results?.find(r =>
             r.player?.toString() === user?._id &&
             r.round === serverState.currentRound
@@ -170,7 +160,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         function handleHoldDie(event) {
             if (rollsUsed >= MAX_ROLLS_PER_TURN) return;
             const { index } = event.detail;
-            // toggle the held state for the clicked die
             setHeldDice(prev => {
                 const next = new Set(prev);
                 next.has(index) ? next.delete(index) : next.add(index);
@@ -182,7 +171,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
         return () => board.removeEventListener("hold-die", handleHoldDie);
     }, [serverState, heldDice, isPlayer, user, rollsUsed]);
 
-    // countdown timer - ticks every second, triggers timeout endpoint when it hits zero
     useEffect(() => {
         if (!turnExpiresAt) return;
 
@@ -195,12 +183,10 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             if (remaining === 0 && !timeoutCalled) {
                 timeoutCalled = true;
                 if (isMyTurn) {
-                    apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {
-                        // retry once on any failure - covers both clock drift and transient errors
+                    apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {  
                         setTimeout(() => apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { }), TIMEOUT_FALLBACK_MS);
                     });
                 } else if (isPlayer) {
-                    // fallback: if the current player's client isn't responding, try after a delay
                     fallbackTimer = setTimeout(() => {
                         apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => { });
                     }, TIMEOUT_FALLBACK_MS);
@@ -228,7 +214,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
             onStateUpdateRef.current?.(state);
         } catch (err) {
             setActionError(err.message);
-            // if the turn already expired but timeout wasn't called, trigger it now so the game advances
             if (err.message?.includes("expired")) {
                 apiFetch(`/games/${gameId}/timeout`, { method: "POST" }).catch(() => {});
             }
@@ -330,7 +315,6 @@ export default function GameBoard({ isPlayer, gameId, onStateUpdate, onGameDelet
                         <button onClick={() => handleBet("match")}>Match</button>
                     )}
                     <div className={styles.betInput}>
-                        {/* allow empty string while typing so users can clear and retype (e.g. "10") - clamp on blur */}
                         <input
                             type="number"
                             min={1}

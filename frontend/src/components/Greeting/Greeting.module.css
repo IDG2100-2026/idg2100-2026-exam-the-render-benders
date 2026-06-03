@@ -41,7 +41,6 @@
     }
 }
 
-/* Logout Button - made more visible with distinct danger colors */
 .button {
     background-color: var(--danger-bg);
     border: 1px solid var(--danger-border);

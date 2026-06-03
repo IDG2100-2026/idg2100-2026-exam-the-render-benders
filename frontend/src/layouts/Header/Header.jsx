@@ -10,14 +10,10 @@ import styles from "./Header.module.css";
 export default function Header() {
     const [open, setOpen] = useState(false);
     const { user, logout } = useAuth();
-    // useRef gives us a direct reference to the header element so we can check if clicks happen inside or outside it
     const navRef = useRef(null);
 
-    // Effect to close mobile menu when clicking outside
     useEffect(() => {
         function handleClickOutside(event) {
-            // navRef.current.contains(event.target) returns true if the clicked element is inside the header
-            // if it's false (clicked outside), we close the menu
             if (open && navRef.current && !navRef.current.contains(event.target)) {
                 setOpen(false);
             }

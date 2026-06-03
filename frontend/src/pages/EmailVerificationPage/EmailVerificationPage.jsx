@@ -9,11 +9,9 @@ export default function EmailVerificationPage() {
     const { user, loading, login } = useAuth();
     const [code, setCode] = useState("");
     const [verified, setVerified] = useState(false);
-    // single message state - only one message can show at a time
     const [message, setMessage] = useState({ text: "Sending code...", type: "info" });
     const hasSent = useRef(false);
 
-    // auto-send a verification code when the page loads so the user doesn't have to click Resend first
     useEffect(() => {
         if (user && !hasSent.current) {
             hasSent.current = true;
@@ -26,7 +24,6 @@ export default function EmailVerificationPage() {
         }
     }, [user]);
 
-    // deletes the old code and sends a new one to the same email
     async function handleResend() {
         setMessage({ text: "Sending code...", type: "info" });
         try {
@@ -46,7 +43,6 @@ export default function EmailVerificationPage() {
         try {
             const result = await apiFetch("/auth/verify-email", {
                 method: "POST",
-                // sends user._id so backend can find the matching verification code
                 body: JSON.stringify({ userId: user?._id, code })
             });
             if (result.user) {

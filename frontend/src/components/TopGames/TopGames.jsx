@@ -11,11 +11,9 @@ export default function TopGames() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Fetches top games when the component mounts
     useEffect(() => {
         async function fetchGames() {
             try {
-                // Calls our backend endpoint that sorts by Elo and fills with recent games if needed
                 const data = await apiFetch("/games/top");
                 setGames(data);
             } catch (err) {
@@ -35,24 +33,20 @@ export default function TopGames() {
             {!loading && games.length === 0 && !error && <p>No games to display.</p>}
             <ol className={styles.list}>
                 {games.map((game, index) => {
-                    // calculates average Elo of all players in the game
                     const avgElo = Math.round(
                         game.players.reduce((sum, p) => sum + (p.elo || DEFAULT_ELO), 0) / (game.players.length || 1)
                     );
 
                     return (
                         <li key={game._id} className={styles.item} onClick={() => navigate(`/games/${game._id}`)}>
-                            {/* Rank number */}
                             <span className={`${styles.rank} ${index === 0 ? styles.first : ""}`}>
                                 #{index + 1}
                             </span>
 
-                            {/* Status Badge */}
                             <span className={`${styles.statusBadge} ${styles[game.status]}`}>
                                 {game.status === "ongoing" ? "Live" : "Finished"}
                             </span>
 
-                            {/* Players with Avatars */}
                             <div className={styles.players}>
                                 {game.players.map((p, i) => (
                                     <span key={p.username} className={styles.playerWrapper}>
@@ -73,12 +67,10 @@ export default function TopGames() {
                                 ))}
                             </div>
 
-                            {/* Avg Elo */}
                             <span className={styles.elo}>
                                 <MdEmojiEvents /> {avgElo}
                             </span>
 
-                            {/* Variant */}
                             <div className={styles.variant}>
                                 <span><MdLayers /> {game.variant.rounds}r</span>
                                 <span><MdAccessTime /> {game.variant.timeControl}s</span>

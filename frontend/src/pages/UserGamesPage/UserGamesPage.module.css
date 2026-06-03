@@ -1,5 +1,5 @@
 .page {
-    margin: auto; /* Center the whole list container vertically and horizontally */
+    margin: auto; 
     padding: 1.5rem 1rem;
     max-width: 800px;
     width: 100%;
@@ -8,7 +8,7 @@
     flex-direction: column;
     gap: 1.5rem;
     min-height: 80vh;
-    justify-content: flex-start; /* Ensure header stays at top of centered container */
+    justify-content: flex-start; 
 }
 
 .header {
@@ -88,7 +88,6 @@
     text-decoration: none !important;
 }
 
-/* Ensure no underline on hover */
 .gameListItem:hover * {
     text-decoration: none !important;
 }
@@ -189,7 +188,7 @@
     background-color: var(--bg-secondary);
     border-radius: 12px;
     border: 2px dashed var(--border);
-    margin: auto 0; /* Center empty message vertically */
+    margin: auto 0; 
 }
 
 .lobbyLink {

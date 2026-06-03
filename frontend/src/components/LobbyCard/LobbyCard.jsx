@@ -4,8 +4,6 @@ import { getAssetUrl } from "@/api";
 import { DEFAULT_ELO, RULES_STRAIGHTS } from "@/config/constants";
 import styles from "./LobbyCard.module.css";
 
-// Shared card component used in both LobbySection and LobbyPage.
-// onGuestJoin: called when an anonymous user clicks "Play as Guest" on an allowAnonymous game
 export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
     const avgElo = Math.round(
         game.players.reduce((sum, p) => sum + (p.elo || DEFAULT_ELO), 0) / (game.players.length || 1)
@@ -13,7 +11,6 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
 
     const cardClass = `${styles.card} ${onCardClick ? styles.clickable : ""}`.trim();
 
-    // Use the first player (host) for the main avatar
     const host = game.players[0];
 
     return (
@@ -21,7 +18,6 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
             className={cardClass}
             onClick={onCardClick ? () => onCardClick(game._id) : undefined}
         >
-            {/* Player Avatar */}
             <div className={styles.avatarWrapper}>
                 <img
                     src={getAssetUrl(host?.profileImage)}
@@ -30,7 +26,6 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
                 />
             </div>
 
-            {/* Player names */}
             <div className={styles.players}>
                 {game.players.map((p, i) => (
                     <span key={p.username || p}>
@@ -46,7 +41,6 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
                 ))}
             </div>
 
-            {/* Variant info */}
             <div className={styles.variant}>
                 <span><MdLayers /> {game.variant.rounds}r</span>
                 <span><MdAccessTime /> {game.variant.timeControl}s</span>
@@ -61,7 +55,6 @@ export default function LobbyCard({ game, onJoin, onCardClick, onGuestJoin }) {
                 <span><MdAttachMoney /> {game.buyIn} pts</span>
             </div>
 
-            {/* Avg Elo */}
             <span className={styles.elo}>
                 <MdEmojiEvents /> {avgElo}
             </span>

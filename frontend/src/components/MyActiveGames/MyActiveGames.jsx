@@ -5,8 +5,6 @@ import { apiFetch } from "@/api";
 import LobbyCard from "@/components/LobbyCard/LobbyCard";
 import styles from "./MyActiveGames.module.css";
 
-// Lists the logged-in user's waiting and ongoing games so they can resume play
-// instead of losing track of games they created or joined.
 export default function MyActiveGames() {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -19,7 +17,7 @@ export default function MyActiveGames() {
                 const data = await apiFetch("/games?mine=true");
                 setGames(data);
             } catch {
-                // non-critical - the section just won't render
+                // 
             }
         }
         fetchMine();

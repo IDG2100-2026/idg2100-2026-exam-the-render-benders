@@ -15,16 +15,13 @@ class GameBoard extends HTMLElement {
         this._state = null;
     }
 
-    // property setter so React can pass objects directly: boardEl.state = { dice: [...] }
     set state(value) {
         this._state = value;
         this.render();
     }
 
     connectedCallback() {
-        // catch die clicks from any of the 5 dice with one listener
         this.shadowRoot.addEventListener("click", (event) => {
-            // spectators can see the dice but cannot interact with them
             if (this.hasAttribute("spectator")) return;
 
             const die = event.target.closest?.("game-die");

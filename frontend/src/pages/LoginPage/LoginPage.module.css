@@ -13,8 +13,8 @@
     flex-direction: column;
     gap: 1.25rem;
     width: 100%;
-    max-width: 400px; /* Perfect balanced width */
-    padding: 2rem; /* Clean internal padding */
+    max-width: 400px; 
+    padding: 2rem; 
     border-radius: 16px;
     background-color: var(--bg-secondary);
     box-shadow: var(--shadow);

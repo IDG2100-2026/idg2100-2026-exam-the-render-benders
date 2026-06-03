@@ -25,7 +25,6 @@
     text-align: center;
 }
 
-/* Ensure children don't get underlined */
 .list :global(a):hover {
     text-decoration: none !important;
 }

@@ -49,7 +49,6 @@
     justify-content: center;
 }
 
-/* Header Card */
 .profileHeaderCard {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -190,7 +189,6 @@
     opacity: 0.8;
 }
 
-/* Edit Form */
 .editForm {
     display: flex;
     flex-direction: column;
@@ -251,7 +249,6 @@
     color: var(--text);
 }
 
-/* Dashboard Grid */
 .dashboardGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -265,7 +262,7 @@
     }
 }
 
-/* Elo Section */
+
 .eloSection {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -347,7 +344,6 @@
     line-height: 1;
 }
 
-/* Stats Grid */
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -405,7 +401,6 @@
 .winCount { color: var(--success); font-weight: 900; font-size: 1.1rem; }
 .lossCount { color: var(--danger-text); font-weight: 900; font-size: 1.1rem; opacity: 0.7; }
 
-/* Section Cards */
 .sectionCard {
     background-color: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -451,7 +446,6 @@
     text-decoration: none !important;
 }
 
-/* Recent Games List */
 .gameList {
     display: flex;
     flex-direction: column;
@@ -538,7 +532,6 @@
     font-size: 0.85rem;
 }
 
-/* Trophies Cabinet */
 .trophyList {
     display: flex;
     flex-wrap: wrap;
@@ -585,7 +578,6 @@
     letter-spacing: 0.3px;
 }
 
-/* Utils */
 .updateMsg {
     margin-top: 0.75rem;
     padding: 0.5rem;

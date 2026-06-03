@@ -66,7 +66,6 @@
     gap: 1rem;
 }
 
-/* Separator line between nav links and user area */
 .greetingWrapper {
     border-left: 1px solid var(--border);
     padding-left: 1rem;
@@ -140,7 +139,6 @@
         align-items: center;
     }
 
-    /* Mobile Nav Container */
     .mobileNav {
         display: block;
         position: absolute;
@@ -161,7 +159,6 @@
         gap: 0.5rem;
     }
 
-    /* Standard mobile link padding */
     .mobileNav li a {
         display: flex;
         align-items: center;
@@ -188,7 +185,6 @@
         border-color: var(--accent-border);
     }
 
-    /* Auth Section in Mobile Menu */
     .mobileAuthItem {
         display: flex !important;
         align-items: center !important;
@@ -197,12 +193,10 @@
         margin-top: 0.5rem;
         padding-top: 1.25rem;
         gap: 0.75rem;
-        /* Strictly no wrapping for the whole auth row */
         flex-wrap: nowrap !important;
         width: 100%;
     }
 
-    /* Shared properties for mobile buttons (Logout and Auth buttons) */
     .mobileLogout, .mobileAuthBtn {
         padding: 0.6rem 1rem;
         border-radius: 6px;
@@ -216,7 +210,6 @@
         white-space: nowrap;
     }
 
-    /* Specifics for Login/Register buttons */
     .mobileAuthBtn {
         flex: 1;
         display: block !important;
@@ -234,7 +227,6 @@
         border: 1px solid var(--accent) !important;
     }
 
-    /* Specifics for Logout button */
     .mobileLogout {
         background-color: var(--danger-bg);
         border: 1px solid var(--danger-border);
@@ -249,14 +241,12 @@
         color: #fff;
     }
 
-    /* User Profile Info on Mobile (Image + Text) */
     .mobileUserInfo {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
         gap: 0.6rem !important;
         text-decoration: none !important;
-        /* CRITICAL: Allows the name to shrink and use ellipsis */
         min-width: 0;
         flex: 1;
         padding: 0 !important;
@@ -282,7 +272,6 @@
         color: var(--text-h);
         font-weight: bold;
         font-size: 0.95rem;
-        /* Ellipsis logic */
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;

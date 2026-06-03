@@ -2,8 +2,6 @@ import { MdAttachMoney } from "react-icons/md";
 import { GAME_BUY_INS } from "@/config/constants";
 import styles from "./BuyInSelector.module.css";
 
-// Selector for the buy-in amount - points each player pays to join (goes into the pot)
-// value: currently selected amount, onChange: called when user picks a different one
 export default function BuyInSelector({ value, onChange }) {
     return (
         <div className={styles.container}>

@@ -23,7 +23,6 @@
     gap: 0.6rem;
 }
 
-/* Redesigned Login Hint */
 .loginHint {
     background-color: var(--accent-bg);
     border: 1px solid var(--accent-border);

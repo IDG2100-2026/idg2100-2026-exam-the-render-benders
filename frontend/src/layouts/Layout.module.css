@@ -2,12 +2,11 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start; /* Default top alignment */
+    justify-content: flex-start; 
     width: 100%;
-    min-height: calc(100vh - 70px - 100px); /* Adjust based on header/footer height */
+    min-height: calc(100vh - 70px - 100px); 
 }
 
-/* Helper to center content on sparse pages */
 .centeredPage {
     margin: auto !important;
 }

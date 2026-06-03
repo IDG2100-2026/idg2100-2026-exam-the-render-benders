@@ -120,7 +120,7 @@
 }
 
 
-/* Board Layout */
+
 .boardWrapper {
     display: flex;
     justify-content: center;
@@ -139,7 +139,7 @@
     padding: 0 1rem 1rem 1rem;
     border: 2px solid rgba(255,255,255,0.05);
     position: relative;
-    overflow: hidden; /* Ensures overlay rounded corners match board */
+    overflow: hidden; 
     box-sizing: border-box;
 }
 
@@ -156,7 +156,7 @@
     letter-spacing: 2px;
 }
 
-/* Status Overlay - Covers entire board area */
+
 .overlay {
     position: absolute;
     top: 0;
@@ -205,7 +205,7 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Sidebar & Comments */
+
 .sidebar {
     display: flex;
     flex-direction: column;

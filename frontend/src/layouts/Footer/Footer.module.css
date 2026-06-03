@@ -50,7 +50,6 @@
     font-size: 0.8rem;
 }
 
-/* Responsiv justering for mobil */
 @media (max-width: 640px) {
     .footer {
         flex-direction: column;

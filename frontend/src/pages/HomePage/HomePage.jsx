@@ -7,12 +7,11 @@ import TournamentPreview from "@/components/TournamentPreview/TournamentPreview"
 import styles from "./HomePage.module.css";
 
 export default function HomePage() {
-    const navigate = useNavigate(); // used to navigate to /create-game when the button is clicked
+    const navigate = useNavigate(); 
     const { user } = useAuth();
 
     return (
         <div className={styles.page}>
-            {/* Hero section - intro text and call to action */}
             <section className={styles.hero}>
                 <h1>Welcome</h1>
 

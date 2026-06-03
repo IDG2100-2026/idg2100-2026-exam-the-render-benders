@@ -23,21 +23,16 @@ export default function AppearanceProvider({ children }) {
     const { user } = useAuth();
     const [preferences, setPreferences] = useState(loadFromStorage);
 
-    // Apply theme to <html> element whenever theme changes
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", preferences.theme);
     }, [preferences.theme]);
 
-    // When the user logs in, load their saved preferences from the backend.
-    // This makes preferences persist across devices and after clearing localStorage.
-    // Keyed on user._id so it fires on login but not on every re-render.
     useEffect(() => {
         if (user?.preferences) {
             setPreferences({ ...DEFAULTS, ...user.preferences });
         }
     }, [user?._id]);
 
-    // Save to localStorage and backend whenever preferences change
     useEffect(() => {
         localStorage.setItem("appearance", JSON.stringify(preferences));
         if (user) {

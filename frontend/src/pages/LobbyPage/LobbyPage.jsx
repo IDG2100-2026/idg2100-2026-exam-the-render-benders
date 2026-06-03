@@ -13,7 +13,6 @@ export default function LobbyPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Filter state - null means "show all", a value means only show games matching that value
     const [filterRules, setFilterRules] = useState(null);
     const [filterRounds, setFilterRounds] = useState(null);
     const [filterTimeControl, setFilterTimeControl] = useState(null);
@@ -61,7 +60,6 @@ export default function LobbyPage() {
         }
     }
 
-    // Apply active filters - if a filter is null it passes all games through
     const filteredGames = games
         .filter(game => !filterRules || game.variant.rules === filterRules)
         .filter(game => !filterRounds || game.variant.rounds === filterRounds)
@@ -80,7 +78,6 @@ export default function LobbyPage() {
             )}
             {error && <p className={styles.error}>{error}</p>}
 
-            {/* Filter bar - each group toggles a filter, clicking the active value resets it to null */}
             <div className={styles.filters}>
                 <div className={styles.filterGroup}>
                     <span>Rules</span>

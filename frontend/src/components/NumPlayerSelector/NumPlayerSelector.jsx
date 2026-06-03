@@ -2,8 +2,6 @@ import { MdPeople } from "react-icons/md";
 import { GAME_PLAYER_COUNTS } from "@/config/constants";
 import styles from "./NumPlayerSelector.module.css";
 
-// Selector for how many players can join the game (2, 3, or 5)
-// value: currently selected number, onChange: called when user picks a different one
 export default function NumPlayerSelector({ value, onChange }) {
     return (
         <div className={styles.container}>

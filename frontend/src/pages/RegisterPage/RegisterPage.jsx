@@ -35,7 +35,6 @@ export default function RegisterPage() {
         }
 
         try {
-            // POST /auth/register creates the user and issues JWT cookies in one call
             const result = await apiFetch("/auth/register", {
                 method: "POST",
                 body: JSON.stringify({ username, email, pwd: password, dateOfBirth })

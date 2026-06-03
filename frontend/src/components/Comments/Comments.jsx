@@ -30,13 +30,11 @@ export default function Comments({ gameId, tournamentId }) {
         }
     }, [comments]);
 
-    // connecting to WebSocket and joining the correct room
     useEffect(() => {
         const ws = new WebSocket(`${WS_BASE_URL}/ws/comments`);
         webSocketRef.current = ws;
 
         ws.onopen = () => {
-            // join the correct room based on game or tournament
             if (gameId) {
                 ws.send(JSON.stringify({ type: "join-comment-room", game: gameId }));
             } else if (tournamentId) {
@@ -59,13 +57,11 @@ export default function Comments({ gameId, tournamentId }) {
         return () => ws.close();
     }, [gameId, tournamentId]);
 
-    // fetching initial comments from the REST API on mount
     useEffect(() => {
         async function fetchComments() {
             setLoading(true);
             setFetchError(null);
             try {
-                // fetching game or tournament based on which id is passed in
                 const data = gameId
                     ? await getGameComments(gameId)
                     : await getTournamentComments(tournamentId);
@@ -84,14 +80,11 @@ export default function Comments({ gameId, tournamentId }) {
         if (!newComment.trim()) return;
         setSubmitError(null);
         try {
-            // post to game or tournament based on which id was passed in
             gameId
                 ? await postGameComment(gameId, newComment, user._id)
                 : await postTournamentComment(tournamentId, newComment, user._id);
-            // don't add locally — WebSocket broadcasts comment-created back to all clients including sender
             setNewComment("");
         } catch (err) {
-            // server rejects banned users with an error here
             setSubmitError(err.message);
         }
     }
@@ -100,7 +93,6 @@ export default function Comments({ gameId, tournamentId }) {
         setSubmitError(null);
         try {
             await deleteComment(commentId);
-            // don't remove locally — WebSocket broadcasts comment-deleted to all open lists
         } catch (err) {
             setSubmitError(err.message);
         }

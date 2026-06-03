@@ -99,7 +99,6 @@ export default function UserProfilePage() {
     const isOwnProfile = loggedInUser?.username === profile.username;
     const isAdmin = loggedInUser?.isAdmin;
 
-    // Determine which image to show - getAssetUrl handles the default fallback
     const displayImage = profileImagePreview || getAssetUrl(profile.profileImage);
 
     return (

@@ -11,10 +11,10 @@ import BuyInSelector from "@/components/BuyInSelector/BuyInSelector";
 import styles from "./CreateGamePage.module.css";
 
 export default function CreateGamePage() {
-    const { user } = useAuth(); // get the logged in user from context
+    const { user } = useAuth(); 
     const navigate = useNavigate();
 
-    // Form state - one value per field, matches what the backend expects
+    
     const [rounds, setRounds] = useState(GAME_ROUND_COUNTS[0]);
     const [rules, setRules] = useState(RULES_STRAIGHTS);
     const [timeControl, setTimeControl] = useState(GAME_TIME_CONTROLS[0]);
@@ -23,27 +23,27 @@ export default function CreateGamePage() {
     const [numPlayers, setNumPlayers] = useState(GAME_PLAYER_COUNTS[0]);
     const [buyIn, setBuyIn] = useState(GAME_BUY_INS[0]);
 
-    const [error, setError] = useState(null); // error message shown if the API call fails
+    const [error, setError] = useState(null); 
 
     async function handleSubmit(e) {
-        e.preventDefault(); // stops the browser from reloading the page on form submit
+        e.preventDefault(); 
         try {
             const newGame = await apiFetch("/games", {
                 method: "POST",
                 body: JSON.stringify({
-                    players: [user._id], // the creator is automatically added as a player
+                    players: [user._id], 
                     variant: { rounds, rules, timeControl },
                     allowAnonymous,
                     numPlayers,
                     buyIn,
-                    // Only include desiredElo if the user typed something, otherwise skip the field entirely
+                    
                     ...(desiredElo !== "" && { desiredElo: Number(desiredElo) })
                 })
             });
-            // Navigate to the new game page after it is created
+            
             navigate(`/games/${newGame._id}`);
         } catch (err) {
-            // If the backend returns an error, show it to the user
+            
             setError(err.message);
         }
     }
@@ -52,7 +52,7 @@ export default function CreateGamePage() {
         <div className={styles.page}>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <h1>Create Game</h1>
-                {/* Variant sub-components - each controls one part of the game variant */}
+                {}
                 <RoundsSelector value={rounds} onChange={setRounds} />
                 <RulesSelector value={rules} onChange={setRules} />
                 <TimeControlSelector value={timeControl} onChange={setTimeControl} />
@@ -78,7 +78,7 @@ export default function CreateGamePage() {
                         max={MAX_ELO}
                     />
                 </label>
-                {/* Only shown if the API call fails */}
+                {}
                 {error && <p className={styles.error}>{error}</p>}
                 <button type="submit" className={styles.submitButton}>Create Game</button>
             </form>

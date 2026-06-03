@@ -33,7 +33,6 @@ export default function GamePage() {
 
         fetchGame();
 
-        // 15-second polling as required by Task.md
         const intervalId = setInterval(() => {
             fetchGame();
         }, 15000);
@@ -41,7 +40,6 @@ export default function GamePage() {
         return () => clearInterval(intervalId);
     }, [id]);
 
-    // auto-leave waiting game when navigating away without using the Leave button
     useEffect(() => {
         return () => {
             const g = gameRef.current;
@@ -107,7 +105,6 @@ export default function GamePage() {
 
                     <div className={styles.boardWrapper}>
                         <div className={styles.board} style={{ backgroundColor: preferences.boardColor }}>
-                            {/* Game board - Web Components wired in GameBoard.jsx */}
                             {game.status !== "finished" && (
                                 <GameBoard
                                     isPlayer={isPlayer}

@@ -25,7 +25,6 @@ export default function LoginPage() {
             if (err.message?.toLowerCase().includes("too many")) {
                 setError(err.message);
             } else {
-                // Generic message is intentional - don't reveal which field is wrong
                 setError("Invalid username or password. Remember: passwords require uppercase, a number and a symbol (e.g. Password123!).");
             }
         }
@@ -66,8 +65,7 @@ export default function LoginPage() {
                 </div>
 
                 {error && <p className={styles.error}>{error}</p>}
-                
-                {/* Submit button placed before other buttons to ensure Enter key works reliably */}
+
                 <button type="submit" className={styles.loginBtn}>
                     Log in
                 </button>

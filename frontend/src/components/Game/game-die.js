@@ -11,13 +11,6 @@ class GameDie extends HTMLElement {
     }
 
     connectedCallback() {
-        // listener is on shadowRoot itself, not on innerHTML content,
-        // so it survives every render() call that rewrites innerHTML
-        // this.shadowRoot.addEventListener("click", () => {
-        //     if (this.hasAttribute("spectator")) return;
-        //     // bubbles: true so game-board can catch all die clicks with one listener
-        //     this.dispatchEvent(new CustomEvent("die-click", { bubbles: true, composed: true }));
-        // });
         this.render();
     }
 

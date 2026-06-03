@@ -1,7 +1,7 @@
 .page {
     margin: auto;
     padding: 2rem 1.5rem;
-    max-width: 800px; /* Standard width for rules and content */
+    max-width: 800px; 
     width: 100%;
     box-sizing: border-box;
     display: flex;
