@@ -15,7 +15,6 @@ import { Trophy } from "../models/trophy.model.js";
 
 await connectDB();
 
-// Clear all collections
 try {
     await Promise.all([
         User.deleteMany({}),
@@ -32,7 +31,6 @@ try {
     process.exit(1);
 }
 
-// USERS
 let insertedUsers;
 try {
     const usersWithHashedPwd = userArray.map(u => ({ ...u, pwd: hashPwd(u.pwd) }));
@@ -45,10 +43,8 @@ try {
     process.exit(1);
 }
 
-// Build username, _id lookup for resolving references in other JSON files
 const userMap = Object.fromEntries(insertedUsers.map(u => [u.username, u._id]));
 
-// GAME CATEGORIES (18 combinations: 3 rounds x 2 straights x 3 time controls)
 let insertedCategories;
 try {
     const categories = [];
@@ -73,10 +69,8 @@ try {
     process.exit(1);
 }
 
-// Build category name, doc lookup
 const categoryMap = Object.fromEntries(insertedCategories.map(c => [c.name, c]));
 
-// GAMES
 let insertedGames;
 try {
     const games = gameArray.map(g => {
@@ -88,8 +82,7 @@ try {
         if (g.result?.winner) game.result = { winner: userMap[g.result.winner] };
         if (g.daysAgo) game.createdAt = new Date(Date.now() - MS_PER_DAY * g.daysAgo);
         delete game.daysAgo;
-        // set playerStacks so each player starts with the correct stack (buyIn * rounds)
-        // the service does this on createGame/joinGame, but seed bypasses the service
+             
         if (g.status !== "finished") {
             game.playerStacks = resolvedPlayers.map(userId => ({
                 user: userId,
@@ -106,7 +99,6 @@ try {
     process.exit(1);
 }
 
-// COMMENTS
 try {
     const comments = commentArray.map(c => ({
         body: c.body,
@@ -119,7 +111,6 @@ try {
     console.error("Could not insert comments:", err.message);
 }
 
-// TOURNAMENTS + TROPHIES
 try {
     for (const t of tournamentArray) {
         const startDate = t.daysAgo

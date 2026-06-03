@@ -5,7 +5,6 @@ const {
     GMAIL_APP_PASSWORD
 } = process.env;
 
-// transporter is null when env vars are missing, sendVerificationEmail falls back to console.log
 const transporter = GMAIL_USER && GMAIL_APP_PASSWORD ?
     nodemailer.createTransport({
         service: "gmail",
@@ -16,8 +15,6 @@ const transporter = GMAIL_USER && GMAIL_APP_PASSWORD ?
     }) :
     null;
 
-// sends a verification code to the user's email address
-// falls back to console.log if GMAIL_USER/GMAIL_APP_PASSWORD are not set in the environment
 export async function sendVerificationEmail(user, code) {
     if (transporter) {
         await transporter.sendMail({

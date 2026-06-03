@@ -9,7 +9,7 @@ import { setupCommentSockets } from "./socket/comment.socket.js";
 import { initializeGameSocket } from "./socket/game.socket.js";
 import { User } from "./models/user.model.js";
 
-// Import Routers
+
 import userRouter from "./routers/user.router.js";
 import sessionRouter from "./routers/session.router.js";
 import gameRouter from "./routers/game.router.js";
@@ -21,16 +21,12 @@ import trophyRouter from "./routers/trophy.router.js";
 import gameCategoryRouter from "./routers/gameCategory.router.js";
 import authRouter from "./routers/auth.router.js";
 
-// Connects to MongoDB via Mongoose
 await connectDB();
 
-// Sync indexes so schema changes (e.g. adding partialFilterExpression) take effect without manual intervention
 await User.syncIndexes();
 
-// Creates an Express app
 const app = express();
 
-// Rate limiter - max RATE_LIMIT_MAX requests per IP per RATE_LIMIT_WINDOW_MS (15 minutes)
 const limiter = rateLimit({
   windowMs: RATE_LIMIT_WINDOW_MS,
   limit: RATE_LIMIT_MAX,
@@ -38,24 +34,19 @@ const limiter = rateLimit({
   message: { error: "Too many requests, please try again later." }
 });
 
-// Allow requests from frontend (CORS)
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
   credentials: true
 }));
 
-// Apply rate limiter to all routes 
 app.use(limiter);
 
-// Middleware, runs on every request before reaching the endpoints
 app.use(express.json());
 app.use(cookieParser());
 app.use(setUserType);
 
-// Serve uploads directory (path relative to project root since we run from there)
 app.use("/uploads", express.static("backend/uploads"));
 
-// Register routers
 app.use("/api/v1", userRouter);
 app.use("/api/v1", sessionRouter);
 app.use("/api/v1", gameRouter);
@@ -67,13 +58,10 @@ app.use("/api/v1", trophyRouter);
 app.use("/api/v1", gameCategoryRouter);
 app.use("/api/v1/auth", authRouter);
 
-// Listens on a port
 const httpServer = app.listen(process.env.APP_PORT);
 
 setupCommentSockets(httpServer);
 
-// initializing Socket.IO and attaching it to the HTTP server so WebSocket
-    // connections can be handled
 initializeGameSocket(httpServer);
 
 httpServer.on("listening", () =>
@@ -83,7 +71,6 @@ httpServer.on("listening", () =>
   )
 );
 
-// Graceful shutdown
 let shuttingDown = false;
 async function gracefulShutDown() {
   if (shuttingDown) return;

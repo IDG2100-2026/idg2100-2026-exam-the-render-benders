@@ -39,25 +39,19 @@ async function emitPersonalizedState(gid, game) {
     }
 }
 
-// notifies all lobby viewers that the waiting game list has changed
 function emitLobbyUpdate() {
     getIO()?.emit("lobby-update");
 }
 
-// Returns all games from the database, supports pagination and advanced filtering
-// mine=true returns only the requesting user's own active games (waiting/ongoing)
 export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestingUser = null, mine = false } = {}) {
     const query = { ...filter };
 
     if (mine && requestingUser?.id) {
-        // Return only this user's own waiting/ongoing games
         query.players = requestingUser.id;
         if (!query.status) query.status = { $in: ["waiting", "ongoing"] };
     } else if (requestingUser?.id) {
-        // Exclude games the user is already in
         query.players = { $ne: requestingUser.id };
 
-        // For regular users, also filter by Elo (+/- 200) if it's a lobby/waiting query
         if (requestingUser.type === "user" && query.status === "waiting") {
             const user = await User.findById(requestingUser.id);
             if (user) {
@@ -73,7 +67,6 @@ export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestin
             }
         }
     } else if (query.status === "waiting") {
-        // For anonymous users, only show games that explicitly allow them
         query.allowAnonymous = true;
     }
 
@@ -84,28 +77,22 @@ export async function getAllGames({ skip = 0, limit = 20, filter = {}, requestin
         .populate("result.winner", "username");
 }
 
-// Fetches the top 5 games based on the highest average Elo rating of participating players
-// If there are fewer than 5 ongoing games, it fills the list with the most recent finished games
 export async function getTopGames() {
-    // fetches all ongoing games and populate player info
     let ongoingGames = await Game.find({ status: "ongoing" })
         .populate("players", "username elo elo10s elo30s elo90s profileImage");
 
-    // Sorts them by average Elo rating (descending order)
     ongoingGames.sort((a, b) => {
         const avgA = a.players.reduce((sum, p) => sum + (p.elo || 1000), 0) / (a.players.length || 1);
         const avgB = b.players.reduce((sum, p) => sum + (p.elo || 1000), 0) / (b.players.length || 1);
         return avgB - avgA;
     });
 
-    // Keep the top 5
     let result = ongoingGames.slice(0, 5);
 
-    // If we need more to reach 5, fetch the latest finished games
     if (result.length < 5) {
         const needed = 5 - result.length;
         const finishedGames = await Game.find({ status: "finished" })
-            .sort({ createdAt: -1 }) // newest first
+            .sort({ createdAt: -1 }) 
             .limit(needed)
             .populate("players", "username elo elo10s elo30s elo90s profileImage")
             .populate("result.winner", "username");
@@ -116,14 +103,12 @@ export async function getTopGames() {
     return result;
 }
 
-// Gets a single game by the id
 export async function getGame(gid) {
     return await Game.findById(gid)
         .populate("players", "username elo elo10s elo30s elo90s profileImage")
         .populate("result.winner", "username");
 }
 
-// Adds player to an existing game. Sets status to "ongoing" when 2 players have joined.
 export async function joinGame(gid, playerId, requestingUser = null) {
     const game = await Game.findById(gid);
     if (!game) return null;
@@ -136,12 +121,10 @@ export async function joinGame(gid, playerId, requestingUser = null) {
             .populate("result.winner", "username");
     }
 
-    // Anonymous users can only join games that explicitly allow them
     if (requestingUser?.type === "anonymous" && !game.allowAnonymous) {
         throw new Error("This game does not allow anonymous players");
     }
 
-    // Prevent joining multiple active games at once
     if (playerId) {
         const activeGame = await Game.findOne({
             players: playerId,
@@ -151,16 +134,13 @@ export async function joinGame(gid, playerId, requestingUser = null) {
         if (activeGame) throw new Error("You are already in an active game");
     }
 
-    // fetching the user to check and deduct points 
     const user = await User.findById(playerId);
     if (!user) throw new Error("User not found");
 
-    // reject if the user doesn't have enough points for the buy-in 
     if (user.points < startingStack) {
         throw new Error("You do not have enough points to join this game");
     }
 
-    // deducting the buy-in from the user's points and adding it as their in-game stack
     await User.findByIdAndUpdate(playerId, { $inc: { points: -startingStack } });
     await Game.findByIdAndUpdate(gid, {
         $addToSet: { players: playerId },
@@ -172,10 +152,9 @@ export async function joinGame(gid, playerId, requestingUser = null) {
         .populate("players", "username elo elo10s elo30s elo90s profileImage")
         .populate("result.winner", "username");
 
-    // auto-start when the required number of players have joined 
     if (updated && updated.players.length >= updated.numPlayers && updated.status === "waiting") {
-        updated.status = "ongoing"; // Broad info
-        updated.phase = "rolling"; // Detailed info
+        updated.status = "ongoing"; 
+        updated.phase = "rolling"; 
         updated.currentRound = 1;
         updated.currentTurn = updated.players[0]._id || updated.players[0];
         updated.timeoutState = {
@@ -195,9 +174,6 @@ export async function joinGame(gid, playerId, requestingUser = null) {
     return updated;
 }
 
-// Creates a new game, saves it to the database
-// Also deducts the buy-in from each initial player and creates their stack entry,
-// because the creator bypasses joinGame and would otherwise have no playerStacks entry
 export async function createGame(data) {
     const buyIn = data.buyIn ?? 1;
     const startingStack = buyIn * data.variant.rounds;
@@ -217,10 +193,6 @@ export async function createGame(data) {
     return game;
 }
 
-// Removes a player from a game.
-// - "waiting" game: just remove the player; delete the game if no players left
-// - "ongoing" game: forfeit - the other player wins, game becomes "finished"
-// - "finished" game: cannot leave (already done)
 export async function leaveGame(gid, playerId) {
     const game = await Game.findById(gid);
     if (!game) return null;
@@ -231,8 +203,7 @@ export async function leaveGame(gid, playerId) {
 
     if (game.status === "waiting") {
         const startingStack = game.buyIn * game.variant.rounds;
-        await Promise.all([
-            // refund the buy-in that was deducted when the player joined
+        await Promise.all([  
             User.findByIdAndUpdate(playerId, { $inc: { points: startingStack } }),
             Game.findByIdAndUpdate(gid, {
                 $pull: { players: playerId, playerStacks: { user: playerId } }
@@ -252,17 +223,13 @@ export async function leaveGame(gid, playerId) {
         return updated;
     }
 
-    // ongoing - forfeit to the other player
     const remainingPlayers = game.players.filter(p => !idsEqual(p, playerId));
 
-    // Forfeiting player loses their remaining stack, add it to the pot so
-    // remaining players receive it via splitPot (prevents points disappearing)
     const forfeiterStack = getPlayerStack(game, playerId);
     if (forfeiterStack) {
         game.pot += forfeiterStack.stack;
         forfeiterStack.stack = 0;
     }
-    // distribute pot (forfeited stack + any unresolved round bets) to remaining players
     if (game.pot > 0 && remainingPlayers.length > 0) {
         splitPot(game, remainingPlayers);
     }
@@ -294,10 +261,7 @@ export async function leaveGame(gid, playerId) {
     });
 }
 
-// Updates a game by ID (gid), then returns the updated document
-// If the game just became finished and has a winner, updates both players' ELO ratings
 export async function updateGame(gid, data) {
-    // Fetch the current game first so we can check if it was already finished
     const oldGame = await Game.findById(gid);
     if (!oldGame) return null;
 
@@ -330,7 +294,6 @@ export async function updateGame(gid, data) {
 
     const game = await Game.findByIdAndUpdate(gid, updateData, { returnDocument: "after" });
 
-    // Only update ELO, wins, and gamesPlayed on the transition to finished (not on repeat calls, not for anonymous games)
     if (!game.isAnonymous && oldGame.status !== "finished" && game.status === "finished" && game.result?.scores?.length) {
         const players = await User.find({ _id: { $in: game.players } });
         const eloField = getEloField(game.variant.timeControl);
@@ -366,7 +329,6 @@ export async function updateGame(gid, data) {
             });
         }
 
-        // returning each player's remaining stack to their point balance
         for (const entry of game.playerStacks) {
             if (entry.stack > 0) {
                 await User.findByIdAndUpdate(entry.user, {
@@ -376,10 +338,8 @@ export async function updateGame(gid, data) {
         }
     }
 
-    // notifying all players in the room that the game has ended
     if (!oldGame.isAnonymous && oldGame.status !== "finished" && game.status === "finished") {
         getIO()?.to(gid.toString()).emit("game-end", { winner: game.result?.winner });
-        // fetch with populated winner so clients see the username immediately
         const populated = await Game.findById(gid).populate("result.winner", "username");
         if (populated) await emitPersonalizedState(gid, populated);
     }
@@ -387,20 +347,15 @@ export async function updateGame(gid, data) {
     return game;
 }
 
-// Called after round-ended: starts the next round or finishes the game after a short delay
-// so players have time to see the revealed dice before the board resets
 async function advanceAfterRound(gid, completedRound) {
     await new Promise(resolve => setTimeout(resolve, ROUND_END_DELAY_MS));
 
     const game = await Game.findById(gid);
-    // guard: another process may have already advanced or finished the game
     if (!game || game.phase !== "round-ended" || game.currentRound !== completedRound) return;
 
     if (completedRound >= game.variant.rounds) {
-        // all rounds done - finish the game (updateGame handles ELO, winner, etc.)
         await updateGame(gid, { status: "finished" });
     } else {
-        // start the next round
         game.currentRound += 1;
         game.phase = "rolling";
         game.foldedUsers = [];
@@ -448,7 +403,6 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
         throw new Error("Your turn has expired");
     }
 
-    // Temp fix for logic duplicate roll prevention
     const round = game.currentRound || 1;
 
     const existingResult = game.results.find(result =>
@@ -456,20 +410,17 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
         result.round === round
     );
 
-    // max rolls per turn: 1 automatic + 2 rerolls
     if (existingResult && existingResult.rollCount >= MAX_ROLLS_PER_TURN) {
         throw new Error("You have used all your rolls this turn");
     }
 
     if (existingResult) {
-        // reroll - keep held dice, re-roll the rest
         existingResult.hiddenRolls = existingResult.hiddenRolls.map((val, i) =>
             heldIndexes.includes(i) ? val : rollDie()
         );
         existingResult.holds = existingResult.hiddenRolls.map((_, i) => heldIndexes.includes(i));
         existingResult.rollCount += 1;
     } else {
-        // first roll - generate all 5 dice automatically
         const rolls = rollDice();
         game.results.push({
             player: playerId,
@@ -484,13 +435,10 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     }
 
     const activePlayers = getActivePlayerIds(game);
-
-    // find the updated result to check rollCount after the roll above
     const currentResult = game.results.find(r =>
         r.player?.toString() === playerId.toString() && r.round === round
     );
 
-    // move to betting only when all active players have used all their rolls
     const everyoneFinished = activePlayers.every(activePlayerId => {
         const r = game.results.find(res => idsEqual(res.player, activePlayerId) && res.round === round);
         return r && r.rollCount >= MAX_ROLLS_PER_TURN;
@@ -499,16 +447,13 @@ export async function rollForPlayer(gid, playerId, heldIndexes = []) {
     if (everyoneFinished) {
         enterBettingPhase(game, activePlayers);
     } else if (currentResult.rollCount >= MAX_ROLLS_PER_TURN) {
-        // used all 3 rolls, move to next player's turn
         moveToNextActivePlayer(game);
     }
-    // if rolls remain, stay on current player so they can reroll
 
     await game.save();
     await emitPersonalizedState(gid, game);
 
     if (everyoneFinished) {
-        // notify all players in the room that the betting round has started
         getIO()?.to(gid.toString()).emit("round-start", { round: game.currentRound });
     }
 
@@ -604,7 +549,6 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
             }
             pushBetLog(game, playerId, "match", amountNeededToMatch);
         }
-        // raise is sent by the frontend Bet button when currentBet > 0
     } else if (action === "raise") {
         if (amount <= amountNeededToMatch) {
             throw new Error("Raise must be greater than the amount needed to match");
@@ -671,9 +615,7 @@ export async function placeBet(gid, playerId, { action, amount = 0 }) {
     await emitPersonalizedState(gid, game);
 
     if (game.phase === "round-ended") {
-        // notify all players in the room that the round has ended
         getIO()?.to(gid.toString()).emit("round-end", { round: game.currentRound });
-        // advance to next round or finish after a delay so players can see revealed dice
         advanceAfterRound(gid, game.currentRound);
     }
 
@@ -708,7 +650,6 @@ export async function handleTimeout(gid) {
             idsEqual(result.player, timedOutPlayerId) && result.round === round);
 
         if (!alreadyRolledThisRound) {
-            // player never rolled this round, generate a roll for them and mark it as complete
             const rolls = rollDice();
 
             game.results.push({
@@ -729,10 +670,7 @@ export async function handleTimeout(gid) {
                     startedAt: new Date()
                 }
             });
-        } else {
-            // player timed out mid-reroll, result exists but rollCount is below MAX,
-            // so bump it to MAX so everyoneFinished resolves correctly and the turn
-            // does not cycle back to them
+        } else { 
             const timedOutResult = game.results.find(result =>
                 idsEqual(result.player, timedOutPlayerId) && result.round === round
             );
@@ -741,8 +679,6 @@ export async function handleTimeout(gid) {
 
         const activePlayers = getActivePlayerIds(game);
 
-        // check rollCount >= MAX rather than just "has a result", matches the same
-        // everyoneFinished check in rollForPlayer so both paths agree on when rolling is done
         const everyoneFinished = activePlayers.every(activePlayerId => {
             const playerResult = game.results.find(result =>
                 idsEqual(result.player, activePlayerId) && result.round === round

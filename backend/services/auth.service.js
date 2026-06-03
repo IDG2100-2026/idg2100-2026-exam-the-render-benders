@@ -17,12 +17,10 @@ import { EmailVerification } from "../models/emailVerification.model.js";
 
 const { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } = process.env;
 
-// Hash refresh tokens before saving to DB
 function hashToken(token) {
     return crypto.createHash("sha256").update(token).digest("hex");
 }
 
-// Used to create a short-lived JWT
 function createAccessToken(user, req) {
     return jwt.sign(
         { 
@@ -39,7 +37,7 @@ function createAccessToken(user, req) {
     );
 }
 
-// Used to create a long-lived JWT
+
 function createRefreshToken(user) {
     return jwt.sign(
         {
@@ -56,7 +54,6 @@ function safeUser(user) {
     return safe;
 }
 
-// Creates both tokens, then hashes them before saving them to user.sessions
 async function issueSessionForUser(user, req) {
     const accessToken = createAccessToken(user, req);
     const refreshToken = createRefreshToken(user);
@@ -167,20 +164,15 @@ async function login({ username, pwd }, req) {
     if (!user) return null;
     if (user.pwd !== hashPwd(pwd)) return null;
 
-    // granting +100 points if it has been at least 7 days since last login 
     const now = new Date();
     if (!user.lastLogin || now - user.lastLogin >= WEEKLY_POINT_INTERVAL) {
         user.points += WEEKLY_POINTS_GAINED;
     }
-    // updating the last login before issuing the session
     user.lastLogin = now;
 
     return issueSessionForUser(user, req);
 }
 
-// Verify token, find matching saved session
-// reject expired/missing sessions, update tokens by replacing old session with new
-// returns fresh tokens (access and refresh)
 async function refresh(refreshToken, req) {
     if (!refreshToken) {
         throw new Error("Missing refresh token");
@@ -273,7 +265,6 @@ async function refresh(refreshToken, req) {
     };
 }
 
-// Removes the matching refreshToken from the user document
 async function logout(refreshToken) {
     if (!refreshToken) return;
 

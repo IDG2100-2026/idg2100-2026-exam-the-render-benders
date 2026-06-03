@@ -3,7 +3,6 @@ import { broadcastToCommentRoom, broadcastToGameCommentRoom, broadcastToTourname
 import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 import { isOwnerOrAdmin } from "../utils/authHelpers.js";
 
-// Get all Comments from the database and return them as JSON
 export async function getAllComments(req, res) {
     try {
         const skip = parseInt(req.query.skip) || 0;
@@ -16,7 +15,6 @@ export async function getAllComments(req, res) {
     }
 }
 
-// Get a Comment from the DB and return the Comment as JSON
 export async function getComment(req, res) {
     try {
         const comment = await commentService.getComment(req.params.cid);
@@ -27,8 +25,6 @@ export async function getComment(req, res) {
     }
 }
 
-// REST is still the source of truth, WebSockets only broadcast successful REST mutations
-// Create a new Comment and returns as JSON
 export async function createComment(req, res) {
     try {
         const comment = await commentService.createComment(req.body);
@@ -63,7 +59,6 @@ export async function createComment(req, res) {
     }
 }
 
-// Updates a Comment by ID (cid) and return the updated Comment as JSON
 export async function updateComment(req, res) {
     try {
         const existingComment = await commentService.getComment(req.params.cid);
@@ -85,7 +80,7 @@ export async function updateComment(req, res) {
         sendError(res, err);
     }
 }
-// Deletes a Comment by ID (cid) - user can delete their own, admin can delete any
+
 export async function deleteComment(req, res) {
     try {
         const comment = await commentService.getComment(req.params.cid);
@@ -107,7 +102,6 @@ export async function deleteComment(req, res) {
     }
 }
 
-// Get all Comments for a specific Game and return them as JSON
 export async function getCommentsByGame(req, res) {
     try {
         const comments = await commentService.getCommentsByGame(req.params.gid);
@@ -118,7 +112,6 @@ export async function getCommentsByGame(req, res) {
     }
 }
 
-// Get all Comments for a specific Tournament and return them as JSON
 export async function getCommentsByTournament(req, res) {
     try {
         const comments = await commentService.getCommentsByTournament(req.params.tid);

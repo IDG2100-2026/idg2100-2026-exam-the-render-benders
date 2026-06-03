@@ -18,7 +18,6 @@ async function register(req, res) {
     }
 }
 
-// Set access and refresh token cookies
 async function login(req, res) {
     try {
         const result = await authService.login(req.body, req);
@@ -35,7 +34,6 @@ async function login(req, res) {
     }
 }
 
-// Sets new cookies after updaing tokens
 async function refresh(req, res) {
     try {
         const result = await authService.refresh(req.cookies.refreshToken, req);
@@ -53,7 +51,6 @@ async function refresh(req, res) {
     }
 }
 
-// Read refreshToken from cookies, removes session, clears both cookies
 async function logout(req, res) {
     try {
         await authService.logout(req.cookies.refreshToken);

@@ -15,14 +15,11 @@ export function sanitizeGameForViewer(game, viewerId){
 
         return {
             ...result,
-
-            // Only the owning player can see their private dice
+ 
             hiddenRolls: isOwner ? result.hiddenRolls : [],
 
-            // Everyone can see revealed rolls once reveal/end has happened
             revealedRolls: publicRolls ? result.revealedRolls: [],
 
-            // Keep old `rolls` field safe too, because it currently dupes hiddenRolls
             rolls: isOwner
                 ? result.rolls
                 : publicRolls
@@ -34,24 +31,19 @@ export function sanitizeGameForViewer(game, viewerId){
     return safeGame;
 }
 
-//---- DICE/ROLL HELPERS ----//
-
-// Helper for public roll phases
 export function rollsArePublic(game) {
     return ["round-ended", "finished"].includes(game.phase) || game.status === "finished";
 }
 
-// Roll 1
 export function rollDie() {
     const index = Math.floor(Math.random() * DICE_FACES.length);
     return DICE_FACES[index];
 }
-// Roll all
+
 export function rollDice( count = DICE_COUNT) {
     return Array.from({ length: count }, () => rollDie());
 }
 
-// Evaluation helpers
 function getFaceValue(face) {
     return DICE_FACES.indexOf(face);
 }
@@ -93,43 +85,35 @@ function evaluateRolls(rolls, rules = "straights-allowed") {
     const hasStraight = straightAllowed && isStraight(rolls);
 
     if (countPattern[0] === 5) {
-        // 8 five of a kind
         return { rank: 8, tiebreakers: groups.map(groups => groups.value) }; 
     }
 
     if (countPattern[0] === 4) {
-        // 7 four of a kind
         return { rank: 7, tiebreakers: groups.map(groups => groups.value) };
     }
 
     if (countPattern[0] === 3 && countPattern[1] === 2) {
-        // 6 full house
         return { rank: 6, tiebreakers: groups.map(groups => groups.value) };
     }
     
     if (hasStraight) {
-        // 5 straight
         const highest = Math.max(...rolls.map(getFaceValue));
         return { rank: 5, tiebreakers: [highest] };
     }
     
     if (countPattern[0] === 3) {
-        // 4 three of a kind
         return { rank: 4, tiebreakers: groups.map(groups => groups.value) };
     }
     
     if (countPattern[0] === 2 && countPattern[1] == 2) {
-        // 3 two pair
         return { rank: 3, tiebreakers: groups.map(groups => groups.value) };
     }
     
     if (countPattern[0] === 2) {
-        // 2 pair
         return { rank: 2, tiebreakers: groups.map(groups => groups.value) };
     }
     
     return {
-        // 1 high card
         rank: 1,
         tiebreakers: rolls
             .map(getFaceValue)
@@ -150,9 +134,6 @@ function compareEvaluatedHands(a, b) {
     return 0;
 }
 
-
-//---- PLAYER HELPERS ----//
-// Compare player ids
 export function idsEqual(a, b) {
     if (!a || !b) return false;
     return a.toString() === b.toString();
@@ -168,8 +149,6 @@ export function getPlayerStack(game, playerId) {
     return game.playerStacks.find(entry => idsEqual(entry.user, playerId));
 }
 
-
-//---- SCORE/BETTING/POT RELATED HELPERS ----//
 export function getContribution(game, playerId) {
     let contribution = game.bettingState.contributions.find(entry =>
         idsEqual(entry.user, playerId)
@@ -232,7 +211,6 @@ export function splitPot(game, winnerIds) {
 
     game.pot = 0;
 }
-//---- ROUND RELATED HELPERS ----//
 
 export function turnHasExpired(game){
     return Boolean(
@@ -246,7 +224,6 @@ export function startTurnTimer(game, playerId) {
     game.timeoutState.turnExpiresAt = new Date(Date.now() + game.variant.timeControl * 1000);
 }
 
-// Turn advancement
 export function moveToNextActivePlayer(game) {
     const activePlayers = getActivePlayerIds(game);
 
@@ -262,7 +239,6 @@ export function moveToNextActivePlayer(game) {
     startTurnTimer(game, activePlayers[nextIndex]);
 }
 
-// Detect when betting is done
 export function bettingRoundIsComplete(game) {
     const activePlayers = getActivePlayerIds(game);
     if (activePlayers.length <= 1) return true;

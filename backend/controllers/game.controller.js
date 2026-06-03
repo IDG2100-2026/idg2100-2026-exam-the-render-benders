@@ -1,15 +1,13 @@
 import gameService from "../services/game.service.js";
 import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
-// Get all games from the database and return them as JSON
 export async function getAllGames(req, res) {
     try {
         const skip = parseInt(req.query.skip) || 0;
         const limit = parseInt(req.query.limit) || 20;
         const filter = {};
         if (req.query.status) filter.status = req.query.status;
-
-        // Pass the user info from req.user (set by auth middleware) to the service
+   
         const games = await gameService.getAllGames({
             skip,
             limit,
@@ -25,7 +23,6 @@ export async function getAllGames(req, res) {
     }
 }
 
-// Get the top 5 games with highest average Elo
 export async function getTopGames(req, res) {
     try {
         const games = await gameService.getTopGames();
@@ -37,7 +34,6 @@ export async function getTopGames(req, res) {
     }
 }
 
-// Get a game from the DB and return the game as JSON
 export async function getGame(req, res) {
     try {
         const game = await gameService.getGame(req.params.gid);
@@ -48,7 +44,6 @@ export async function getGame(req, res) {
     }
 }
 
-// Returns the state of a game (used to restore state after reload)
 export async function getGameState(req, res) {
     try {
         const game = await gameService.getGame(req.params.gid);
@@ -59,8 +54,6 @@ export async function getGameState(req, res) {
     }
 } 
 
-// Create a new game and returns as JSON
-// Anonymous games are flagged so they are excluded from platform activity
 export async function createGame(req, res) {
     try {
         const isAnonymous = req.user?.type === "anonymous";
@@ -71,7 +64,6 @@ export async function createGame(req, res) {
     }
 }
 
-// Adds a player to a game and returns the updated game as JSON
 export async function joinGame(req, res) {
     try {
         const game = await gameService.joinGame(req.params.gid, req.user.id, req.user);
@@ -86,8 +78,6 @@ export async function joinGame(req, res) {
     }
 }
 
-// Removes a player from a game - DELETE /games/:gid/players/:uid
-// Only the player themselves (or an admin) can remove a player
 export async function leaveGame(req, res) {
     try {
         const { uid } = req.params;
@@ -109,13 +99,8 @@ export async function leaveGame(req, res) {
     }
 }
 
-// Updates a game by ID (gid) and return the updated game as JSON
-// Only a player in the game or an admin is allowed to update it -
-// without this check any logged-in user could force the game to "finished"
-// and trigger ELO recalculation and stack distribution for other people's games
 export async function updateGame(req, res) {
-    try {
-        // fetch first so we can check the players list before applying the update
+    try {      
         const currentGame = await gameService.getGame(req.params.gid);
         if (!currentGame) return res.status(404).json({ error: "Game not found" });
 

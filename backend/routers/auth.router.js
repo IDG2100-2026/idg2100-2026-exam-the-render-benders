@@ -11,5 +11,4 @@ authRouter.post("/logout", authController.logout);
 authRouter.post("/verify-email", authController.verifyEmail);
 authRouter.post("/resend-verification", authController.resendVerification);
 
-
 export default authRouter;

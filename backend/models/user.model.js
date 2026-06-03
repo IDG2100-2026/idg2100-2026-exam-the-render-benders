@@ -14,7 +14,6 @@ import {
     DEFAULT_LOBBY_COUNT
 } from "../config/constants.js";
 
-// User schema, defines the structure and validation rules for users in the database
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -25,7 +24,6 @@ const userSchema = new mongoose.Schema({
         maxLength: [MAX_USERNAME_LENGTH, `Username cannot exceed ${MAX_USERNAME_LENGTH} characters`],
         match: [/^[a-zA-Z0-9_À-ɏ]+$/, "Username can only contain letters (including æøå), numbers and underscores"]
     },
-    // Guest users have no password, email or date of birth - all three are optional when isGuest is true
     isGuest: {
         type: Boolean,
         default: false
@@ -88,42 +86,35 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    // Points used for tournament buy-ins
     points : {
         type: Number,
         default: DEFAULT_POINTS,
         min: MIN_POINTS
     },
-
-    // ELO rating, automatically updated after each game
+  
     elo: {
         type: Number,
         default: DEFAULT_ELO,
         min: 0
     },
 
-    // Separate ELOs for the three time controls (10s, 30s, 90s)
     elo10s: { type: Number, default: DEFAULT_ELO, min: 0 },
     elo30s: { type: Number, default: DEFAULT_ELO, min: 0 },
     elo90s: { type: Number, default: DEFAULT_ELO, min: 0 },
 
-    // Game stats, updated automatically when a game finishes
     wins: { type: Number, default: 0, min: 0 },
     gamesPlayed: { type: Number, default: 0, min: 0 },
 
-    // Trophies won by winning tournaments, references to Trophy documents
     trophies: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Trophy"
     }],
 
-    // ELO history - each entry records a rating and when it was set - used to calculate weekly change
     eloHistory: [{
         elo: { type: Number, required: true },
         date: { type: Date, default: Date.now }
     }],
 
-    // Admin and ban status, both default to false for new users
     isAdmin: {
         type: Boolean,
         default: false
@@ -133,13 +124,11 @@ const userSchema = new mongoose.Schema({
         default: false
     },
 
-    // Last logged in, used for weekly point grants
     lastLogin: {
         type: Date,
         default: null 
     },
 
-    // Appearance preferences saved per user
     preferences: {
         theme: { type: String, default: DEFAULT_THEME },
         boardColor: { type: String, default: DEFAULT_BOARD_COLOR },
@@ -148,8 +137,6 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
-// Emails must be unique, but only documents with real string emails are included
-// Guests without email are ignored
 userSchema.index(
     { email: 1 },
     {
@@ -160,5 +147,5 @@ userSchema.index(
     }
 );
 
-// Create and export the User model based on the schema
+
 export const User = mongoose.model("User", userSchema);

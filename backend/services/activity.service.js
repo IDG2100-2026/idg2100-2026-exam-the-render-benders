@@ -1,6 +1,5 @@
 import { Game } from "../models/game.model.js";
 
-// Returns platform activity stats: ongoing games count, active users this week, and last 10 games
 export async function getActivity() {
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -21,7 +20,6 @@ export async function getActivity() {
         activePlayers: activePlayerIds.length,
         gamesPlayedLastWeek,
         availableGamesNow,
-        // Keeping old field names (So frontend don't break)
         ongoingGames,
         waitingGames,
         activeUsersThisWeek: activePlayerIds.length,

@@ -2,13 +2,11 @@ import { body } from "express-validator";
 import { MAX_ELO, GAME_PLAYER_COUNTS, GAME_BUY_INS } from "../config/constants.js";
 export { handleValidationErrors } from "../utils/handleValidationErrors.js";
 
-// Validates the body when creating a new game
 export const validateCreateGame = [
     body("players")
         .isArray({ min: 1 })
         .withMessage("Players must be an array with at least 1 player"),
 
-    // Validates that each player in the array is a valid MongoDB ID
     body("players.*")
         .isMongoId()
         .withMessage("Each player must be a valid user ID"),
@@ -21,25 +19,21 @@ export const validateCreateGame = [
         .isIn([10, 30, 90])
         .withMessage("Time control must be 10, 30 or 90"),
 
-    // Rules default to "straights-allowed" in the model - validator only runs when the field is present
     body("variant.rules")
         .optional()
         .isIn(["straights-allowed", "no-straights"])
         .withMessage("Rules must be 'straights-allowed' or 'no-straights'"),
 
-    // Optional - only registered users can restrict anonymous players
     body("allowAnonymous")
         .optional()
         .isBoolean()
         .withMessage("allowAnonymous must be true or false"),
 
-    // Optional - the creator's desired opponent Elo rating
     body("desiredElo")
         .optional()
         .isInt({ min: 0, max: MAX_ELO })
         .withMessage(`desiredElo must be between 0 and ${MAX_ELO}`),
 
-    // Optional - Validate number of players
     body("numPlayers")
         .optional()
         .isInt()
@@ -47,7 +41,6 @@ export const validateCreateGame = [
         .isIn(GAME_PLAYER_COUNTS)
         .withMessage(`numPlayers must be one of: ${GAME_PLAYER_COUNTS.join(", ")}`),
 
-    // Optional - Validate buy-ins
     body("buyIn")
         .optional()
         .isInt()
@@ -56,7 +49,6 @@ export const validateCreateGame = [
         .withMessage(`buyIn must be one  of: ${GAME_BUY_INS.join(", ")}`)
 ];
 
-// Validates the body when updating an existing game - all fields are optional
 export const validateUpdateGame = [
     body("status")
         .optional()
@@ -68,7 +60,6 @@ export const validateUpdateGame = [
         .withMessage("Winner must be a valid user ID")
 ];
 
-// Validates the body when a player joins a game
 export const validateJoinGame = [
     body("player")
         .isMongoId()

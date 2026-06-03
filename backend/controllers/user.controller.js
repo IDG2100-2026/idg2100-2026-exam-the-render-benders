@@ -1,7 +1,6 @@
 import userService from "../services/user.service.js";
 import { sendError } from "../utils/controllerHelpers.js";
 
-// Get all users from the database and return them as JSON
 export async function getAllUsers(req, res) {
     try {
         const skip = parseInt(req.query.skip) || 0;
@@ -14,7 +13,6 @@ export async function getAllUsers(req, res) {
     }
 }
 
-// Get a user from DB and return the user as JSON
 export async function getUser(req, res) {
     try {
         const user = await userService.getUser(req.params.username, req.user);
@@ -25,7 +23,6 @@ export async function getUser(req, res) {
     }
 }
 
-// Get user games
 export async function getUserGames(req, res) {
     try {
         const skip = parseInt(req.query.skip) || 0;
@@ -46,7 +43,6 @@ export async function getUserGames(req, res) {
     }
 }
 
-// Create a user and returns as JSON
 export async function createUser(req, res) {
     try {
         const user = await userService.createUser(req.body);
@@ -56,7 +52,6 @@ export async function createUser(req, res) {
     }
 }
 
-// Update a user by username and return the updated user as JSON
 export async function updateUser(req, res) {
     try {
         if (req.file) {
@@ -70,7 +65,6 @@ export async function updateUser(req, res) {
     }
 }
 
-// Ban a user by username, sets isBanned to true and returns the updated user
 export async function banUser(req, res) {
     try {
         const user = await userService.banUser(req.params.username);
@@ -81,7 +75,6 @@ export async function banUser(req, res) {
     }
 }
 
-// Returns users sorted by the given field and returns them as JSON
 export async function getLeaderboard(req, res) {
     try {
         const { sortBy } = req.query;
@@ -93,7 +86,6 @@ export async function getLeaderboard(req, res) {
 
 }
 
-// Update appearance preferences for a user by username
 export async function updatePreferences(req, res) {
     try {
         const user = await userService.updatePreferences(req.params.username, req.body);
@@ -104,7 +96,6 @@ export async function updatePreferences(req, res) {
     }
 }
 
-// Login a user by checking username and password
 export async function loginUser(req, res) {
     try {
         const user = await userService.loginUser(req.body);

@@ -1,7 +1,6 @@
 import { Tournament } from "../models/tournament.model.js";
 import { User } from "../models/user.model.js";
 
-// Returns all tournaments, supports skip pagination and filtering by status/tournamentType/gameCategory
 export async function getAllTournaments({ skip = 0, limit = 20, filter = {} } = {}) {
     return await Tournament.find(filter)
         .populate("players", "username elo")
@@ -11,7 +10,6 @@ export async function getAllTournaments({ skip = 0, limit = 20, filter = {} } = 
         .limit(limit);
 }
 
-// Returns a small homepage-friendly list of upcoming tournaments
 export async function getUpcomingTournaments(limit = 5) {
     return await Tournament.find({ status: "upcoming" })
         .populate("players", "username elo")
@@ -21,7 +19,6 @@ export async function getUpcomingTournaments(limit = 5) {
         .limit(limit);
 }
 
-// Gets a single Tournament by the id with full population
 export async function getTournament(tid) {
     return await Tournament.findById(tid)
         .populate("players", "username elo")
@@ -30,19 +27,15 @@ export async function getTournament(tid) {
         .populate("winner", "username");
 }
 
-// Creates a new Tournament and saves it to the DB
 export async function createTournament(data) {
     return await Tournament.create(data);
 }
 
-// Updates a Tournament by (tid), then returns the updated document
-// If a winner is set and the tournament has a trophy, awards it to the winner's profile
 export async function updateTournament(tid, data) {
     const tournament = await Tournament.findByIdAndUpdate(tid, data, { returnDocument: "after" });
     if (!tournament) return null;
 
     if (data.winner && tournament.trophy) {
-        // Push the Trophy ObjectId - $addToSet prevents duplicates
         await User.findByIdAndUpdate(data.winner, {
             $addToSet: { trophies: tournament.trophy }
         });
@@ -51,7 +44,6 @@ export async function updateTournament(tid, data) {
     return tournament;
 }
 
-// Adds a player to a tournament - validates ban, duplicate, capacity, and status
 export async function joinTournament(tid, playerId) {
     const tournament = await Tournament.findById(tid);
     if (!tournament) return null;
@@ -71,7 +63,6 @@ export async function joinTournament(tid, playerId) {
     return await Tournament.findById(tid).populate("players", "username elo");
 }
 
-// Removes a player from a tournament - only allowed while status is upcoming
 export async function leaveTournament(tid, playerId) {
     const tournament = await Tournament.findById(tid);
     if (!tournament) return null;
@@ -86,7 +77,6 @@ export async function leaveTournament(tid, playerId) {
     return tournament;
 }
 
-// Returns tournament standings - arena: sorted arenaScores, knockout: rounds array
 export async function getTournamentStandings(tid) {
     const tournament = await Tournament.findById(tid).populate("players", "username elo");
     if (!tournament) return null;
@@ -114,7 +104,6 @@ export async function getTournamentStandings(tid) {
     return { tournamentType: "knockout", standings: tournament.rounds };
 }
 
-// Deletes a tournament - only pending/upcoming tournaments can be deleted
 export async function deleteTournament(tid) {
     const tournament = await Tournament.findById(tid);
     if (!tournament) return null;
@@ -122,20 +111,16 @@ export async function deleteTournament(tid) {
     return await Tournament.findByIdAndDelete(tid);
 }
 
-// Starts a tournament: shuffles players randomly, creates first-round pairings (bracket), sets status to ongoing
-// Players with no opponent (odd count) get a bye: player2 is null
 export async function startTournament(tid) {
     const tournament = await Tournament.findById(tid);
     if (!tournament) return null;
 
-    // Fisher-Yates shuffle for random pairing
     const players = [...tournament.players];
     for (let i = players.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [players[i], players[j]] = [players[j], players[i]];
     }
 
-    // Odd number of players: last one gets a bye (auto-advances without playing)
     const byePlayer = players.length % 2 !== 0 ? players[players.length - 1] : null;
 
     return await Tournament.findByIdAndUpdate(

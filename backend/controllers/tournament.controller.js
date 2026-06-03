@@ -1,9 +1,6 @@
 import tournamentService from "../services/tournament.service.js";
 import { sendError, statusFromMessage } from "../utils/controllerHelpers.js";
 
-
-// Get all Tournaments from the database and return them as JSON
-// Supports filtering by status: ?status=upcoming, ?status=ongoing or ?status=finished
 export async function getAllTournaments(req, res) {
     try {
         const skip = parseInt(req.query.skip) || 0;
@@ -19,7 +16,6 @@ export async function getAllTournaments(req, res) {
     }
 }
 
-// Get 5 upcoming tournaments for homepage previews
 export async function getUpcomingTournaments(req, res) {
     try {
         const limit = parseInt(req.query.limit) || 5;
@@ -30,7 +26,6 @@ export async function getUpcomingTournaments(req, res) {
     }
 }
 
-// Get a Tournament from DB and return the Tournament as JSON
 export async function getTournament(req, res) {
     try {
         const tournament = await tournamentService.getTournament(req.params.tid);
@@ -41,7 +36,6 @@ export async function getTournament(req, res) {
     }
 }
 
-// Create a new Tournament and return it as JSON
 export async function createTournament(req, res) {
     try {
         const tournament = await tournamentService.createTournament(req.body);

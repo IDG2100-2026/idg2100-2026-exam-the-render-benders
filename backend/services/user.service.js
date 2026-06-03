@@ -23,56 +23,45 @@ function sanitizeProfile(user, viewer) {
     return safeUser;
 }
 
-// Returns all users from the database, supports pagination and search by username
 export async function getAllUsers({ skip = 0, limit = 20, search } = {}) {
     const filter = search ? { username: { $regex: escapeRegex(search), $options: "i" } } : {};
     return await User.find(filter).select("-pwd").skip(skip).limit(limit);
 }
 
-// Get a single user by their username, includes their 10 most recent games and stats
 export async function getUser(username, viewer = null) {
     const user = await User.findOne({ username }).populate("trophies");
     if (!user) return null;
 
-    // Fetch recent games and populate player usernames
     const recentGames = await Game.find({ players: user._id })
         .sort({ updatedAt: -1 })
         .limit(10)
         .populate("players", "username profileImage elo elo10s elo30s elo90s")
         .populate("result.winner", "username");
 
-    // Calculate stats for the last month (30 days)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Find all games the user participated in during the last month
-    // $gte = "Greater Than or Equal to" - finds games newer than 30 days ago
     const monthlyGames = await Game.find({
         players: user._id,
         status: "finished",
         updatedAt: { $gte: thirtyDaysAgo }
     });
 
-    // Count monthly wins and losses
     let monthlyWins = 0;
     let monthlyLosses = 0;
 
     for (const game of monthlyGames) {
         const winnerId = game.result?.winner?.toString();
 
-        // Compare the winner's ID with this specific user's ID to see if they won or lost
         if (winnerId === user._id.toString()) {
             monthlyWins++;
-        // If there's a winner but it's not our user, it counts as a loss
         } else if (winnerId) {
             monthlyLosses++;
         }
     }
 
-    // Calculate ELO change over the last 7 days using eloHistory
     const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const weekHistory = user.eloHistory.filter(entry => entry.date >= oneWeekAgo);
-    // Difference between current ELO and the oldest recorded ELO within the last week
     const eloChangeLastWeek = weekHistory.length > 0 ? user.elo - weekHistory[0].elo : 0;
 
     return {
@@ -127,8 +116,6 @@ export async function getUserGames(username, { skip = 0, limit = 10, status } = 
     };
 }
 
-// Creates a new user and saves it to the database, hashes the password before saving
-// Throws an error if the user is under 18 years old
 export async function createUser(data) {
     const age = getAge(data.dateOfBirth);
     if (age < MIN_AGE) throw new Error("You must be at least 18 years old to register");
@@ -137,8 +124,6 @@ export async function createUser(data) {
     return await User.create(hashedData);
 }
 
-// Updates a user by username, returns the updated document
-// Only fields in USER_UPDATABLE_FIELDS are allowed - blocks isAdmin, points, isBanned etc.
 export async function updateUser(username, data) {
     const safeData = {};
     for (const field of USER_UPDATABLE_FIELDS) {
@@ -148,16 +133,13 @@ export async function updateUser(username, data) {
     return await User.findOneAndUpdate({ username }, safeData, { returnDocument: "after" });
 }
 
-// Toggles ban status for a user by username, returns the updated document
 export async function banUser(username) {
     const user = await User.findOne({ username });
     if (!user) return null;
     return await User.findOneAndUpdate({ username }, { isBanned: !user.isBanned }, { returnDocument: "after" });
 }
 
-// Returns users sorted by the given field (elo, wins, gamesPlayed, winRate), highest first
 export async function getLeaderboard(sortBy = "elo") {
-    // winRate is computed on the fly using aggregation since it's not stored
     if (sortBy === "winRate") {
         return await User.aggregate([
             {
@@ -175,7 +157,6 @@ export async function getLeaderboard(sortBy = "elo") {
     return await User.find().sort({ [sortField]: -1 });
 }
 
-// Returns a user's trophies, populated with title, image, and tournament name
 export async function getUserTrophies(username) {
     const user = await User.findOne({ username }).populate({
         path: "trophies",
@@ -185,17 +166,15 @@ export async function getUserTrophies(username) {
     return user.trophies;
 }
 
-// Updates appearance preferences for a user by username
 export async function updatePreferences(username, preferences) {
     return await User.findOneAndUpdate({ username }, { preferences }, { returnDocument: "after" });
 }
 
-// Finds a user by username and checks the password, returns user without pwd field
 export async function loginUser({ username, pwd: inputPwd }) {
     const user = await User.findOne({ username });
     if (!user) return null;
     if (user.pwd !== hashPwd(inputPwd)) return null;
-    const { pwd, ...safeUser } = user.toObject(); // pwd is excluded from the spread intentionally
+    const { pwd, ...safeUser } = user.toObject(); 
     return safeUser;
 }
 

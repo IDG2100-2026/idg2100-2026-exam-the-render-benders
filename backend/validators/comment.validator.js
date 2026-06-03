@@ -24,7 +24,6 @@ export const validateCreateComment = [
     .isMongoId()
     .withMessage("Tournament must be a valid tournament ID"),
 
-    // At least one of game or tournament must be provided
     body().custom((value) => {
         if (!value.game && !value.tournament) {
             throw new Error("A comment must be linked to a game or a tournament");

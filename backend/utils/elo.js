@@ -1,10 +1,9 @@
-// K-factor determines how much ELO changes per game (32 is standard for beginners)
 const K = 32;
 
 function  getExpectedScore(ratingA, ratingB) {
     return 1 / (1 + Math.pow(10, (ratingB - ratingA) / 400));
 }
-// Calculates new ELO ratings for two players after a game
+
 export function calculateElo(ratingA, ratingB, winnerId, playerAId, playerBId) {
     const expectedA = getExpectedScore(ratingA, ratingB);
     const expectedB = getExpectedScore(ratingB, ratingA);
@@ -17,7 +16,7 @@ export function calculateElo(ratingA, ratingB, winnerId, playerAId, playerBId) {
 
     return { newRatingA, newRatingB };
 }
-// Determine which Elo rating to use as base
+
 export function getEloField(timeControl = 10) {
     if (timeControl === 10) return "elo10s";
     if (timeControl === 30) return "elo30s";
@@ -57,7 +56,6 @@ export function calculatePairwiseEloUpdates(players, scoreByPlayerId, eloField) 
                 actualB = 1;
             }
 
-            // Expected scores based on current ratings (probability of winning)
             const expectedA = getExpectedScore(ratingA, ratingB);
             const expectedB = getExpectedScore(ratingB, ratingA);
 

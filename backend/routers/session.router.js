@@ -11,8 +11,6 @@ function setAuthCookies(res, result) {
     res.cookie("refreshToken", result.refreshToken, REFRESH_COOKIE_OPTIONS);
 }
 
-// POST /sessions/guest - create a temporary guest account so anonymous users can join games
-// Guest accounts have no password, email or date of birth - they only exist to hold a player slot
 sessionRouter.post("/sessions/guest", async (req, res) => {
     try {
         const username = `guest_${Date.now().toString(36)}`;

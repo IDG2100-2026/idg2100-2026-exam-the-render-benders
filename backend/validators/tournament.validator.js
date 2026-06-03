@@ -41,7 +41,6 @@ export const validateCreateTournament = [
         .isInt({ min: 1 })
         .withMessage("durationMinutes must be a positive number"),
 
-    // Optional - game variant for the tournament matches
     body("variant.rounds")
         .optional()
         .isIn([3, 5, 7])
